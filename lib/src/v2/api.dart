@@ -13,6 +13,7 @@ import 'package:accumulate_api/src/utils/marshaller.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_data_account.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_tx.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_url_pagination.dart';
+import 'package:accumulate_api/src/v2/responses/data.dart';
 import 'package:accumulate_api/src/v2/responses/resp_token_get.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_metrics.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_url.dart';
@@ -36,6 +37,8 @@ class ACMEApiV2 {
 
   ACMEApiV2(this.apiRPCUrl, this.apiPrefix);
 
+  ///
+  ///
   Future<String?> callGetVersion() async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
     // ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase(), false);
@@ -51,6 +54,8 @@ class ACMEApiV2 {
     return ver;
   }
 
+  ///
+  ///
   Future<void> callGetMetrics(String type, String timeframe) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
     ApiRequestMetrics apiRequestMetrics = new ApiRequestMetrics(type, timeframe);
@@ -59,7 +64,8 @@ class ACMEApiV2 {
     res.result;
   }
 
-  // "faucet":  m.Faucet,
+  ///
+  /// "faucet":  m.Faucet,
   Future<String?> callFaucet(Address currAddr) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address!.toLowerCase());
@@ -78,6 +84,7 @@ class ACMEApiV2 {
     return txid;
   }
 
+  ///
   // RPC: "query" - query data
   Future<Data> callQuery(String? path) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
@@ -153,7 +160,8 @@ class ACMEApiV2 {
     return urlData;
   }
 
-  // "query-directory":  m.QueryDirectory,
+  ///
+  /// "query-directory":  m.QueryDirectory,
   Future<DataDirectory> callQueryDirectory(String path) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
@@ -178,9 +186,34 @@ class ACMEApiV2 {
     return directoryData;
   }
 
-  // "query-chain":      m.QueryChain,
+  ///
+  /// "query-chain":      m.QueryChain,
+  Future<DataChain> callQueryChain(String path) async {
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
-  // "query-tx":         m.QueryTx,
+    ApiRequestUrl apiRequestUrl = new ApiRequestUrl(path);
+    JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
+    var res = await acmeApi.call("query-directory", [apiRequestUrl]);
+    res.result;
+
+    DataChain directoryData = new DataChain();
+    directoryData.keybooksCount = 1;
+    if (res != null) {
+      String? accountType = res.result["type"];
+      int total = res.result["total"];
+      //List<String> entries = res.result["data"]["entries"].cast<String>();
+      //directoryData.entities = entries;
+      // entries.length > 2
+      if (total > 2) {
+        directoryData.tokenAccountsCount = total - 2;
+      }
+    }
+
+    return directoryData;
+  }
+
+  ///
+  /// "query-tx":         m.QueryTx,
   Future<Transaction?> callGetTokenTransaction(String? txhash) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
     ApiRequestTx apiRequestHash = ApiRequestTx(txhash);
@@ -246,12 +279,13 @@ class ACMEApiV2 {
     return tx;
   }
 
-  // RPC: "query-tx-history" (in v1 - "token-account-history")
+  ///
+  /// RPC: "query-tx-history" (in v1 - "token-account-history")
   Future<List<Transaction>> callGetTokenTransactionHistory(Address currAddr) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     ApiRequestUrWithPagination apiRequestUrlWithPagination =
-    new ApiRequestUrWithPagination(currAddr.address!.toLowerCase(), 1, 100);
+        new ApiRequestUrWithPagination(currAddr.address!.toLowerCase(), 0, 100);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     final res = await acmeApi.call("query-tx-history", [apiRequestUrlWithPagination]);
     res.result;
@@ -259,33 +293,73 @@ class ACMEApiV2 {
     // Collect transaction iteratively
     List<Transaction> txs = [];
     if (res != null) {
-      var data = res.result["data"];
-      String? type = res.result["type"];
+      var records = res.result["items"];
 
-      for (var i = 0; i < data.length; i++) {
-        var tx = data[i];
+      if(records==null) {
+        return [];
+      }
 
-        var internalData = tx["data"];
-        String? txid = internalData["txid"];
+      for (var i = 0; i < records.length; i++) {
+        var tx = records[i];
+        String? type = tx["type"];
 
-        // if nothing that was a faucet
-        Transaction txl = new Transaction("", "", txid, "", "", 0, "");
-        txs.add(txl);
+        switch (type) {
+          case "syntheticDepositTokens": // that's faucet
+            String? txid = tx["txid"];
+            String? amount = tx["data"]["amount"]; // AMOUNT INCOSISTENT, faucet returns String while other types int
+            String? token = tx["data"]["token"];
+
+            // if nothing that was a faucet
+            Transaction txl = new Transaction("Incoming", "", txid, "", "", int.parse(amount!), "acc://$token");
+            txs.add(txl);
+            break;
+          case "addCredits":
+            String? txid = tx["txid"];
+            int? amountCredits = tx["data"]["amount"];    // that's amount of credits
+            int amount = (amountCredits! * 0.01).toInt() * 100000000; // in acmes
+
+            Transaction txl = new Transaction("Incoming", "credits", txid, "", "", amount, "acc://ACME");
+            txs.add(txl);
+            break;
+          case "sendTokens":
+            String? txid = tx["txid"];
+            String? form = tx["data"]["from"];
+            List to =  tx["data"]["to"];
+            String? amount = to[0]["amount"];
+            String? urlRecepient   = to[0]["url"];
+
+            Transaction txl = new Transaction("Outgoing", "transaction", txid, "", "", int.parse(amount!), "acc://");
+            txs.add(txl);
+            break;
+          default:
+            String? txid = tx["txid"];
+            int? amount = tx["data"]["amount"];
+            String? token = tx["data"]["token"];
+
+            Transaction txl = new Transaction("Outgoing", type!, txid, "", "", amount, "acc://$token");
+            txs.add(txl);
+            break;
+        }
       }
     }
 
     return txs;
   }
 
-// "query-data":       m.QueryData,
+  ///
+  /// "query-data":       m.QueryData,
 
-// "query-data-set":   m.QueryDataSet,
+  ///
+  /// "query-data-set":   m.QueryDataSet,
 
-// "query-key-index":  m.QueryKeyPageIndex,
+  ///
+  /// "query-key-index":  m.QueryKeyPageIndex,
 
-// "create-data-account":  m.ExecuteWith(func() PL { return new(protocol.CreateDataAccount) }),
-  Future<String?> callCreateDataAccount(Address currAddr, IdentityADI parentAdi, String accountName, int timestamp,
-      String? keybookName, bool? isScratch, [int? keyPageHeight]) async {
+  ///
+  // "create-data-account":  m.ExecuteWith(func() PL { return new(protocol.CreateDataAccount) }),
+  Future<String?> callCreateDataAccount(
+      Address currAddr, IdentityADI parentAdi, String accountName, int timestamp, String? keybookName, bool? isScratch,
+      [int? keyPageHeight]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     int keypageHeightToUse = keyPageHeight ?? 1;
@@ -303,8 +377,7 @@ class ACMEApiV2 {
 
     // prepare payload
     String dtknPath = parentAdi.path! + "/" + accountName;
-    ApiRequestDataAccount data =
-        ApiRequestDataAccount(dtknPath, "", "", isScratch);
+    ApiRequestDataAccount data = ApiRequestDataAccount(dtknPath, "", "", isScratch);
 
     print(dtknPath);
 
@@ -370,11 +443,14 @@ class ACMEApiV2 {
     return txid;
   }
 
-  Future<String?> callWriteData() async{
+  ///
+  ///
+  Future<String?> callWriteData() async {
     return "";
   }
 
-// "create-adi":           m.ExecuteWith(func() PL { return new(protocol.IdentityCreate) }),
+  ///
+  /// "create-adi":           m.ExecuteWith(func() PL { return new(protocol.IdentityCreate) }),
   Future<String?> callCreateAdi(Address currAddr, IdentityADI adiToCreate, int timestamp,
       [String? keybookName, String? keypageName]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
@@ -457,7 +533,8 @@ class ACMEApiV2 {
     return txid;
   }
 
-// RPC: "token-account" - Create token account
+  ///
+  /// RPC: "token-account" - Create token account
   Future<String?> callCreateTokenAccount(
       Address currAddr, IdentityADI sponsorADI, String tokenAccountName, String keybookPath, int timestamp,
       [String? keyPuk, String? keyPik, int? keyPageHeight]) async {
@@ -490,12 +567,7 @@ class ACMEApiV2 {
         ApiRequestTokenAccount(sponsorADI.path! + "/" + tokenAccountName, "acc://acme", keybookPath, false);
 
     ApiRequestRawTx_TokenAccount tx = ApiRequestRawTx_TokenAccount(
-        payload: data,
-        signer: signer,
-        origin: sponsorPath,
-        signature: "",
-        sponsor: sponsorPath,
-        keyPage: keyPage);
+        payload: data, signer: signer, origin: sponsorPath, signature: "", sponsor: sponsorPath, keyPage: keyPage);
 
     TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
@@ -552,7 +624,8 @@ class ACMEApiV2 {
     return txid;
   }
 
-// "create-key-book":      m.ExecuteWith(func() PL { return new(protocol.CreateKeyBook) }),
+  ///
+  /// "create-key-book":      m.ExecuteWith(func() PL { return new(protocol.CreateKeyBook) }),
   Future<Tuple2<String?, String>> callKeyBookCreate(
       IdentityADI sponsorADI, KeyBook keybook, List<String> pages, int timestamp,
       [String? keyPuk, String? keyPik, int? keyPageHeight, String? keybookPath]) async {
@@ -642,7 +715,8 @@ class ACMEApiV2 {
     return Tuple2(txid, hash);
   }
 
-// "create-key-page":      m.ExecuteWith(func() PL { return new(protocol.CreateKeyPage) }),
+  ///
+  /// "create-key-page":      m.ExecuteWith(func() PL { return new(protocol.CreateKeyPage) }),
   Future<Tuple2<String?, String>> callKeyPageCreate(
       IdentityADI sponsorADI, KeyPage keypage, List<String> keys, int timestamp,
       [String? keyPuk, String? keyPik, int? keyPageHeight, String? keybookPath]) async {
@@ -735,7 +809,8 @@ class ACMEApiV2 {
     return Tuple2(txid, hash);
   }
 
-// "update-key-page":      m.ExecuteWith(func() PL { return new(protocol.UpdateKeyPage) })
+  ///
+  /// "update-key-page":      m.ExecuteWith(func() PL { return new(protocol.UpdateKeyPage) })
   Future<Tuple2<String?, String>> callKeyPageUpdate(KeyPage keypage, String operationName, String keyPuk, String keyPik,
       String newKeyPuk, int timestamp, int keyPageHeight) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
@@ -825,7 +900,8 @@ class ACMEApiV2 {
     return Tuple2(txid, hash);
   }
 
-// "send-tokens":          m.ExecuteWith(func() PL { return new(api.SendTokens) }, "From", "To"),
+  ///
+  /// "send-tokens":          m.ExecuteWith(func() PL { return new(api.SendTokens) }, "From", "To"),
   Future<String?> callCreateTokenTransaction(Address addrFrom, Address addrTo, String amount, int timestamp,
       [acme.Key? providedKey, int? providedKeyPageChainHeight, int? keyPageIndexInsideKeyBook]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
@@ -834,6 +910,7 @@ class ACMEApiV2 {
     ed.PrivateKey privateKey;
     var pukToUse;
     int? keypageHeightToUse = 1;
+    int? keyPageIndexInsideKeyBook = 0;
 
     if (providedKey == null) {
       // use keys from account
@@ -924,7 +1001,8 @@ class ACMEApiV2 {
     return txid;
   }
 
-// "add-credits":          m.ExecuteWith(func() PL { return new(protocol.AddCredits) }),
+  ///
+  /// "add-credits":          m.ExecuteWith(func() PL { return new(protocol.AddCredits) }),
   Future<String?> callAddCredits(Address currAddr, int amount, int timestamp,
       [KeyPage? currKeyPage, acme.Key? currKey]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;

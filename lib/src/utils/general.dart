@@ -1,8 +1,6 @@
-
 import 'dart:math';
 import 'package:decimal/decimal.dart';
 import 'dart:typed_data' show ByteData, Uint8List;
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // CONVENIENCE FUNCTIONS
