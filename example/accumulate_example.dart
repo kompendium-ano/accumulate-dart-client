@@ -6,6 +6,7 @@ import 'package:accumulate_api/accumulate_api.dart';
 import 'package:accumulate_api/src/model/address.dart';
 import 'package:accumulate_api/src/model/adi.dart';
 import 'package:accumulate_api/src/model/keys/keypage.dart';
+import 'package:accumulate_api/src/model/tx.dart';
 import 'package:test/test.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:bip39/bip39.dart' as bip39;
@@ -20,6 +21,8 @@ void main() {
 
     setUp(() async {});
 
+    ///
+    ///
     Future<String?> makeFaucetTest() async {
       // Generate some random data for private keys
       String mnemonic = bip39.generateMnemonic();
@@ -39,11 +42,103 @@ void main() {
       print(liteAccount.address);
 
       // 3. Initiate API class instance and register address on the network with faucet
-      final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
-      final resp = await acmeAPI.callFaucet(liteAccount);
-      return resp;
+      final acmeAPI = ACMEApiV2("http://178.20.158.25:56660/", "v2");
+
+      // 4. Execute Faucet Calls
+      final respFaucet = await acmeAPI.callFaucet(liteAccount);
+      final sleep = await Future.delayed(Duration(seconds: 4));
+      final respFaucet2 = await acmeAPI.callFaucet(liteAccount);
+      final sleep2 = await Future.delayed(Duration(seconds: 4));
+
+      List<Transaction> respHistory = await acmeAPI.callGetTokenTransactionHistory(liteAccount);
+      for (var i = 0; i < respHistory.length; i++) {
+        print("${respHistory[i].txid} |  ${respHistory[i].amount}");
+      }
+      //respHistory.map((e) => print(e));
+
+      return respFaucet;
     }
 
+    ///
+    ///
+    Future<String?> makeTransactionsTest() async {
+      // Generate some random data for private keys
+      String mnemonic = bip39.generateMnemonic();
+      Uint8List seed = bip39.mnemonicToSeed(mnemonic);
+
+      // Additional setup goes here.
+      // 1. initiate public/private keypage
+      var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32)); // Uint8List.fromList(List.generate(32, (index) => 0)));
+      var publicKey = ed.public(privateKey);
+
+      // 2. Create New unique ACME url based on Protocol definition
+      Address liteAccount = Address("", "ACME Account", "");
+      AccumulateURL currentURL = liteAccount.generateAddressViaProtocol(publicKey.bytes, "ACME");
+      liteAccount.address = currentURL.getPath();
+      liteAccount.URL = currentURL;
+
+      //   2.1 Store associated private key data along with Address structure
+      //       internal methods will use it to sign payloads
+      liteAccount.puk = HEX.encode(publicKey.bytes);
+      liteAccount.pik = privateKey.bytes;
+      liteAccount.pikHex = HEX.encode(privateKey.bytes);
+
+      print("From: ${liteAccount.address}");
+
+      // 3. Create Recipient address
+      String mnemonic2 = bip39.generateMnemonic();
+      Uint8List seed2 = bip39.mnemonicToSeed(mnemonic2);
+
+      var privateKey2 =
+          ed.newKeyFromSeed(seed2.sublist(0, 32)); // Uint8List.fromList(List.generate(32, (index) => 0)));
+      var publicKey2 = ed.public(privateKey2);
+
+      Address liteAccountRecipient = Address("", "ACME Account", "");
+      AccumulateURL currentURL2 = liteAccountRecipient.generateAddressViaProtocol(publicKey2.bytes, "ACME");
+      liteAccountRecipient.address = currentURL2.getPath();
+      liteAccountRecipient.URL = currentURL2;
+
+      print("To: ${liteAccountRecipient.address}");
+
+      // 4. Initiate API class instance and register address on the network with faucet
+      final acmeAPI = ACMEApiV2("http://178.20.158.25:56660/", "v2");
+
+      // 5. Execute Faucet Calls
+      final respFaucet = await acmeAPI.callFaucet(liteAccount);
+      final sleep = await Future.delayed(Duration(seconds: 4));
+      final respFaucet2 = await acmeAPI.callFaucet(liteAccount);
+      final sleep2 = await Future.delayed(Duration(seconds: 4));
+
+      // 6. We need some credits first
+      int timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
+      final respCredits = await acmeAPI.callAddCredits(liteAccount, 1000, timestamp);
+      final sleepC = await Future.delayed(Duration(seconds: 4));
+
+      // 6. Make actual transaction
+      int timestampTx = DateTime.now().toUtc().millisecondsSinceEpoch;
+      final respTx = await acmeAPI.callCreateTokenTransaction(liteAccount, liteAccountRecipient, "8", timestampTx);
+      final sleepT = await Future.delayed(Duration(seconds: 4));
+
+      print(" ${liteAccount.address} ----------------------- ");
+
+      List<Transaction> respHistory = await acmeAPI.callGetTokenTransactionHistory(liteAccount);
+      for (var i = 0; i < respHistory.length; i++) {
+        print("${respHistory[i].txid} | ${respHistory[i].type} | ${respHistory[i].subtype} | ${respHistory[i].amount}");
+      }
+
+      print(" ${liteAccountRecipient.address} ----------------------- ");
+
+      List<Transaction> respHistoryRecipient = await acmeAPI.callGetTokenTransactionHistory(liteAccountRecipient);
+      for (var i = 0; i < respHistoryRecipient.length; i++) {
+        print(
+            "${respHistoryRecipient[i].txid} | ${respHistoryRecipient[i].type} | ${respHistoryRecipient[i].subtype} | ${respHistoryRecipient[i].amount}");
+      }
+
+      return respTx;
+    }
+
+    ///
+    ///
     Future<String?> makeCreditsTest() async {
       // 1. Generate some random data for private keys
       String mnemonic = bip39.generateMnemonic();
@@ -92,6 +187,8 @@ void main() {
       return respAccount.url;
     }
 
+    ///
+    ///
     Future<String?> makeAdiTest() async {
       // 1. Generate some random data for private keys
       String mnemonic = bip39.generateMnemonic();
@@ -206,6 +303,8 @@ void main() {
       return txhash;
     }
 
+    ///
+    ///
     Future<String?> makeTokenAccountTest() async {
       // 1. Generate some random data for private keys
       String mnemonic = bip39.generateMnemonic();
@@ -320,6 +419,8 @@ void main() {
       return txhash;
     }
 
+    ///
+    ///
     Future<String?> makeDataAccountTest() async {
       // 1. Generate some random data for private keys
       String mnemonic = bip39.generateMnemonic();
@@ -499,8 +600,8 @@ void main() {
       int timestampForDataAccount = DateTime.now().toUtc().millisecondsSinceEpoch;
       String? dtknName = "data-tkna-" + timestampForDataAccount.toString();
       try {
-        final resp = await acmeAPI.callCreateDataAccount(
-            liteAccount, newADI, dtknName, timestampForDataAccount, newADI.path! + "/book0", false, keyPageHeight); // is scratch or not
+        final resp = await acmeAPI.callCreateDataAccount(liteAccount, newADI, dtknName, timestampForDataAccount,
+            newADI.path! + "/book0", false, keyPageHeight); // is scratch or not
         txhash = resp;
       } catch (e) {
         e.toString();
@@ -518,18 +619,32 @@ void main() {
       return txhash;
     }
 
+    /// Test Token related functionality
+    ///   - Create New Custom Token
+    ///   - Issue Tokens
+    ///   - Burn Tokens
+    Future<String> makeCustomTokensTest() async {
+      return "";
+    }
+
     test('Tests', () async {
-      // final String resp = await makeFaucetTest();
-      // expect(resp.isNotEmpty, isTrue);
-      //
+      final String? respFaucet = await makeFaucetTest();
+      expect(respFaucet?.isNotEmpty, isTrue);
+
+      final String? respTransaction = await makeTransactionsTest();
+      expect(respTransaction?.isNotEmpty, isTrue);
+
       // final String respC = await makeCreditsTest();
       // expect(respC.isNotEmpty, isTrue);
 
       // final String? respA = await (makeAdiTest());
       // expect(respA?.isNotEmpty, isTrue);
 
-      final String? respA = await (makeDataAccountTest());
-      expect(respA?.isNotEmpty, isTrue);
+      //final String? respA = await (makeDataAccountTest());
+      //expect(respA?.isNotEmpty, isTrue);
+
+      //final String? respA = await (makeCustomTokensTest());
+      //expect(respA?.isNotEmpty, isTrue);
     });
 
     test('Faucet Test - Multiple Calls Over Short Period', () async {
