@@ -1,14 +1,16 @@
 name: accumulate
-description: A starting point for Dart libraries or applications.
-version: 1.0.0
-# homepage: https://www.example.com
+description: JSON RPC Dart client for Accumulate blockchain.
+version: 0.1.0
 
 environment:
-  sdk: '>=2.15.0-147.0.dev <3.0.0'
+  sdk: '>=2.7.0 <3.0.0'
 
 
-# dependencies:
-#   path: ^1.8.0
+dependencies:
+  crypto: ^3.0.1
+  bip39: ^1.0.3
+  ed25519_edwards: ^0.3.1
+  hex: ^0.2.0
 
 dev_dependencies:
   lints: ^1.0.0
