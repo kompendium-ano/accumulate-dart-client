@@ -62,8 +62,7 @@ class JsonRPC extends RpcService {
         'params': params,
         'id': _currentRequestId++,
       };
-    }
-    ;
+    };
 
     final response = await client.post(
       Uri.parse(url),
