@@ -1,12 +1,15 @@
 class ApiRequestADI {
   final String url;
-  final String publicKeyHash;
+  final String publicKey;
+  String keyBookName; // optional
+  String keyPageName; // optional
 
-  ApiRequestADI(this.url, this.publicKeyHash);
+  ApiRequestADI(this.url, this.publicKey, this.keyBookName, this.keyPageName);
 
   ApiRequestADI.fromJson(Map<String, dynamic> json)
       : url = json['url'],
-        publicKeyHash = json['publicKeyHash'];
+        publicKey = json['publicKey'];
 
-  Map<String, dynamic> toJson() => {'url': url, 'publicKeyHash': publicKeyHash};
+  Map<String, dynamic> toJson() =>
+      {'url': url, 'publicKey': publicKey, 'keyBookName': keyBookName, 'keyPageName': keyPageName};
 }
