@@ -7,9 +7,9 @@ JSON RPC client for Accumulate blockchain
 ## Versions
 
 ## v.1
--[+] binary marshalling
--[+] acme wallet generation
+- [x] binary marshalling
+- [x] acme wallet generation
 
 ## v.2
--[+] advanced key management
--[+] credits mechanics
+- [x] advanced key management
+- [x] credits mechanics
