@@ -1,6 +1,6 @@
 # Accumulate Dart Client
 
-[![CircleCI](https://circleci.com/gh/kompendium-ano/accumulate-dart-client/tree/master.svg?style=svg)](https://circleci.com/gh/kompendium-ano/accumulate-dart-client/tree/master)
+[![CircleCI](https://circleci.com/gh/kompendium-ano/accumulate-dart-client/tree/master.svg?style=svg&circle-token=1ae82503101537a31f2865115486b5d64419274b)](https://circleci.com/gh/kompendium-ano/accumulate-dart-client/tree/master)
 
 JSON RPC client for Accumulate blockchain
 
