@@ -1,16 +1,6 @@
-
-// CheckOnly bool        `json:"checkOnly,omitempty" form:"checkOnly" query:"checkOnly"`
-// Origin    string      `json:"origin,omitempty" form:"origin" query:"origin" validate:"required,acc-url"`
-// Signer    Signer      `json:"signer,omitempty" form:"signer" query:"signer" validate:"required"`
-// Signature []byte      `json:"signature,omitempty" form:"signature" query:"signature" validate:"required"`
-// KeyPage   KeyPage     `json:"keyPage,omitempty" form:"keyPage" query:"keyPage" validate:"required"`
-// Payload   interface{} `json:"payload,omitempty" form:"payload" query:"payload" validate:"required"`
-// }
-
 import 'dart:convert';
-
-import 'package:accumulate/src/network/client/accumulate/requests/adi/api_request_adi.dart';
-import 'package:accumulate/src/network/client/accumulate/requests/api_request_tx_to.dart';
+import 'package:accumulate/src/v1/requests/api_request_adi.dart';
+import 'package:accumulate/src/v1/requests/api_request_tx_to.dart';
 
 class ApiRequestRaw_ADI {
   ApiRequestRaw_ADI({
