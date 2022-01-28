@@ -9,30 +9,29 @@ import 'package:accumulate/src/model/native/keys/key.dart' as acme;
 import 'package:accumulate/src/model/native/keys/keybook.dart';
 import 'package:accumulate/src/model/native/keys/keypage.dart';
 import 'package:accumulate/src/model/native/tx.dart';
-import 'package:accumulate/src/network/client/accumulate/data_resp.dart';
-import 'package:accumulate/src/network/client/accumulate/requests/adi/api_request_adi.dart';
-import 'package:accumulate/src/network/client/accumulate/requests/api_request_credit.dart';
-import 'package:accumulate/src/network/client/accumulate/requests/api_request_keybook.dart';
-import 'package:accumulate/src/network/client/accumulate/requests/api_request_keypage.dart';
-import 'package:accumulate/src/network/client/accumulate/requests/api_request_mask.dart';
-import 'package:accumulate/src/network/client/accumulate/requests/api_request_metrics.dart';
-import 'package:accumulate/src/network/client/accumulate/requests/api_request_token_account.dart';
-import 'package:accumulate/src/network/client/accumulate/requests/api_request_tx_gen.dart';
-import 'package:accumulate/src/network/client/accumulate/requests/api_request_tx_to.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx_to.dart' as txToV2;
-import 'package:accumulate/src/network/client/accumulate/responses/resp_token_get.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_url.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_url_pagination.dart';
-import 'package:accumulate/src/network/client/json_rpc.dart';
-import 'package:accumulate/src/utils/format.dart';
+import 'package:accumulate/src/v1/requests/adi/api_request_adi.dart';
+import 'package:accumulate/src/v1/requests/api_request_credit.dart';
+import 'package:accumulate/src/v1/requests/api_request_keybook.dart';
+import 'package:accumulate/src/v1/requests/api_request_keypage.dart';
+import 'package:accumulate/src/v1/requests/api_request_keypage_update.dart';
+import 'package:accumulate/src/v1/requests/api_request_mask.dart';
+import 'package:accumulate/src/v1/requests/api_request_metrics.dart';
+import 'package:accumulate/src/v1/requests/api_request_token_account.dart';
+import 'package:accumulate/src/v1/requests/api_request_tx_gen.dart';
+import 'package:accumulate/src/v1/requests/api_request_url_pagination.dart';
+import 'package:accumulate/src/v1/responses/resp_token_get.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
-import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart';
 import 'package:http/http.dart';
 import 'package:tuple/tuple.dart';
 
+import '../json_rpc.dart';
+import '../data_resp.dart';
+import 'requests/api_request_url.dart';
+
 class ACMIApiV2 {
-  String apiRPCUrl =
+
+  String currentApiRPCUrl =
       "https://testnet.accumulatenetwork.io"; // "http://0.yellowstone.devnet.accumulatenetwork.io:33001";
   String apiPrefix = "/v2";
 
