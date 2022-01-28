@@ -23,12 +23,11 @@ import 'package:accumulate/src/network/client/accumulate/responses/resp_token_ge
 import 'package:accumulate/src/utils/format.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:flutter/foundation.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hex/hex.dart';
 import 'package:http/http.dart';
 import 'package:tuple/tuple.dart';
 
-import '../json_rpc.dart';
+import 'json_rpc.dart';
 import 'data_resp.dart';
 import 'requests/api_request_tx.dart';
 import 'requests/api_request_tx_to.dart';
