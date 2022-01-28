@@ -1,0 +1,18 @@
+version: 2.1
+
+jobs:
+  build:
+    working_directory: ~/
+    docker:
+      - image: cirrusci/flutter:2.8.1
+    steps:
+      - checkout:
+          path: ~/
+
+      - run:
+          name: Run Flutter doctor
+          command: flutter doctor
+
+      - run:
+          name: Build the library
+          command: flutter build
