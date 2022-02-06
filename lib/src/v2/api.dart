@@ -285,15 +285,7 @@ class ACMIApiV2 {
         origin: currAddr.address,
         keyPage: keyPage);
 
-
     List<int> dataBinary = []; // TODO: update
-
-    //TokenTx tokenTx = new TokenTx();
-    //List<int> dataBinary = tokenTx.marshal(); // In Go: tokentx.MarshalBinary()
-
-    // Generalized version of GenTransaction in Go
-    //ApiRequestTxGen txGen = ApiRequestTxGen(null, signatureInfo);
-    //txGen.transaction = dataBinary;
 
     List<int> msg = [];
     msg.addAll(uint64ToBytes(timestamp)); //VLQ converted timestamp
@@ -502,18 +494,19 @@ class ACMIApiV2 {
         keyPage: keyPage);
 
     V2.TokenTx tokenTx = V2.TokenTx();
+    TransactionHeader header = TransactionHeader(
+        origin: addrFrom.address,
+        nonce: timestamp,
+        keyPageHeight: keypageHeightToUse,
+        keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
     List<int> dataBinary = tokenTx.marshalBinarySendTokens(tx);
 
+    debugPrint("Header: ");
+    debugPrint("${header.marshal()}");
+
     // Generalized version of GenTransaction in Go
-    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen(
-        null,
-        dataBinary,
-        TransactionHeader(
-            origin: addrFrom.address,
-            nonce: timestamp,
-            keyPageHeight: keypageHeightToUse,
-            keyPageIndex: keyPageIndexInsideKeyBook ?? 0));
-   txGen.hash = txGen.generateTransactionHash();
+    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
+    txGen.hash = txGen.generateTransactionHash();
 
     List<int> msg = [];
     msg.addAll(uint64ToBytes(timestamp)); // VLQ converted timestamp
@@ -591,10 +584,11 @@ class ACMIApiV2 {
 
     V2.TokenTx tokenTx = V2.TokenTx();
     List<int> dataBinary = tokenTx.marshalBinaryAddCredits(tx);
+    V2.TransactionHeader header =
+        V2.TransactionHeader(origin: currAddr.address, nonce: timestamp, keyPageHeight: 1, keyPageIndex: 0);
 
     // Generalized version of GenTransaction in Go
-    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen(null,
-        dataBinary, V2.TransactionHeader(origin: currAddr.address, nonce: timestamp, keyPageHeight: 1, keyPageIndex: 0));
+    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
     txGen.hash = txGen.generateTransactionHash();
 
     // message is (timestamp/nonce) + hash

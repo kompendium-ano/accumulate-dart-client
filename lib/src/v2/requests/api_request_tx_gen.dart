@@ -94,7 +94,7 @@ class ApiRequestTxGen {
   List<int> body;                 // The transaction that follows
   List<int> hash;                 // Hash of the Transaction
 
-  ApiRequestTxGen(this.hash, this.body, this.header);
+  ApiRequestTxGen(this.hash, this.header, this.body);
 
   // TransactionHash
   // compute the transaction hash from the elements of the GenTransaction.

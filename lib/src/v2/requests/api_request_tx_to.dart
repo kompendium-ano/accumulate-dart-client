@@ -19,14 +19,14 @@ class ApiRequestTxToData {
   String toRawJson() => json.encode(toJson());
 
   factory ApiRequestTxToData.fromJson(Map<String, dynamic> json) => ApiRequestTxToData(
-    hash: json["hash"],
-    to: List<ApiRequestTxToDataTo>.from(json["to"].map((x) => ApiRequestTxToDataTo.fromJson(x))),
-  );
+        hash: json["hash"],
+        to: List<ApiRequestTxToDataTo>.from(json["to"].map((x) => ApiRequestTxToDataTo.fromJson(x))),
+      );
 
   Map<String, dynamic> toJson() => {
-    "hash": hash,
-    "to": List<dynamic>.from(to.map((x) => x.toJson())),
-  };
+        "hash": hash,
+        "to": List<dynamic>.from(to.map((x) => x.toJson())),
+      };
 }
 
 class ApiRequestTxToDataTo {
@@ -43,14 +43,14 @@ class ApiRequestTxToDataTo {
   String toRawJson() => json.encode(toJson());
 
   factory ApiRequestTxToDataTo.fromJson(Map<String, dynamic> json) => ApiRequestTxToDataTo(
-    url: json["url"],
-    amount: json["amount"],
-  );
+        url: json["url"],
+        amount: json["amount"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "url": url,
-    "amount": amount.toString(),
-  };
+        "url": url,
+        "amount": amount.toString(),
+      };
 }
 
 class ApiRequestRawTx {
@@ -76,13 +76,13 @@ class ApiRequestRawTx {
       keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
 
   Map<String, dynamic> toJson() => {
-    "origin": origin,
-    "sponsor": sponsor,
-    "signer": signer.toJson(),
-    "signature": signature,
-    "keyPage": keyPage.toJson(),
-    "payload": payload.toJson(),
-  };
+        "origin": origin,
+        "sponsor": sponsor,
+        "signer": signer.toJson(),
+        "signature": signature,
+        "keyPage": keyPage.toJson(),
+        "payload": payload.toJson(),
+      };
 }
 
 class ApiRequestRawTxKeyPage {
@@ -92,6 +92,7 @@ class ApiRequestRawTxKeyPage {
   });
 
   int height;
+
   //int index;
 
   factory ApiRequestRawTxKeyPage.fromRawJson(String str) => ApiRequestRawTxKeyPage.fromJson(json.decode(str));
@@ -99,14 +100,14 @@ class ApiRequestRawTxKeyPage {
   String toRawJson() => json.encode(toJson());
 
   factory ApiRequestRawTxKeyPage.fromJson(Map<String, dynamic> json) => ApiRequestRawTxKeyPage(
-    height: json["height"],
-    //index: json["index"],
-  );
+        height: json["height"],
+        //index: json["index"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "height": height,
-    //"index": index,
-  };
+        "height": height,
+        //"index": index,
+      };
 }
 
 class ApiRequestRawTx_Credits {
@@ -132,13 +133,13 @@ class ApiRequestRawTx_Credits {
       keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
 
   Map<String, dynamic> toJson() => {
-    "origin": origin,
-    "sponsor": sponsor,
-    "signer": signer.toJson(),
-    "signature": signature,
-    "keyPage": keyPage.toJson(),
-    "payload": payload.toJson(),
-  };
+        "origin": origin,
+        "sponsor": sponsor,
+        "signer": signer.toJson(),
+        "signature": signature,
+        "keyPage": keyPage.toJson(),
+        "payload": payload.toJson(),
+      };
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,9 +161,9 @@ class ApiRequestRaw_ADI {
       ApiRequestRaw_ADI(tx: ApiRequestRawTx_ADI.fromJson(json["tx"]), wait: json["wait"]);
 
   Map<String, dynamic> toJson() => {
-    "tx": tx.toJson(),
-    "wait": wait,
-  };
+        "tx": tx.toJson(),
+        "wait": wait,
+      };
 }
 
 class ApiRequestRawTx_ADI {
@@ -188,13 +189,13 @@ class ApiRequestRawTx_ADI {
       keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
 
   Map<String, dynamic> toJson() => {
-    "origin": origin,
-    "sponsor": sponsor,
-    "payload": payload.toJson(),
-    "signer": signer.toJson(),
-    "signature": signature,
-    "keyPage": keyPage.toJson(),
-  };
+        "origin": origin,
+        "sponsor": sponsor,
+        "payload": payload.toJson(),
+        "signer": signer.toJson(),
+        "signature": signature,
+        "keyPage": keyPage.toJson(),
+      };
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -205,7 +206,7 @@ class Signer {
     this.publicKey,
   });
 
-  int nonce; //timestamp??
+  int nonce;
   String publicKey;
 
   factory Signer.fromRawJson(String str) => Signer.fromJson(json.decode(str));
@@ -213,14 +214,14 @@ class Signer {
   String toRawJson() => json.encode(toJson());
 
   factory Signer.fromJson(Map<String, dynamic> json) => Signer(
-    nonce: json["nonce"],
-    publicKey: json["publicKey"],
-  );
+        nonce: json["nonce"],
+        publicKey: json["publicKey"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "nonce": nonce,
-    "publicKey": publicKey,
-  };
+        "publicKey": publicKey,
+        "nonce": nonce,
+      };
 }
 
 class TokenTx {
@@ -241,18 +242,21 @@ class TokenTx {
     msg.addAll(lhash);
     // meta data
     msg.addAll([0]);
+
     // number of "to" values
     msg.addAll(uint64ToBytes(tx.payload.to.length));
 
     // in loop too values
-    List<int> encodedTo = utf8.encode(tx.payload.to[0].url);
-    msg.addAll(uint64ToBytes(encodedTo.length));            // converted string length
-    msg.addAll(encodedTo);                                  // actual converted string
+    for (var i = 0; i < tx.payload.to.length; i++) {
+      List<int> encodedTo = utf8.encode(tx.payload.to[i].url);
+      msg.addAll(uint64ToBytes(encodedTo.length)); // converted string length
+      msg.addAll(encodedTo); // actual converted string
 
-    // converted/encoded amount length as it's a big number
-    List<int> encodedAmount = uint64ToBytes(tx.payload.to[0].amount);
-    msg.addAll(uint64ToBytes(encodedAmount.length));
-    msg.addAll(encodedAmount);
+      // converted/encoded amount length as it's a big number
+      List<int> encodedAmount = uint64ToBytes(tx.payload.to[i].amount);
+      msg.addAll(uint64ToBytes(encodedAmount.length));
+      msg.addAll(encodedAmount);
+    }
 
     return msg;
   }
@@ -265,13 +269,36 @@ class TokenTx {
     msg.addAll(lhash);
 
     List<int> encodedRecipient = utf8.encode(tx.payload.url);
-    msg.addAll(uint64ToBytes(encodedRecipient.length));            // converted string length
-    msg.addAll(encodedRecipient);                                  // actual converted string
+    msg.addAll(uint64ToBytes(encodedRecipient.length)); // converted string length
+    msg.addAll(encodedRecipient); // actual converted string
     msg.addAll(uint64ToBytes(tx.payload.amount));
 
     return msg;
   }
 
+  List<int> marshalBinaryCreateIdentity() {
+    return [];
+  }
+
+  List<int> marshalBinaryCreateTokenAccount() {
+    return [];
+  }
+
+  List<int> marshalBinaryCreateDataAccount() {
+    return [];
+  }
+
+  List<int> marshalBinaryCreateKeyPage() {
+    return [];
+  }
+
+  List<int> marshalBinaryCreateKeyBook() {
+    return [];
+  }
+
+  List<int> marshalBinaryUpdateKeyPage() {
+    return [];
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -294,8 +321,7 @@ class ApiRequestRaw {
       ApiRequestRaw(tx: ApiRequestRawTx.fromJson(json["tx"]), wait: json["wait"]);
 
   Map<String, dynamic> toJson() => {
-    "tx": tx.toJson(),
-    "wait": wait,
-  };
+        "tx": tx.toJson(),
+        "wait": wait,
+      };
 }
-
