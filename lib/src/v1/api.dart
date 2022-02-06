@@ -2,42 +2,39 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:accumulate/src/utils/general.dart';
-import 'package:accumulate/src/v1/model/native/address.dart';
-import 'package:accumulate/src/v1/model/native/adi.dart';
-import 'package:accumulate/src/v1/model/native/keys/keybook.dart';
-import 'package:accumulate/src/v1/model/native/keys/keypage.dart';
-import 'package:accumulate/src/v1/model/native/keys/key.dart' as acme;
-import 'package:accumulate/src/v1/model/native/tx.dart';
-import 'package:accumulate/src/v1/requests/adi/api_request_adi.dart';
-import 'package:accumulate/src/v1/requests/api_request_credit.dart';
-import 'package:accumulate/src/v1/requests/api_request_keybook.dart';
-import 'package:accumulate/src/v1/requests/api_request_keypage.dart';
-import 'package:accumulate/src/v1/requests/api_request_keypage_update.dart';
-import 'package:accumulate/src/v1/requests/api_request_mask.dart';
-import 'package:accumulate/src/v1/requests/api_request_metrics.dart';
-import 'package:accumulate/src/v1/requests/api_request_token_account.dart';
-import 'package:accumulate/src/v1/requests/api_request_tx_gen.dart';
-import 'package:accumulate/src/v1/requests/api_request_url_pagination.dart';
-import 'package:accumulate/src/v1/responses/resp_token_get.dart';
+import 'package:accumulate/src/constants/globals.dart';
+import 'package:accumulate/src/model/native/address.dart';
+import 'package:accumulate/src/model/native/adi.dart';
+import 'package:accumulate/src/model/native/keys/key.dart' as acme;
+import 'package:accumulate/src/model/native/keys/keybook.dart';
+import 'package:accumulate/src/model/native/keys/keypage.dart';
+import 'package:accumulate/src/model/native/tx.dart';
+import 'package:accumulate/src/network/client/accumulate/v1/requests/adi/api_request_adi.dart';
+import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_credit.dart';
+import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_keybook.dart';
+import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_keypage.dart';
+import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_keypage_update.dart';
+import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_mask.dart';
+import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_metrics.dart';
+import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_token_account.dart';
+import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_tx_gen.dart';
+import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_url_pagination.dart';
+import 'package:accumulate/src/network/client/accumulate/v1/responses/resp_token_get.dart';
+import 'package:accumulate/src/utils/format.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
+import 'package:flutter/foundation.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hex/hex.dart';
 import 'package:http/http.dart';
 import 'package:tuple/tuple.dart';
 
-import '../json_rpc.dart';
-import '../data_resp.dart';
+import '../../json_rpc.dart';
+import 'data_resp.dart';
 import 'requests/api_request_tx.dart';
 import 'requests/api_request_tx_to.dart';
 import 'requests/api_request_url.dart';
 
 class ACMIApi {
-
-  String currentApiRPCUrl = "";
-  String apiPrefix = "/v1";
-
-  ACMIApi(this.currentApiRPCUrl, [this.apiPrefix]);
-
   // RPC: "get" - Get Data
   Future<Data> callGetData(String path) async {
     String ACMEApiUrl = currentApiRPCUrl + "/v1";
@@ -868,9 +865,9 @@ class ACMIApi {
 
     String txid = "";
     String hash = "";
-    //debugPrint("========> " + res.toString());
+    debugPrint("========> " + res.toString());
     if (res != null) {
-      //debugPrint("========> " + res.result.toString());
+      debugPrint("========> " + res.result.toString());
 
       String type = res.result["type"];
 
@@ -948,7 +945,7 @@ class ACMIApi {
     DataResp prep = await callPrepareKeyPage(tx);
     List<int> dataBinary = prep.dataPayload;
 
-    //debugPrint("kp: =====> ");
+    debugPrint("kp: =====> ");
 
     //TokenTx tokenTx = new TokenTx();
     //List<int> dataBinary = tokenTx.marshal(); // In Go: tokentx.MarshalBinary()
@@ -973,7 +970,7 @@ class ACMIApi {
     if (listEquals(txhashGenRemote, txhashGenLocal)) isWorkflowProcessTheSame = true;
 
     if (isWorkflowProcessTheSame2) print('same tx hashes');
-    //debugPrint("kp: =====> 2");
+    debugPrint("kp: =====> 2");
     List<int> msg = [];
     msg.addAll(uint64ToBytes(timestamp)); //VLQ converted timestamp
     msg.addAll(txhashGen);
@@ -982,7 +979,7 @@ class ACMIApi {
     // sign message which is (timestamp/nonce)+txHash
     Uint8List signature = ed.sign(privateKey, msgToSign); // should be nonce + transaction hash generated
     Uint8List signatureRem = ed.sign(privateKey, Uint8List.fromList(prep.nHash));
-    //debugPrint("kp: =====> 3");
+    debugPrint("kp: =====> 3");
     // NB: sig is 64 bytes string created from hexing generated signature
     // var bytes = utf8.encode("60aa13125cbe0dd496a2f0248e6a46c04b799c160734b248e83eb4573ca4d560");
     // sig = HEX.encode(bytes);
@@ -992,7 +989,7 @@ class ACMIApi {
     sigRem = HEX.encode(signatureRem);
 
     tx.sig = sigRem; // update underlying structure
-    //debugPrint("kp: =====> 4");
+    debugPrint("kp: =====> 4");
     ApiRequestRaw_KeyPage apiRequestSendTo = ApiRequestRaw_KeyPage(tx: tx, wait: false);
 
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
@@ -1001,7 +998,7 @@ class ACMIApi {
 
     String txid = "";
     String hash = "";
-    //debugPrint("========> " + res.toString());
+    debugPrint("========> " + res.toString());
     if (res != null) {
       String type = res.result["type"];
 
@@ -1066,7 +1063,7 @@ class ACMIApi {
     DataResp prep = await callPrepareKeyPageUpdate(tx);
     List<int> dataBinary = prep.dataPayload;
 
-    //debugPrint("kp upd: =====> ");
+    debugPrint("kp upd: =====> ");
 
     //TokenTx tokenTx = new TokenTx();
     //List<int> dataBinary = tokenTx.marshal(); // In Go: tokentx.MarshalBinary()
@@ -1091,7 +1088,7 @@ class ACMIApi {
     if (listEquals(txhashGenRemote, txhashGenLocal)) isWorkflowProcessTheSame = true;
 
     if (isWorkflowProcessTheSame2) print('same tx hashes');
-    //debugPrint("kp: =====> 2");
+    debugPrint("kp: =====> 2");
     List<int> msg = [];
     msg.addAll(uint64ToBytes(timestamp)); //VLQ converted timestamp
     msg.addAll(txhashGen);
@@ -1100,7 +1097,7 @@ class ACMIApi {
     // sign message which is (timestamp/nonce)+txHash
     Uint8List signature = ed.sign(privateKey, msgToSign); // should be nonce + transaction hash generated
     Uint8List signatureRem = ed.sign(privateKey, Uint8List.fromList(prep.nHash));
-    //debugPrint("kp: =====> 3");
+    debugPrint("kp: =====> 3");
     // NB: sig is 64 bytes string created from hexing generated signature
     // var bytes = utf8.encode("60aa13125cbe0dd496a2f0248e6a46c04b799c160734b248e83eb4573ca4d560");
     // sig = HEX.encode(bytes);
@@ -1110,7 +1107,7 @@ class ACMIApi {
     sigRem = HEX.encode(signatureRem);
 
     tx.sig = sigRem; // update underlying structure
-    //debugPrint("kp: =====> 4");
+    debugPrint("kp: =====> 4");
     ApiRequestRaw_KeyPageUpdate apiRequestSendTo = ApiRequestRaw_KeyPageUpdate(tx: tx, wait: false);
 
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
@@ -1121,7 +1118,7 @@ class ACMIApi {
 
     String txid = "";
     String hash = "";
-    //debugPrint("========> " + res.toString());
+    debugPrint("========> " + res.toString());
     if (res != null) {
       String type = res.result["type"];
 

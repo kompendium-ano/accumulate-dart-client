@@ -1,16 +1,8 @@
-
-// CheckOnly bool        `json:"checkOnly,omitempty" form:"checkOnly" query:"checkOnly"`
-// Origin    string      `json:"origin,omitempty" form:"origin" query:"origin" validate:"required,acc-url"`
-// Signer    Signer      `json:"signer,omitempty" form:"signer" query:"signer" validate:"required"`
-// Signature []byte      `json:"signature,omitempty" form:"signature" query:"signature" validate:"required"`
-// KeyPage   KeyPage     `json:"keyPage,omitempty" form:"keyPage" query:"keyPage" validate:"required"`
-// Payload   interface{} `json:"payload,omitempty" form:"payload" query:"payload" validate:"required"`
-// }
-
 import 'dart:convert';
 
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_adi.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_credit.dart';
+import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx_gen.dart';
 import 'package:accumulate/src/utils/format.dart';
 
 class ApiRequestTxToData {
@@ -58,29 +50,6 @@ class ApiRequestTxToDataTo {
   Map<String, dynamic> toJson() => {
     "url": url,
     "amount": amount.toString(),
-  };
-}
-
-// deprecated
-class ApiRequestRaw {
-  ApiRequestRaw({
-    this.tx,
-    this.wait,
-  });
-
-  ApiRequestRawTx tx;
-  bool wait;
-
-  factory ApiRequestRaw.fromRawJson(String str) => ApiRequestRaw.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory ApiRequestRaw.fromJson(Map<String, dynamic> json) =>
-      ApiRequestRaw(tx: ApiRequestRawTx.fromJson(json["tx"]), wait: json["wait"]);
-
-  Map<String, dynamic> toJson() => {
-    "tx": tx.toJson(),
-    "wait": wait,
   };
 }
 
@@ -172,7 +141,7 @@ class ApiRequestRawTx_Credits {
   };
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class ApiRequestRaw_ADI {
   ApiRequestRaw_ADI({
@@ -228,6 +197,8 @@ class ApiRequestRawTx_ADI {
   };
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class Signer {
   Signer({
     this.nonce,
@@ -252,66 +223,6 @@ class Signer {
   };
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class TxType {
-  // TxTypeCreateIdentity creates an ADI, which produces a synthetic chain
-  // create transaction.
-  static const CreateIdentity = 0x01;
-
-  // TxTypeCreateTokenAccount creates an ADI token account, which produces a
-  // synthetic chain create transaction.
-  static const CreateTokenAccount = 0x02;
-
-  // TxTypeSendTokens transfers tokens between token accounts, which produces
-  // a synthetic deposit tokens transaction.
-  static const SendTokens = 0x03;
-
-  // TxTypeCreateDataAccount creates an ADI Data Account, which produces a
-  // synthetic chain create transaction.
-  static const CreateDataAccount = 0x04;
-
-  // TxTypeWriteData writes data to an ADI Data Account, which *does not*
-  // produce a synthetic transaction.
-  static const WriteData = 0x05;
-
-  // TxTypeWriteDataTo writes data to a Lite Data Account, which produces a
-  // synthetic write data transaction.
-  static const WriteDataTo = 0x06;
-
-  // TxTypeAcmeFaucet produces a synthetic deposit tokens transaction that
-  // deposits ACME tokens into a lite account.
-  static const AcmeFaucet = 0x07;
-
-  // TxTypeCreateToken creates a token issuer, which produces a synthetic
-  // chain create transaction.
-  static const CreateToken = 0x08;
-
-  // TxTypeIssueTokens issues tokens to a token account, which produces a
-  // synthetic token deposit transaction.
-  static const IssueTokens = 0x09;
-
-  // TxTypeBurnTokens burns tokens from a token account, which produces a
-  // synthetic burn tokens transaction.
-  static const BurnTokens = 0x0a;
-
-  // TxTypeCreateKeyPage creates a key page, which produces a synthetic chain
-  // create transaction.
-  static const CreateKeyPage = 0x0c;
-
-  // TxTypeCreateKeyBook creates a key book, which produces a synthetic chain
-  // create transaction.
-  static const CreateKeyBook = 0x0d;
-
-  // TxTypeAddCredits converts ACME tokens to credits, which produces a
-  // synthetic deposit credits transaction.
-  static const AddCredits = 0x0e;
-
-  // TxTypeUpdateKeyPage adds, removes, or updates keys in a key page, which
-  // *does not* produce a synthetic transaction.
-  static const UpdateKeyPage = 0x0f;
-}
-
 class TokenTx {
   String hash;
   String urlChain;
@@ -326,7 +237,7 @@ class TokenTx {
     List<int> lhash = List.generate(32, (index) => 0);
 
     List<int> msg = [];
-    msg.addAll(uint64ToBytes(TxType.SendTokens)); // VLQ converted type
+    msg.addAll(uint64ToBytes(TransactionType.SendTokens)); // VLQ converted type
     msg.addAll(lhash);
     // meta data
     msg.addAll([0]);
@@ -350,7 +261,7 @@ class TokenTx {
     List<int> lhash = List.generate(32, (index) => 0);
 
     List<int> msg = [];
-    msg.addAll(uint64ToBytes(TxType.AddCredits)); // VLQ converted type
+    msg.addAll(uint64ToBytes(TransactionType.AddCredits)); // VLQ converted type
     msg.addAll(lhash);
 
     List<int> encodedRecipient = utf8.encode(tx.payload.url);
@@ -362,3 +273,29 @@ class TokenTx {
   }
 
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Deprecated - subject to removal
+
+class ApiRequestRaw {
+  ApiRequestRaw({
+    this.tx,
+    this.wait,
+  });
+
+  ApiRequestRawTx tx;
+  bool wait;
+
+  factory ApiRequestRaw.fromRawJson(String str) => ApiRequestRaw.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory ApiRequestRaw.fromJson(Map<String, dynamic> json) =>
+      ApiRequestRaw(tx: ApiRequestRawTx.fromJson(json["tx"]), wait: json["wait"]);
+
+  Map<String, dynamic> toJson() => {
+    "tx": tx.toJson(),
+    "wait": wait,
+  };
+}
+

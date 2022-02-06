@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx_to.dart';
+
 import 'adi/api_request_adi.dart';
 import 'api_request_credit.dart';
 import 'api_request_keybook.dart';
@@ -471,6 +473,64 @@ class Signer {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class TxType {
+  // TxTypeCreateIdentity creates an ADI, which produces a synthetic chain
+  // create transaction.
+  static const CreateIdentity = 0x01;
+
+  // TxTypeCreateTokenAccount creates an ADI token account, which produces a
+  // synthetic chain create transaction.
+  static const CreateTokenAccount = 0x02;
+
+  // TxTypeSendTokens transfers tokens between token accounts, which produces
+  // a synthetic deposit tokens transaction.
+  static const SendTokens = 0x03;
+
+  // TxTypeCreateDataAccount creates an ADI Data Account, which produces a
+  // synthetic chain create transaction.
+  static const CreateDataAccount = 0x04;
+
+  // TxTypeWriteData writes data to an ADI Data Account, which *does not*
+  // produce a synthetic transaction.
+  static const WriteData = 0x05;
+
+  // TxTypeWriteDataTo writes data to a Lite Data Account, which produces a
+  // synthetic write data transaction.
+  static const WriteDataTo = 0x06;
+
+  // TxTypeAcmeFaucet produces a synthetic deposit tokens transaction that
+  // deposits ACME tokens into a lite account.
+  static const AcmeFaucet = 0x07;
+
+  // TxTypeCreateToken creates a token issuer, which produces a synthetic
+  // chain create transaction.
+  static const CreateToken = 0x08;
+
+  // TxTypeIssueTokens issues tokens to a token account, which produces a
+  // synthetic token deposit transaction.
+  static const IssueTokens = 0x09;
+
+  // TxTypeBurnTokens burns tokens from a token account, which produces a
+  // synthetic burn tokens transaction.
+  static const BurnTokens = 0x0a;
+
+  // TxTypeCreateKeyPage creates a key page, which produces a synthetic chain
+  // create transaction.
+  static const CreateKeyPage = 0x0c;
+
+  // TxTypeCreateKeyBook creates a key book, which produces a synthetic chain
+  // create transaction.
+  static const CreateKeyBook = 0x0d;
+
+  // TxTypeAddCredits converts ACME tokens to credits, which produces a
+  // synthetic deposit credits transaction.
+  static const AddCredits = 0x0e;
+
+  // TxTypeUpdateKeyPage adds, removes, or updates keys in a key page, which
+  // *does not* produce a synthetic transaction.
+  static const UpdateKeyPage = 0x0f;
+}
+
 // type TokenTx struct {
 //   Hash types.Bytes32    `json:"hash,omitempty" form:"hash" query:"hash" validate:"required"`
 //   From types.UrlChain   `json:"from" form:"from" query:"from" validate:"required"`
@@ -541,10 +601,16 @@ class TokenTx {
 // 	return buffer.Bytes(), nil
 // }
 
-  List<int> marshalBinary() {}
+  List<int> marshalBinary() {
+    return [];
+  }
+
+  List<int> marshalBinarySendTokens(ApiRequestRawTx tx) {
+
+    return [];
+  }
 
 // Generalized Marshal Binary
-
 // func (s *Bytes) MarshalBinary() ([]byte, error) {
 //   var buf [8]byte
 //   l := s.Size(&buf)
@@ -554,22 +620,5 @@ class TokenTx {
 //   copy(data[i:], *s)
 //   return data, nil
 // }
-
-// 0 TxTypeUnknown = TxType(iota)
-// 1 TxTypeIdentityCreate
-// 2 TxTypeTokenAccountCreate
-// 3 TxTypeTokenTx
-// 4 TxTypeDataChainCreate
-// 5 TxTypeDataEntry //per 256 btes
-// 6 TxTypeScratchChainCreate
-// 7 TxTypeScratchEntry //per 256 bytes
-// 8 TxTypeTokenCreate
-// 9 TxTypeKeyUpdate //update keys on the keychain the identity
-// 10 TxTypeMultisigTx
-// 11 TxTypeStateQuery //sends a query to a chain and returns its state information
-// 12 TxTypeCreateSigSpec
-// 13 TxTypeCreateSigSpecGroup
-// 14 TxTypeAddCredits
-// 15 TxTypeAssignSigSpecGroup
 
 }
