@@ -262,30 +262,97 @@ class TokenTx {
   }
 
   List<int> marshalBinaryAddCredits(ApiRequestRawTx_Credits tx) {
-    List<int> lhash = List.generate(32, (index) => 0);
-
     List<int> msg = [];
     msg.addAll(uint64ToBytes(TransactionType.AddCredits)); // VLQ converted type
-    msg.addAll(lhash);
-
+    ///
     List<int> encodedRecipient = utf8.encode(tx.payload.url);
     msg.addAll(uint64ToBytes(encodedRecipient.length)); // converted string length
     msg.addAll(encodedRecipient); // actual converted string
+    ///
+    msg.addAll(uint64ToBytes(tx.payload.amount));
+
+    return msg;
+  }
+
+  List<int> marshalBinaryBurnTokens(ApiRequestRawTx_Credits tx) {
+    List<int> msg = [];
+    msg.addAll(uint64ToBytes(TransactionType.BurnTokens)); // VLQ converted type
     msg.addAll(uint64ToBytes(tx.payload.amount));
 
     return msg;
   }
 
   List<int> marshalBinaryCreateIdentity() {
-    return [];
+    List<int> msg = [];
+    msg.addAll(uint64ToBytes(TransactionType.CreateIdentity)); // VLQ converted type
+
+    ///
+    List<int> encodedAddress = utf8.encode(tx.payload.url);
+    msg.addAll(uint64ToBytes(encodedAddress.length));
+    msg.addAll(encodedAddress);
+
+    ///
+    List<int> encodedPubKey = utf8.encode(tx.payload.pub);
+    msg.addAll(uint64ToBytes(encodedPubKey.length));
+    msg.addAll(encodedPubKey);
+
+    ///
+    List<int> encodedKeybook = utf8.encode(tx.payload.keybook);
+    msg.addAll(uint64ToBytes(encodedKeybook.length));
+    msg.addAll(encodedKeybook);
+
+    ///
+    List<int> encodedKeypage = utf8.encode(tx.payload.keypage);
+    msg.addAll(uint64ToBytes(encodedKeypage.length));
+    msg.addAll(encodedKeypage);
+
+    ///
+    return msg;
   }
 
   List<int> marshalBinaryCreateTokenAccount() {
-    return [];
+    List<int> msg = [];
+    msg.addAll(uint64ToBytes(TransactionType.CreateTokenAccount)); // VLQ converted type
+
+    ///
+    List<int> encodedAddress = utf8.encode(tx.payload.url);
+    msg.addAll(uint64ToBytes(encodedAddress.length));
+    msg.addAll(encodedAddress);
+
+    ///
+    List<int> encodedTokeUrl = utf8.encode(tx.payload.tokenUrl);
+    msg.addAll(uint64ToBytes(encodedTokeUrl.length));
+    msg.addAll(encodedTokeUrl);
+
+    ///
+    List<int> encodedKeybook = utf8.encode(tx.payload.keybook);
+    msg.addAll(uint64ToBytes(encodedKeybook.length));
+    msg.addAll(encodedKeybook);
+
+    ///
+    return msg;
   }
 
   List<int> marshalBinaryCreateDataAccount() {
-    return [];
+    List<int> msg = [];
+    msg.addAll(uint64ToBytes(TransactionType.CreateDataAccount)); // VLQ converted type
+    ///
+    List<int> encodedAddress = utf8.encode(tx.payload.url);
+    msg.addAll(uint64ToBytes(encodedAddress.length));
+    msg.addAll(encodedAddress);
+
+    ///
+    List<int> encodedKeybook = utf8.encode(tx.payload.keybook);
+    msg.addAll(uint64ToBytes(encodedKeybook.length));
+    msg.addAll(encodedKeybook);
+
+    ///
+    List<int> encodedManagerKeybook = utf8.encode(tx.payload.url);
+    msg.addAll(uint64ToBytes(encodedManagerKeybook.length));
+    msg.addAll(encodedManagerKeybook);
+
+    ///
+    return msg;
   }
 
   List<int> marshalBinaryCreateKeyPage() {
@@ -325,3 +392,4 @@ class ApiRequestRaw {
         "wait": wait,
       };
 }
+
