@@ -598,7 +598,7 @@ class ACMIApiV2 {
     Uint8List msgToSign = Uint8List.fromList(msg);
 
     // sign message which is (timestamp/nonce) + txHash
-    Uint8List signature = ed.sign(privateKey, msg); // should be nonce + transaction hash generated
+    Uint8List signature = ed.sign(privateKey, msgToSign); // should be nonce + transaction hash generated
 
     // NB: sig is 64 bytes string created from hexing generated signature
     // var bytes = utf8.encode("60aa13125cbe0dd496a2f0248e6a46c04b799c160734b248e83eb4573ca4d560");

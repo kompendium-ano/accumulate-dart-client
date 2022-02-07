@@ -7,6 +7,12 @@ import 'dart:typed_data' show ByteData, Uint8List;
 /////////////////////////////////////////////////////////////////////////////////////////////
 // CONVENIENCE FUNCTIONS
 
+///  Convert a bool to int, if true return 1, else 0
+int boolToInt(bool a) => a ? 1 : 0;
+
+///  Convert an int to bool, if 0 return false, else true
+bool intToBool(int a) => a == 0 ? false : true;
+
 /// Compares two lists for element-by-element equality.
 ///
 /// Returns true if the lists are both null, or if they are both non-null, have

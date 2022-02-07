@@ -1,7 +1,10 @@
 import 'dart:convert';
 
+import 'package:accumulate/src/network/client/accumulate/utils/general.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_adi.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_credit.dart';
+import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_data_account.dart';
+import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_account.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx_gen.dart';
 import 'package:accumulate/src/utils/format.dart';
 
@@ -198,6 +201,70 @@ class ApiRequestRawTx_ADI {
       };
 }
 
+class ApiRequestRawTx_TokenAccount {
+  ApiRequestRawTx_TokenAccount({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
+
+  bool checkOnly;
+  String sponsor;
+  String origin;
+  ApiRequestTokenAccount payload;
+  Signer signer;
+  String signature;
+  ApiRequestRawTxKeyPage keyPage;
+
+  factory ApiRequestRawTx_TokenAccount.fromRawJson(String str) => ApiRequestRawTx_TokenAccount.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory ApiRequestRawTx_TokenAccount.fromJson(Map<String, dynamic> json) => ApiRequestRawTx_TokenAccount(
+      sponsor: json["sponsor"],
+      payload: ApiRequestTokenAccount.fromJson(json["payload"]),
+      signer: Signer.fromJson(json["signer"]),
+      signature: json["sig"],
+      keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
+
+  Map<String, dynamic> toJson() => {
+    "origin": origin,
+    "sponsor": sponsor,
+    "signer": signer.toJson(),
+    "signature": signature,
+    "keyPage": keyPage.toJson(),
+    "payload": payload.toJson(),
+  };
+}
+
+class ApiRequestRawTx_DataAccount {
+  ApiRequestRawTx_DataAccount({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
+
+  bool checkOnly;
+  String sponsor;
+  String origin;
+  ApiRequestDataAccount payload;
+  Signer signer;
+  String signature;
+  ApiRequestRawTxKeyPage keyPage;
+
+  factory ApiRequestRawTx_DataAccount.fromRawJson(String str) => ApiRequestRawTx_DataAccount.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory ApiRequestRawTx_DataAccount.fromJson(Map<String, dynamic> json) => ApiRequestRawTx_DataAccount(
+      sponsor: json["sponsor"],
+      payload: ApiRequestDataAccount.fromJson(json["payload"]),
+      signer: Signer.fromJson(json["signer"]),
+      signature: json["sig"],
+      keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
+
+  Map<String, dynamic> toJson() => {
+    "origin": origin,
+    "sponsor": sponsor,
+    "signer": signer.toJson(),
+    "signature": signature,
+    "keyPage": keyPage.toJson(),
+    "payload": payload.toJson(),
+  };
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Signer {
@@ -282,7 +349,7 @@ class TokenTx {
     return msg;
   }
 
-  List<int> marshalBinaryCreateIdentity() {
+  List<int> marshalBinaryCreateIdentity(ApiRequestRawTx_ADI tx) {
     List<int> msg = [];
     msg.addAll(uint64ToBytes(TransactionType.CreateIdentity)); // VLQ converted type
 
@@ -292,17 +359,17 @@ class TokenTx {
     msg.addAll(encodedAddress);
 
     ///
-    List<int> encodedPubKey = utf8.encode(tx.payload.pub);
+    List<int> encodedPubKey = utf8.encode(tx.payload.publicKey);
     msg.addAll(uint64ToBytes(encodedPubKey.length));
     msg.addAll(encodedPubKey);
 
     ///
-    List<int> encodedKeybook = utf8.encode(tx.payload.keybook);
+    List<int> encodedKeybook = utf8.encode(tx.payload.keyBookName);
     msg.addAll(uint64ToBytes(encodedKeybook.length));
     msg.addAll(encodedKeybook);
 
     ///
-    List<int> encodedKeypage = utf8.encode(tx.payload.keypage);
+    List<int> encodedKeypage = utf8.encode(tx.payload.keyPageName);
     msg.addAll(uint64ToBytes(encodedKeypage.length));
     msg.addAll(encodedKeypage);
 
@@ -310,7 +377,7 @@ class TokenTx {
     return msg;
   }
 
-  List<int> marshalBinaryCreateTokenAccount() {
+  List<int> marshalBinaryCreateTokenAccount(ApiRequestRawTx_TokenAccount tx) {
     List<int> msg = [];
     msg.addAll(uint64ToBytes(TransactionType.CreateTokenAccount)); // VLQ converted type
 
@@ -325,42 +392,84 @@ class TokenTx {
     msg.addAll(encodedTokeUrl);
 
     ///
-    List<int> encodedKeybook = utf8.encode(tx.payload.keybook);
+    List<int> encodedKeybook = utf8.encode(tx.payload.keyBookUrl);
     msg.addAll(uint64ToBytes(encodedKeybook.length));
     msg.addAll(encodedKeybook);
 
     ///
     return msg;
   }
-
-  List<int> marshalBinaryCreateDataAccount() {
+  
+  List<int> marshalBinaryCreateDataAccount(ApiRequestRawTx_DataAccount tx) {
     List<int> msg = [];
-    msg.addAll(uint64ToBytes(TransactionType.CreateDataAccount)); // VLQ converted type
-    ///
+
+    // VLQ converted transaction type
+    msg.addAll(uint64ToBytes(TransactionType.CreateDataAccount));
+
+    /// Converted url as (length of url + url)
     List<int> encodedAddress = utf8.encode(tx.payload.url);
     msg.addAll(uint64ToBytes(encodedAddress.length));
     msg.addAll(encodedAddress);
 
     ///
-    List<int> encodedKeybook = utf8.encode(tx.payload.keybook);
+    List<int> encodedKeybook = utf8.encode(tx.payload.keyBookUrl);
     msg.addAll(uint64ToBytes(encodedKeybook.length));
     msg.addAll(encodedKeybook);
 
     ///
-    List<int> encodedManagerKeybook = utf8.encode(tx.payload.url);
+    List<int> encodedManagerKeybook = utf8.encode(tx.payload.managerKeyBookUrl);
     msg.addAll(uint64ToBytes(encodedManagerKeybook.length));
     msg.addAll(encodedManagerKeybook);
+
+    ///
+    msg.addAll(uint64ToBytes(boolToInt(tx.payload.isScratch)));
 
     ///
     return msg;
   }
 
   List<int> marshalBinaryCreateKeyPage() {
-    return [];
+    List<int> msg = [];
+    msg.addAll(uint64ToBytes(TransactionType.CreateKeyPage)); // VLQ converted type
+
+    ///
+    List<int> encodedKeyPage = utf8.encode(tx.payload.keypage);
+    msg.addAll(uint64ToBytes(encodedKeyPage.length));
+    msg.addAll(encodedKeyPage);
+
+    // number of "keys" values
+    msg.addAll(uint64ToBytes(tx.payload.keys.length));
+
+    // in loop keys values
+    for (var i = 0; i < tx.payload.keys.length; i++) {
+      List<int> encodedKeys = utf8.encode(tx.payload.keys[i].url);
+      msg.addAll(uint64ToBytes(encodedKeys.length)); // converted string length
+      msg.addAll(encodedKeys); // actual converted string
+    }
+
+    return msg;
   }
 
   List<int> marshalBinaryCreateKeyBook() {
-    return [];
+    List<int> msg = [];
+    msg.addAll(uint64ToBytes(TransactionType.CreateKeyBook)); // VLQ converted type
+
+    ///
+    List<int> encodedKeybook = utf8.encode(tx.payload.keybook);
+    msg.addAll(uint64ToBytes(encodedKeybook.length));
+    msg.addAll(encodedKeybook);
+
+    // number of "pages" values
+    msg.addAll(uint64ToBytes(tx.payload.pages.length));
+
+    // in loop pages values
+    for (var i = 0; i < tx.payload.pages.length; i++) {
+      List<int> encodedPage = utf8.encode(tx.payload.pages[i].url);
+      msg.addAll(uint64ToBytes(encodedPage.length)); // converted string length
+      msg.addAll(encodedPage); // actual converted string
+    }
+
+    return msg;
   }
 
   List<int> marshalBinaryUpdateKeyPage() {
@@ -392,4 +501,3 @@ class ApiRequestRaw {
         "wait": wait,
       };
 }
-

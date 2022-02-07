@@ -117,9 +117,11 @@ class ApiRequestTxGen {
     List<int> encodedHeader = header.marshal();
     List<int> sHash = sha256.convert(encodedHeader).bytes;
     List<int> tHash = sha256.convert(body).bytes;
+
     List<int> txhRaw = [];
     txhRaw.addAll(sHash);
     txhRaw.addAll(tHash);
+
     var txhb = sha256.convert(txhRaw).bytes;
     return txhb;
   }
