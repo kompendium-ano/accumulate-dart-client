@@ -7,8 +7,10 @@ import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_data_account.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keybook.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keypage.dart';
+import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_raw_data.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_account.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_create.dart';
+import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_issue.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx_gen.dart';
 
 class ApiRequestTxToData {
@@ -343,6 +345,70 @@ class ApiRequestRawTx_Token {
       };
 }
 
+class ApiRequestRawTx_TokenIssue {
+  ApiRequestRawTx_TokenIssue({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
+
+  bool checkOnly;
+  String sponsor;
+  String origin;
+  ApiRequestTokenIssue payload;
+  Signer signer;
+  String signature;
+  ApiRequestRawTxKeyPage keyPage;
+
+  factory ApiRequestRawTx_TokenIssue.fromRawJson(String str) => ApiRequestRawTx_TokenIssue.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory ApiRequestRawTx_TokenIssue.fromJson(Map<String, dynamic> json) => ApiRequestRawTx_TokenIssue(
+      sponsor: json["sponsor"],
+      payload: ApiRequestTokenIssue.fromJson(json["payload"]),
+      signer: Signer.fromJson(json["signer"]),
+      signature: json["sig"],
+      keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
+
+  Map<String, dynamic> toJson() => {
+        "origin": origin,
+        "sponsor": sponsor,
+        "signer": signer.toJson(),
+        "signature": signature,
+        "keyPage": keyPage.toJson(),
+        "payload": payload.toJson(),
+      };
+}
+
+class ApiRequestRawTx_WriteData {
+  ApiRequestRawTx_WriteData({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
+
+  bool checkOnly;
+  String sponsor;
+  String origin;
+  ApiRequestData payload;
+  Signer signer;
+  String signature;
+  ApiRequestRawTxKeyPage keyPage;
+
+  factory ApiRequestRawTx_WriteData.fromRawJson(String str) => ApiRequestRawTx_WriteData.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory ApiRequestRawTx_WriteData.fromJson(Map<String, dynamic> json) => ApiRequestRawTx_WriteData(
+      sponsor: json["sponsor"],
+      payload: ApiRequestData.fromJson(json["payload"]),
+      signer: Signer.fromJson(json["signer"]),
+      signature: json["sig"],
+      keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
+
+  Map<String, dynamic> toJson() => {
+    "origin": origin,
+    "sponsor": sponsor,
+    "signer": signer.toJson(),
+    "signature": signature,
+    "keyPage": keyPage.toJson(),
+    "payload": payload.toJson(),
+  };
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Signer {
@@ -374,10 +440,6 @@ class TokenTx {
   String urlChain;
   List<ApiRequestTxToDataTo> to;
   String meta;
-
-  List<int> marshalBinary() {
-    return [];
-  }
 
   List<int> marshalBinarySendTokens(ApiRequestRawTx tx) {
     /// Empty hash to fill out space
@@ -426,16 +488,6 @@ class TokenTx {
     return msg;
   }
 
-  List<int> marshalBinaryBurnTokens(ApiRequestRawTx_Credits tx) {
-    List<int> msg = [];
-
-    /// VLQ converted transaction type
-    msg.addAll(uint64ToBytes(TransactionType.BurnTokens));
-    msg.addAll(uint64ToBytes(tx.payload.amount));
-
-    return msg;
-  }
-
   List<int> marshalBinaryCreateToken(ApiRequestRawTx_Token tx) {
     List<int> msg = [];
 
@@ -470,6 +522,35 @@ class TokenTx {
 
     ///
     msg.addAll(uint64ToBytes(boolToInt(tx.payload.hasSupplyLimit)));
+
+    return msg;
+  }
+
+  List<int> marshalBinaryIssueTokens(ApiRequestRawTx_TokenIssue tx) {
+    List<int> msg = [];
+
+    /// VLQ converted transaction type
+    msg.addAll(uint64ToBytes(TransactionType.IssueTokens));
+
+    ///
+    List<int> encodedRecipient = utf8.encode(tx.payload.url);
+    msg.addAll(uint64ToBytes(encodedRecipient.length)); // converted string length
+    msg.addAll(encodedRecipient); // actual converted string
+
+    ///
+    msg.addAll(uint64ToBytes(tx.payload.amount));
+
+    return msg;
+  }
+
+  List<int> marshalBinaryBurnTokens(ApiRequestRawTx_Credits tx) {
+    List<int> msg = [];
+
+    /// VLQ converted transaction type
+    msg.addAll(uint64ToBytes(TransactionType.BurnTokens));
+
+    ///
+    msg.addAll(uint64ToBytes(tx.payload.amount));
 
     return msg;
   }
@@ -608,6 +689,33 @@ class TokenTx {
   List<int> marshalBinaryUpdateKeyPage() {
     return [];
   }
+
+  List<int> marshalBinaryWriteData(ApiRequestRawTx_WriteData tx) {
+
+    List<int> msg = [];
+
+    /// VLQ converted transaction type
+    msg.addAll(uint64ToBytes(TransactionType.WriteData));
+
+    /// number of "extIDs" values
+    msg.addAll(uint64ToBytes(tx.payload.extIds.length));
+
+    // in loop pages values
+    for (var i = 0; i < tx.payload.extIds.length; i++) {
+      List<int> encodedExtId = utf8.encode(tx.payload.extIds[i]);
+      msg.addAll(uint64ToBytes(encodedExtId.length));
+      msg.addAll(encodedExtId);
+    }
+
+    ///
+    List<int> encodedData = utf8.encode(tx.payload.data);
+    msg.addAll(uint64ToBytes(encodedData.length));
+    msg.addAll(encodedData);
+
+    return msg;
+
+  }
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
