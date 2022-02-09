@@ -1,8 +1,8 @@
-import 'dart:typed_data' show ByteData, Uint8List;
+import 'dart:typed_data';
 
 ////////////////////////////////////////////////////////////////
 // Binary Serialization Utility Functions for Accumulate Protocol
-// (reconstructed from GoLang codebase with Dart speicifics)
+// (reconstructed from GoLang codebase with Dart specifics)
 
 //
 //
@@ -73,4 +73,47 @@ int bytesToUint64(List<int> bytes) {
     s += 7;
   }
   return x.toInt();
+}
+
+List<int> uint64ToBytesAlt(int number) {
+  const int radix = 8; // Set radix value
+  BigInt bigInt = BigInt.from(number); // converting int to BigInt for Unsigned bit data conversion
+  final data = ByteData((bigInt.bitLength / radix).ceil()); // Create Empty byte array with  length(in bytes) in given number
+  var _bigInt = bigInt;
+  /*  Explaination
+    Loop through bytes from left to right (0 to N)
+      Step 1. Set each byte with 1 byte(of given number) from right
+        i.e. In binary below
+        10111110001100100001001000111111111100011
+
+        we take                         |11100011|
+        and set it to byte array at zero
+      Step 2. right shift bit by 7
+        i.e for binary
+        10111110001100100001001000111111111100011
+        becomes
+        1011111000110010000100100011111111
+      loop till zero is left
+  */
+  for (var i = 0; i < data.lengthInBytes; i++) {
+    // i : position of byte
+    data.setUint8(i, _bigInt.toUnsigned(radix).toInt()); // Extract last 8 bits and convert them into decimal
+    _bigInt = _bigInt >> 8;
+  }
+  // Return List of type int
+  return data.buffer.asUint8List().toList().reversed.toList();
+}
+
+Uint8List uint64ToBytesNonce(int v) {
+  final buf = BytesBuilder();
+  final b128 = BigInt.from(0x80);
+
+  BigInt bigV = BigInt.from(v).toUnsigned(64);
+  for (var i = 0; bigV >= b128; i++) {
+    buf.addByte((bigV | b128).toUnsigned(8).toInt());
+    bigV >>= 7;
+  }
+  buf.addByte((bigV).toUnsigned(8).toInt());
+
+  return buf.toBytes();
 }

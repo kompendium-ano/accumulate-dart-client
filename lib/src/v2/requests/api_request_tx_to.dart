@@ -12,6 +12,7 @@ import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_create.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_issue.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx_gen.dart';
+import 'package:hex/hex.dart';
 
 class ApiRequestTxToData {
   ApiRequestTxToData({
@@ -96,12 +97,11 @@ class ApiRequestRawTx {
 class ApiRequestRawTxKeyPage {
   ApiRequestRawTxKeyPage({
     this.height,
-    //this.index,
+    this.index,
   });
 
   int height;
-
-  //int index;
+  int index;
 
   factory ApiRequestRawTxKeyPage.fromRawJson(String str) => ApiRequestRawTxKeyPage.fromJson(json.decode(str));
 
@@ -109,12 +109,12 @@ class ApiRequestRawTxKeyPage {
 
   factory ApiRequestRawTxKeyPage.fromJson(Map<String, dynamic> json) => ApiRequestRawTxKeyPage(
         height: json["height"],
-        //index: json["index"],
+        index: json["index"],
       );
 
   Map<String, dynamic> toJson() => {
         "height": height,
-        //"index": index,
+        "index": index,
       };
 }
 
@@ -400,13 +400,13 @@ class ApiRequestRawTx_WriteData {
       keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
 
   Map<String, dynamic> toJson() => {
-    "origin": origin,
-    "sponsor": sponsor,
-    "signer": signer.toJson(),
-    "signature": signature,
-    "keyPage": keyPage.toJson(),
-    "payload": payload.toJson(),
-  };
+        "origin": origin,
+        "sponsor": sponsor,
+        "signer": signer.toJson(),
+        "signature": signature,
+        "keyPage": keyPage.toJson(),
+        "payload": payload.toJson(),
+      };
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -448,23 +448,24 @@ class TokenTx {
     List<int> msg = [];
 
     /// VLQ converted transaction type
-    msg.addAll(uint64ToBytes(TransactionType.SendTokens));
+    msg.addAll(uint64ToBytesAlt(TransactionType.SendTokens));
     msg.addAll(lhash);
-    // meta data
+
+    /// meta data
     msg.addAll([0]);
 
-    // number of "to" values
-    msg.addAll(uint64ToBytes(tx.payload.to.length));
+    /// number of "to" values
+    msg.addAll(uint64ToBytesAlt(tx.payload.to.length));
 
-    // in loop too values
+    /// in loop "to" values
     for (var i = 0; i < tx.payload.to.length; i++) {
       List<int> encodedTo = utf8.encode(tx.payload.to[i].url);
-      msg.addAll(uint64ToBytes(encodedTo.length)); // converted string length
+      msg.addAll(uint64ToBytesAlt(encodedTo.length)); // converted string length
       msg.addAll(encodedTo); // actual converted string
 
       // converted/encoded amount length as it's a big number
-      List<int> encodedAmount = uint64ToBytes(tx.payload.to[i].amount);
-      msg.addAll(uint64ToBytes(encodedAmount.length));
+      List<int> encodedAmount = uint64ToBytesAlt(tx.payload.to[i].amount);
+      msg.addAll(uint64ToBytesAlt(encodedAmount.length));
       msg.addAll(encodedAmount);
     }
 
@@ -475,15 +476,18 @@ class TokenTx {
     List<int> msg = [];
 
     /// VLQ converted transaction type
-    msg.addAll(uint64ToBytes(TransactionType.AddCredits));
+    msg.addAll(uint64ToBytesAlt(TransactionType.AddCredits));
 
-    ///
+    /// Converted recipient
     List<int> encodedRecipient = utf8.encode(tx.payload.url);
-    msg.addAll(uint64ToBytes(encodedRecipient.length)); // converted string length
+    msg.addAll(uint64ToBytesAlt(encodedRecipient.length)); // converted string length
     msg.addAll(encodedRecipient); // actual converted string
 
-    ///
-    msg.addAll(uint64ToBytes(tx.payload.amount));
+    /// Converted amount
+    msg.addAll(uint64ToBytesNonce(tx.payload.amount));
+    // List<int> encodedAmount = uint64ToBytesAlt(tx.payload.amount);
+    // msg.addAll(uint64ToBytesAlt(encodedAmount.length));
+    // msg.addAll(encodedAmount);
 
     return msg;
   }
@@ -559,26 +563,26 @@ class TokenTx {
     List<int> msg = [];
 
     /// VLQ converted transaction type
-    msg.addAll(uint64ToBytes(TransactionType.CreateIdentity));
+    msg.addAll(uint64ToBytesAlt(TransactionType.CreateIdentity));
 
     ///
     List<int> encodedAddress = utf8.encode(tx.payload.url);
-    msg.addAll(uint64ToBytes(encodedAddress.length));
+    msg.addAll(uint64ToBytesAlt(encodedAddress.length));
     msg.addAll(encodedAddress);
 
     ///
-    List<int> encodedPubKey = utf8.encode(tx.payload.publicKey);
-    msg.addAll(uint64ToBytes(encodedPubKey.length));
+    List<int> encodedPubKey = HEX.decode(tx.payload.publicKey);
+    msg.addAll(uint64ToBytesAlt(encodedPubKey.length));
     msg.addAll(encodedPubKey);
 
     ///
     List<int> encodedKeybook = utf8.encode(tx.payload.keyBookName);
-    msg.addAll(uint64ToBytes(encodedKeybook.length));
+    msg.addAll(uint64ToBytesAlt(encodedKeybook.length));
     msg.addAll(encodedKeybook);
 
     ///
     List<int> encodedKeypage = utf8.encode(tx.payload.keyPageName);
-    msg.addAll(uint64ToBytes(encodedKeypage.length));
+    msg.addAll(uint64ToBytesAlt(encodedKeypage.length));
     msg.addAll(encodedKeypage);
 
     ///
@@ -589,22 +593,29 @@ class TokenTx {
     List<int> msg = [];
 
     /// VLQ converted transaction type
-    msg.addAll(uint64ToBytes(TransactionType.CreateTokenAccount));
+    msg.addAll(uint64ToBytesAlt(TransactionType.CreateTokenAccount));
 
     ///
     List<int> encodedAddress = utf8.encode(tx.payload.url);
-    msg.addAll(uint64ToBytes(encodedAddress.length));
+    msg.addAll(uint64ToBytesAlt(encodedAddress.length));
     msg.addAll(encodedAddress);
 
     ///
     List<int> encodedTokeUrl = utf8.encode(tx.payload.tokenUrl);
-    msg.addAll(uint64ToBytes(encodedTokeUrl.length));
+    msg.addAll(uint64ToBytesAlt(encodedTokeUrl.length));
     msg.addAll(encodedTokeUrl);
 
     ///
     List<int> encodedKeybook = utf8.encode(tx.payload.keyBookUrl);
-    msg.addAll(uint64ToBytes(encodedKeybook.length));
+    msg.addAll(uint64ToBytesAlt(encodedKeybook.length));
     msg.addAll(encodedKeybook);
+
+    ///
+    if(tx.payload.isScratch){
+      msg.add(1);
+    } else {
+      msg.add(0);
+    }
 
     ///
     return msg;
@@ -642,21 +653,21 @@ class TokenTx {
     List<int> msg = [];
 
     /// VLQ converted transaction type
-    msg.addAll(uint64ToBytes(TransactionType.CreateKeyPage));
+    msg.addAll(uint64ToBytesAlt(TransactionType.CreateKeyPage));
 
     ///
     List<int> encodedKeyPage = utf8.encode(tx.payload.url);
-    msg.addAll(uint64ToBytes(encodedKeyPage.length));
+    msg.addAll(uint64ToBytesAlt(encodedKeyPage.length));
     msg.addAll(encodedKeyPage);
 
     // number of "keys" values
-    msg.addAll(uint64ToBytes(tx.payload.keys.length));
+    msg.addAll(uint64ToBytesAlt(tx.payload.keys.length));
 
     // in loop keys values
     for (var i = 0; i < tx.payload.keys.length; i++) {
-      List<int> encodedKeys = utf8.encode(tx.payload.keys[i].publickey);
-      msg.addAll(uint64ToBytes(encodedKeys.length)); // converted string length
-      msg.addAll(encodedKeys); // actual converted string
+      List<int> encodedKeys = HEX.decode(tx.payload.keys[i].publickey);
+      msg.addAll(uint64ToBytesAlt(encodedKeys.length));
+      msg.addAll(encodedKeys);
     }
 
     return msg;
@@ -691,7 +702,6 @@ class TokenTx {
   }
 
   List<int> marshalBinaryWriteData(ApiRequestRawTx_WriteData tx) {
-
     List<int> msg = [];
 
     /// VLQ converted transaction type
@@ -713,9 +723,7 @@ class TokenTx {
     msg.addAll(encodedData);
 
     return msg;
-
   }
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

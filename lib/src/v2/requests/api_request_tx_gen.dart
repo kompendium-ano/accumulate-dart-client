@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:accumulate/src/utils/format.dart';
+import 'package:accumulate/src/network/client/accumulate/utils/marshaller.dart';
 import 'package:crypto/crypto.dart';
 
 class TransactionType {
@@ -78,12 +78,21 @@ class TransactionHeader {
     List<int> data = [];
 
     List<int> encodedOrigin = utf8.encode(origin);
-    data.addAll(uint64ToBytes(encodedOrigin.length));
+    data.addAll(uint64ToBytesAlt(encodedOrigin.length));
     data.addAll(encodedOrigin);
 
-    data.addAll(uint64ToBytes(keyPageHeight));
-    data.addAll(uint64ToBytes(keyPageIndex));
-    data.addAll(uint64ToBytes(nonce));
+    ///
+    data.addAll(uint64ToBytesAlt(keyPageHeight));
+
+    ///
+    if(keyPageIndex == 0){
+      data.add(0);
+    } else {
+      data.addAll(uint64ToBytesAlt(keyPageIndex));
+    }
+
+    ///
+    data.addAll(uint64ToBytesNonce(nonce));
 
     return data;
   }
