@@ -6,9 +6,9 @@ JSON RPC client for Accumulate blockchain
 
 ## Usage
 
-1. Generate Lite Account
+### 1. Generate Lite Account
 
-Lite Accounts are simple anonymous accounts, that can be create in 
+Lite Accounts are simple anonymous accounts, that can be create in following manner
 
 ```dart
 // 1. initiate public/private keypage
@@ -20,38 +20,38 @@ AccumulateURL currentURL = liteAccount.generateAddressViaProtocol(publicKey.byte
 Address liteAccount = Address(currentURL.getPath(), "ACME Account", "")
 liteAccount.URL = currentURL;
 
-
 // 3. Initiate API class instance and register address on the network with faucet
 ACMIApiV2 api = ACMIApiV2();
 final resp = await api.callFaucet(liteAccount);
-
 ```
 
-2. Add Credits to Lite Account
+Note that any Lite Account need to participate in a transaction to be registered on a network.
+
+### 2. Add Credits to Lite Account
 
 ```dart
 ```
 
 
-3. Generate ADI with default keybooks
+### 3. Generate ADI with default keybooks
 
 ```dart
 ```
 
 
-4. Generate ADI with non-default keybooks
+### 4. Generate ADI with non-default keybooks
 
 ```dart
 ```
 
 
-5. Generate ADI Token Account
+### 5. Generate ADI Token Account
 
 ```dart
 ```
 
 
-6. Make Token Transactions
+### 6. Make Token Transactions
 
 ```dart
 ```
