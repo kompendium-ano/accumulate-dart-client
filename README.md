@@ -4,12 +4,56 @@
 
 JSON RPC client for Accumulate blockchain
 
-## Versions
+## Usage
 
-## v.1
-- [x] binary marshalling
-- [x] acme wallet generation
+1. Generate Lite Account
 
-## v.2
-- [x] advanced key management
-- [x] credits mechanics
+Lite Accounts are simple anonymous accounts, that can be create in 
+
+```dart
+// 1. initiate public/private keypage
+var privateKey = ed.newKeyFromSeed([0..32]);
+var publicKey = ed.public(privateKey);
+
+// 2. Create New unique ACME url based on Protocol definition 
+AccumulateURL currentURL = liteAccount.generateAddressViaProtocol(publicKey.bytes, "ACME"); 
+Address liteAccount = Address(currentURL.getPath(), "ACME Account", "")
+liteAccount.URL = currentURL;
+
+
+// 3. Initiate API class instance and register address on the network with faucet
+ACMIApiV2 api = ACMIApiV2();
+final resp = await api.callFaucet(liteAccount);
+
+```
+
+2. Add Credits to Lite Account
+
+```dart
+```
+
+
+3. Generate ADI with default keybooks
+
+```dart
+```
+
+
+4. Generate ADI with non-default keybooks
+
+```dart
+```
+
+
+5. Generate ADI Token Account
+
+```dart
+```
+
+
+6. Make Token Transactions
+
+```dart
+```
+
+ 
