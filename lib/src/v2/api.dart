@@ -13,6 +13,7 @@ import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_adi.dart' as V2;
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keybook.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keypage.dart';
+import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keypage_update.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_account.dart' as V2;
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx_gen.dart';
@@ -31,8 +32,12 @@ import 'package:http/http.dart';
 import 'package:tuple/tuple.dart';
 
 class ACMIApiV2 {
-  String apiRPCUrl =
-      "https://testnet.accumulatenetwork.io"; // "http://45.77.193.205:56660"; "http://0.yellowstone.devnet.accumulatenetwork.io:33001";
+  // "http://45.77.193.205:56660"
+  // "http://0.yellowstone.devnet.accumulatenetwork.io:33001"
+  // ""
+
+  String apiRPCUrl = "https://testnet.accumulatenetwork.io";
+
   String apiPrefix = "/v2";
 
   Future<String> callGetVersion() async {
@@ -69,7 +74,7 @@ class ACMIApiV2 {
     String txid = "";
     if (res != null) {
       txid = res.result["txid"];
-      String log = res.result["envelopeHash"];
+      String envelopeHash = res.result["envelopeHash"];
     }
 
     return txid;
@@ -157,15 +162,12 @@ class ACMIApiV2 {
     directoryData.keybooksCount = 1;
     if (res != null) {
       String accountType = res.result["type"];
-      LinkedHashMap dt = res.result["data"];
-      if (dt.length == 1) {
-        int total = res.result["data"]["total"];
-        //List<String> entries = res.result["data"]["entries"].cast<String>();
-        //directoryData.entities = entries;
-        // entries.length > 2
-        if (total > 2) {
-          directoryData.tokenAccountsCount = total - 2;
-        }
+      int total = res.result["total"];
+      //List<String> entries = res.result["data"]["entries"].cast<String>();
+      //directoryData.entities = entries;
+      // entries.length > 2
+      if (total > 2) {
+        directoryData.tokenAccountsCount = total - 2;
       }
     }
 
@@ -198,6 +200,17 @@ class ACMIApiV2 {
 
           tx = new Transaction(type, "", txid, from, to, amount, tokenUrl);
           break;
+        case "createKeyPage":
+          String txid = res.result["txid"];
+          String from = res.result["origin"];
+          String to = res.result["data"]["url"];
+          LinkedHashMap sigs = res.result["signatures"][0];
+          int dateNonce = sigs["nonce"];
+
+          tx = new Transaction(type, "", txid, from, to, 0, "ACME");
+          tx.created = dateNonce;
+
+          break;
         default:
           String txid = res.result["data"]["txid"];
           String from = res.result["data"]["from"];
@@ -226,7 +239,6 @@ class ACMIApiV2 {
 
 // "create-data-account":  m.ExecuteWith(func() PL { return new(protocol.CreateDataAccount) }),
 
-//
 // RPC: "query-tx-history" (in v1 - "token-account-history")
   Future<List<Transaction>> callGetTokenTransactionHistory(Address currAddr) async {
     String ACMEApiUrl = currentApiRPCUrl + "/v2";
@@ -373,7 +385,8 @@ class ACMIApiV2 {
     }
 
     V2.Signer signer = V2.Signer(publicKey: signerKey, nonce: timestamp);
-    V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(height: keypageHeightToUse);//, index: keyPageIndexInsideKeyBook); //, index: 0);
+    V2.ApiRequestRawTxKeyPage keyPage =
+        V2.ApiRequestRawTxKeyPage(height: keypageHeightToUse); //, index: keyPageIndexInsideKeyBook); //, index: 0);
 
     V2.ApiRequestTokenAccount data =
         V2.ApiRequestTokenAccount(sponsorADI.path + "/" + tokenAccountName, "acc://acme", keybookPath, false);
@@ -431,7 +444,8 @@ class ACMIApiV2 {
       int code = res.result["code"];
       String message = res.result["message"];
 
-      debugPrint(message);
+      debugPrint("API RESULT: ${txid}");
+      debugPrint("API RESULT: ${message}");
       if (code == 12) {}
     }
 
@@ -440,7 +454,8 @@ class ACMIApiV2 {
 
 // "create-key-book":      m.ExecuteWith(func() PL { return new(protocol.CreateKeyBook) }),
   Future<Tuple2<String, String>> callKeyBookCreate(
-      IdentityADI sponsorADI, KeyBook keybook, List<String> pages, int timestamp) async {
+      IdentityADI sponsorADI, KeyBook keybook, List<String> pages, int timestamp,
+      [String keyPuk, String keyPik, int keyPageHeight, String keybookPath]) async {
     String ACMEApiUrl = currentApiRPCUrl + "/v2";
 
     timestamp = timestamp * 1000;
@@ -450,20 +465,28 @@ class ACMIApiV2 {
     ed.PublicKey publicKey = ed.PublicKey(HEX.decode(sponsorADI.puk));
     ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(sponsorADI.pikHex));
     var keyPair = ed.KeyPair(privateKey, publicKey);
+    String signerKey = sponsorADI.puk;
+    String sponsorPath = sponsorADI.path;
 
-    V2.Signer signer = V2.Signer(publicKey: sponsorADI.puk, nonce: timestamp);
+    if (keyPuk != null) {
+      // user submitted a keybook to identify how to connect
+      publicKey = ed.PublicKey(HEX.decode(keyPuk));
+      privateKey = ed.PrivateKey(HEX.decode(keyPik));
+
+      keypageHeightToUse = keyPageHeight;
+      signerKey = keyPuk;
+      sponsorPath = sponsorADI.path;
+    }
+
+    V2.Signer signer = V2.Signer(publicKey: signerKey, nonce: timestamp);
 
     V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(
         height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook ?? 0); // 1,0 - for defaults
 
     ApiRequestKeyBook data = new ApiRequestKeyBook(keybook.path, pages);
+
     V2.ApiRequestRawTx_KeyBook tx = V2.ApiRequestRawTx_KeyBook(
-        payload: data,
-        signer: signer,
-        signature: "",
-        sponsor: sponsorADI.path,
-        origin: sponsorADI.path,
-        keyPage: keyPage);
+        payload: data, signer: signer, signature: "", sponsor: sponsorPath, origin: sponsorPath, keyPage: keyPage);
 
     V2.TokenTx tokenTx = V2.TokenTx();
     TransactionHeader header = TransactionHeader(
@@ -496,6 +519,7 @@ class ACMIApiV2 {
     // sig = HEX.encode(bytes);
     String sig = "";
     sig = HEX.encode(signature);
+    tx.signature = sig;
 
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("create-key-book", [tx]);
@@ -542,9 +566,10 @@ class ACMIApiV2 {
       // user submitted a keybook to identify how to connect
       publicKey = ed.PublicKey(HEX.decode(keyPuk));
       privateKey = ed.PrivateKey(HEX.decode(keyPik));
+
       keypageHeightToUse = keyPageHeight;
       signerKey = keyPuk;
-      sponsorPath = keybookPath;
+      sponsorPath = sponsorADI.path;
     }
 
     V2.Signer signer = V2.Signer(publicKey: signerKey, nonce: timestamp);
@@ -553,8 +578,8 @@ class ACMIApiV2 {
         height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook ?? 0); // 1,0 - for defaults
 
     //prepare payload data
-    var keysParam = keys.map((e) => KeySpecParams(e)).toList();
-    ApiRequestKeyPage data = new ApiRequestKeyPage(keypage.path, keysParam);
+    var keypageKeys = keys.map((e) => KeySpecParams(e)).toList();
+    ApiRequestKeyPage data = new ApiRequestKeyPage(keypage.path, keypageKeys);
 
     V2.ApiRequestRawTx_KeyPage tx = V2.ApiRequestRawTx_KeyPage(
         payload: data, signer: signer, signature: "", sponsor: sponsorPath, origin: sponsorPath, keyPage: keyPage);
@@ -565,6 +590,7 @@ class ACMIApiV2 {
         nonce: timestamp,
         keyPageHeight: keypageHeightToUse,
         keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
+
     List<int> dataBinary = tokenTx.marshalBinaryCreateKeyPage(tx);
 
     debugPrint("Header: ");
@@ -590,6 +616,7 @@ class ACMIApiV2 {
     // sig = HEX.encode(bytes);
     String sig = "";
     sig = HEX.encode(signature);
+    tx.signature = sig; // update underlying structure
 
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("create-key-page", [tx]);
@@ -625,88 +652,89 @@ class ACMIApiV2 {
     int keypageHeightToUse = 1;
     int keyPageIndexInsideKeyBook = 0;
 
-    // ed.PublicKey publicKey = ed.PublicKey(HEX.decode(sponsorADI.puk));
-    // ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(sponsorADI.pikHex));
-    // var keyPair = ed.KeyPair(privateKey, publicKey);
-    // String signerKey = sponsorADI.puk;
-    // String sponsorPath = sponsorADI.path;
-    //
-    // if (keyPuk != null) {
-    //   // user submitted a keybook to identify how to connect
-    //   publicKey = ed.PublicKey(HEX.decode(keyPuk));
-    //   privateKey = ed.PrivateKey(HEX.decode(keyPik));
-    //   keypageHeightToUse = keyPageHeight;
-    //   signerKey = keyPuk;
-    //   sponsorPath = keybookPath;
-    // }
-    //
-    // V2.Signer signer = V2.Signer(publicKey: signerKey, nonce: timestamp);
-    //
-    // V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(
-    //     height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook ?? 0); // 1,0 - for defaults
-    //
-    // //prepare payload data
-    // var keysParam = keys.map((e) => KeySpecParams(e)).toList();
-    // ApiRequestKeyPage data = new ApiRequestKeyPage(keypage.path, keysParam);
-    //
-    // V2.ApiRequestRawTx_KeyPage tx = V2.ApiRequestRawTx_KeyPage(
-    //     payload: data, signer: signer, signature: "", sponsor: sponsorPath, origin: sponsorPath, keyPage: keyPage);
-    //
-    // V2.TokenTx tokenTx = V2.TokenTx();
-    // TransactionHeader header = TransactionHeader(
-    //     origin: sponsorADI.path,
-    //     nonce: timestamp,
-    //     keyPageHeight: keypageHeightToUse,
-    //     keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
-    // List<int> dataBinary = tokenTx.marshalBinaryCreateKeyPage(tx);
-    //
-    // debugPrint("Header: ");
-    // debugPrint("${header.marshal()}");
-    //
-    // debugPrint("Body: ");
-    // debugPrint("${dataBinary}");
-    //
-    // // Generalized version of GenTransaction in Go
-    // V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
-    // txGen.hash = txGen.generateTransactionHash();
-    //
-    // List<int> msg = [];
-    // msg.addAll(uint64ToBytesNonce(timestamp)); // VLQ converted timestamp
-    // msg.addAll(txGen.hash);
-    // Uint8List msgToSign = Uint8List.fromList(msg);
-    //
-    // // sign message which is (timestamp/nonce) + transaction hash generated
-    // Uint8List signature = ed.sign(privateKey, msgToSign);
-    //
-    // // NB: sig is 64 bytes string created from hexing generated signature
-    // // var bytes = utf8.encode("60aa13125cbe0dd496a2f0248e6a46c04b799c160734b248e83eb4573ca4d560");
-    // // sig = HEX.encode(bytes);
-    // String sig = "";
-    // sig = HEX.encode(signature);
-    //
-    // JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
-    // var res = await acmeApi.call("update-key-page", [tx]);
-    // res.result;
-    //
-    // String txid = "";
-    // String hash = "";
-    // if (res != null) {
-    //   String type = res.result["type"];
-    //
-    //   // TODO: combine into single response type
-    //   txid = res.result["txid"];
-    //   String simpleHash = res.result["simpleHash"];
-    //   String transactionHash = res.result["transactionHash"];
-    //   String envelopeHash = res.result["envelopeHash"];
-    //   String hash = res.result["hash"];
-    //   int code = res.result["code"];
-    //   String message = res.result["message"];
-    //
-    //   debugPrint(message);
-    //   if (code == 12) {}
-    // }
+    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(keyPuk));
+    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(keyPik));
+    var keyPair = ed.KeyPair(privateKey, publicKey);
 
-    return Tuple2("", "");
+    String signerKey = keyPuk;
+    String sponsorPath = keypage.path;
+
+    if (keyPuk != null) {
+      publicKey = ed.PublicKey(HEX.decode(keyPuk));
+      privateKey = ed.PrivateKey(HEX.decode(keyPik));
+      keypageHeightToUse = keyPageHeight;
+      signerKey = keyPuk;
+      sponsorPath = keypage.path;
+      ;
+    }
+
+    V2.Signer signer = V2.Signer(publicKey: signerKey, nonce: timestamp);
+
+    V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(
+        height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook ?? 0); // 1,0 - for defaults
+
+    //prepare payload data
+    ApiRequestKeyPageUpdate data = ApiRequestKeyPageUpdate(operationName, keyPuk, newKeyPuk, keypage.path);
+
+    V2.ApiRequestRawTx_KeyPageUpdate tx = V2.ApiRequestRawTx_KeyPageUpdate(
+        payload: data, signer: signer, signature: "", sponsor: sponsorPath, origin: sponsorPath, keyPage: keyPage);
+
+    V2.TokenTx tokenTx = V2.TokenTx();
+    TransactionHeader header = TransactionHeader(
+        origin: keypage.path,
+        nonce: timestamp,
+        keyPageHeight: keypageHeightToUse,
+        keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
+    List<int> dataBinary = tokenTx.marshalBinaryKeyPageUpdate(tx);
+
+    debugPrint("Header: ");
+    debugPrint("${header.marshal()}");
+
+    debugPrint("Body: ");
+    debugPrint("${dataBinary}");
+
+    // Generalized version of GenTransaction in Go
+    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
+    txGen.hash = txGen.generateTransactionHash();
+
+    List<int> msg = [];
+    msg.addAll(uint64ToBytesNonce(timestamp)); // VLQ converted timestamp
+    msg.addAll(txGen.hash);
+    Uint8List msgToSign = Uint8List.fromList(msg);
+
+    // sign message which is (timestamp/nonce) + transaction hash generated
+    Uint8List signature = ed.sign(privateKey, msgToSign);
+
+    // NB: sig is 64 bytes string created from hexing generated signature
+    // var bytes = utf8.encode("60aa13125cbe0dd496a2f0248e6a46c04b799c160734b248e83eb4573ca4d560");
+    // sig = HEX.encode(bytes);
+    String sig = "";
+    sig = HEX.encode(signature);
+    tx.signature = sig;
+
+    JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
+    var res = await acmeApi.call("update-key-page", [tx]);
+    res.result;
+
+    String txid = "";
+    String hash = "";
+    if (res != null) {
+      String type = res.result["type"];
+
+      // TODO: combine into single response type
+      txid = res.result["txid"];
+      String simpleHash = res.result["simpleHash"];
+      String transactionHash = res.result["transactionHash"];
+      String envelopeHash = res.result["envelopeHash"];
+      String hash = res.result["hash"];
+      int code = res.result["code"];
+      String message = res.result["message"];
+
+      debugPrint(message);
+      if (code == 12) {}
+    }
+
+    return Tuple2(txid, hash);
   }
 
 // "send-tokens":          m.ExecuteWith(func() PL { return new(api.SendTokens) }, "From", "To"),

@@ -7,6 +7,7 @@ import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_data_account.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keybook.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keypage.dart';
+import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keypage_update.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_raw_data.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_account.dart';
 import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_create.dart';
@@ -249,38 +250,6 @@ class ApiRequestRawTx_DataAccount {
       };
 }
 
-class ApiRequestRawTx_KeyPage {
-  ApiRequestRawTx_KeyPage({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
-
-  bool checkOnly;
-  String sponsor;
-  String origin;
-  ApiRequestKeyPage payload;
-  Signer signer;
-  String signature;
-  ApiRequestRawTxKeyPage keyPage;
-
-  factory ApiRequestRawTx_KeyPage.fromRawJson(String str) => ApiRequestRawTx_KeyPage.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory ApiRequestRawTx_KeyPage.fromJson(Map<String, dynamic> json) => ApiRequestRawTx_KeyPage(
-      sponsor: json["sponsor"],
-      payload: ApiRequestKeyPage.fromJson(json["payload"]),
-      signer: Signer.fromJson(json["signer"]),
-      signature: json["sig"],
-      keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
-
-  Map<String, dynamic> toJson() => {
-        "origin": origin,
-        "sponsor": sponsor,
-        "signer": signer.toJson(),
-        "signature": signature,
-        "keyPage": keyPage.toJson(),
-        "payload": payload.toJson(),
-      };
-}
-
 class ApiRequestRawTx_KeyBook {
   ApiRequestRawTx_KeyBook({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
@@ -311,6 +280,70 @@ class ApiRequestRawTx_KeyBook {
         "keyPage": keyPage.toJson(),
         "payload": payload.toJson(),
       };
+}
+
+class ApiRequestRawTx_KeyPage {
+  ApiRequestRawTx_KeyPage({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
+
+  bool checkOnly;
+  String sponsor;
+  String origin;
+  ApiRequestKeyPage payload;
+  Signer signer;
+  String signature;
+  ApiRequestRawTxKeyPage keyPage;
+
+  factory ApiRequestRawTx_KeyPage.fromRawJson(String str) => ApiRequestRawTx_KeyPage.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory ApiRequestRawTx_KeyPage.fromJson(Map<String, dynamic> json) => ApiRequestRawTx_KeyPage(
+      sponsor: json["sponsor"],
+      payload: ApiRequestKeyPage.fromJson(json["payload"]),
+      signer: Signer.fromJson(json["signer"]),
+      signature: json["sig"],
+      keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
+
+  Map<String, dynamic> toJson() => {
+    "origin": origin,
+    "sponsor": sponsor,
+    "signer": signer.toJson(),
+    "signature": signature,
+    "keyPage": keyPage.toJson(),
+    "payload": payload.toJson(),
+  };
+}
+
+class ApiRequestRawTx_KeyPageUpdate {
+  ApiRequestRawTx_KeyPageUpdate({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
+
+  bool checkOnly;
+  String sponsor;
+  String origin;
+  ApiRequestKeyPageUpdate payload;
+  Signer signer;
+  String signature;
+  ApiRequestRawTxKeyPage keyPage;
+
+  factory ApiRequestRawTx_KeyPageUpdate.fromRawJson(String str) => ApiRequestRawTx_KeyPageUpdate.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory ApiRequestRawTx_KeyPageUpdate.fromJson(Map<String, dynamic> json) => ApiRequestRawTx_KeyPageUpdate(
+      sponsor: json["sponsor"],
+      payload: ApiRequestKeyPageUpdate.fromJson(json["payload"]),
+      signer: Signer.fromJson(json["signer"]),
+      signature: json["sig"],
+      keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
+
+  Map<String, dynamic> toJson() => {
+    "origin": origin,
+    "sponsor": sponsor,
+    "signer": signer.toJson(),
+    "signature": signature,
+    "keyPage": keyPage.toJson(),
+    "payload": payload.toJson(),
+  };
 }
 
 class ApiRequestRawTx_Token {
@@ -612,9 +645,9 @@ class TokenTx {
 
     ///
     if(tx.payload.isScratch){
-      msg.add(1);
+     msg.add(1);
     } else {
-      msg.add(0);
+     msg.add(0);
     }
 
     ///
@@ -649,6 +682,30 @@ class TokenTx {
     return msg;
   }
 
+  List<int> marshalBinaryCreateKeyBook(ApiRequestRawTx_KeyBook tx) {
+    List<int> msg = [];
+
+    /// VLQ converted transaction type
+    msg.addAll(uint64ToBytesAlt(TransactionType.CreateKeyBook));
+
+    ///
+    List<int> encodedKeybook = utf8.encode(tx.payload.url);
+    msg.addAll(uint64ToBytesAlt(encodedKeybook.length));
+    msg.addAll(encodedKeybook);
+
+    // number of "pages" values
+    msg.addAll(uint64ToBytesAlt(tx.payload.pages.length));
+
+    // in loop pages values
+    for (var i = 0; i < tx.payload.pages.length; i++) {
+      List<int> encodedPage = utf8.encode(tx.payload.pages[i]);
+      msg.addAll(uint64ToBytesAlt(encodedPage.length));
+      msg.addAll(encodedPage);
+    }
+
+    return msg;
+  }
+
   List<int> marshalBinaryCreateKeyPage(ApiRequestRawTx_KeyPage tx) {
     List<int> msg = [];
 
@@ -673,32 +730,46 @@ class TokenTx {
     return msg;
   }
 
-  List<int> marshalBinaryCreateKeyBook(ApiRequestRawTx_KeyBook tx) {
+  List<int> marshalBinaryKeyPageUpdate(ApiRequestRawTx_KeyPageUpdate tx) {
     List<int> msg = [];
 
     /// VLQ converted transaction type
-    msg.addAll(uint64ToBytes(TransactionType.CreateKeyBook));
+    msg.addAll(uint64ToBytesAlt(TransactionType.UpdateKeyPage));
 
-    ///
-    List<int> encodedKeybook = utf8.encode(tx.payload.url);
-    msg.addAll(uint64ToBytes(encodedKeybook.length));
-    msg.addAll(encodedKeybook);
-
-    // number of "pages" values
-    msg.addAll(uint64ToBytes(tx.payload.pages.length));
-
-    // in loop pages values
-    for (var i = 0; i < tx.payload.pages.length; i++) {
-      List<int> encodedPage = utf8.encode(tx.payload.pages[i]);
-      msg.addAll(uint64ToBytes(encodedPage.length)); // converted string length
-      msg.addAll(encodedPage); // actual converted string
+    /// Save Operation type
+    switch (tx.payload.operation) {
+      case "update":
+        msg.addAll(uint64ToBytesAlt(1));
+        break;
+      case "remove":
+        msg.addAll(uint64ToBytesAlt(2));
+        break;
+      case "add":
+        msg.addAll(uint64ToBytesAlt(3));
+        break;
     }
 
-    return msg;
-  }
+    /// Key
+    List<int> encodedKey = HEX.decode(tx.payload.key);
+    msg.addAll(uint64ToBytesAlt(encodedKey.length));
+    msg.addAll(encodedKey);
 
-  List<int> marshalBinaryUpdateKeyPage() {
-    return [];
+    /// New Key
+    List<int> encodedNewKey = HEX.decode(tx.payload.newKey);
+    msg.addAll(uint64ToBytesAlt(encodedNewKey.length));
+    msg.addAll(encodedNewKey);
+
+    /// owner TODO: update as it variable value
+    // List<int> encodedKeyPage = utf8.encode(tx.payload.owner);
+    // msg.addAll(uint64ToBytesAlt(encodedKeyPage.length));
+    // msg.addAll(encodedKeyPage);
+    msg.add(0);
+
+    /// threshold TODO: change to value
+    //msg.addAll(uint64ToBytesAlt(encodedNewKey.length));
+    msg.add(0);
+
+    return msg;
   }
 
   List<int> marshalBinaryWriteData(ApiRequestRawTx_WriteData tx) {

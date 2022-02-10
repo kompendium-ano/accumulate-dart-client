@@ -11,8 +11,7 @@ class ApiRequestTokenAccount {
         tokenUrl = json['tokenUrl'],
         keyBookUrl = json['keyBookUrl'];
 
-  Map<String, dynamic> toJson() =>
-      {'url': url
-        , 'tokenUrl': tokenUrl
-        , 'keyBookUrl': keyBookUrl};
+  Map<String, dynamic> toJson() => {
+        'url': url, 'tokenUrl': tokenUrl, 'keyBookUrl': keyBookUrl
+      };
 }
