@@ -1,5 +1,4 @@
 library accumulate;
 
 export 'src/v1/api.dart';
-
-// TODO: Export any libraries intended for clients of this package.
+export 'src/v2/api.dart';
