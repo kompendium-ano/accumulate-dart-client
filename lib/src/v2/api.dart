@@ -1,12 +1,26 @@
 import 'dart:collection';
 import 'dart:typed_data';
+import 'dart:developer';
 
 import 'package:accumulate/src/json_rpc.dart';
 import 'package:accumulate/src/utils/marshaller.dart';
 import 'package:accumulate/src/v2/requests/api_request_tx.dart';
+import 'package:accumulate/src/v2/requests/api_request_url_pagination.dart';
 import 'package:accumulate/src/v2/responses/resp_token_get.dart';
 import 'package:accumulate/src/v2/requests/api_request_metrics.dart';
 import 'package:accumulate/src/v2/requests/api_request_url.dart';
+import 'package:accumulate/src/v2/requests/api_request_adi.dart' as V2;
+import 'package:accumulate/src/v2/requests/api_request_keybook.dart';
+import 'package:accumulate/src/v2/requests/api_request_keypage.dart';
+import 'package:accumulate/src/v2/requests/api_request_keypage_update.dart';
+import 'package:accumulate/src/v2/requests/api_request_token_account.dart' as V2;
+import 'package:accumulate/src/v2/requests/api_request_tx.dart';
+import 'package:accumulate/src/v2/requests/api_request_tx_gen.dart';
+import 'package:accumulate/src/v2/requests/api_request_credit.dart' as V2;
+import 'package:accumulate/src/v2/requests/api_request_tx_to.dart' as V2;
+import 'package:accumulate/src/v2/requests/api_request_tx_gen.dart' as V2;
+import 'package:accumulate/src/v2/requests/api_request_url.dart';
+import 'package:accumulate/src/v2/requests/api_request_url_pagination.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:hex/hex.dart';
 import 'package:http/http.dart';
@@ -285,11 +299,8 @@ class ACMIApiV2 {
         keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
     List<int> dataBinary = tokenTx.marshalBinaryCreateIdentity(tx);
 
-    debugPrint("Header: ");
-    debugPrint("${header.marshal()}");
-
-    debugPrint("Body: ");
-    debugPrint("${dataBinary}");
+    log('Header:\n ${header.marshal()}');
+    log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
     V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
@@ -327,7 +338,7 @@ class ACMIApiV2 {
       int code = res.result["code"];
       String message = res.result["message"];
 
-      debugPrint(message);
+      log('Response: $message');
       if (code == 12) {}
     }
 
@@ -378,11 +389,8 @@ class ACMIApiV2 {
         keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
     List<int> dataBinary = tokenTx.marshalBinaryCreateTokenAccount(tx);
 
-    debugPrint("Header: ");
-    debugPrint("${header.marshal()}");
-
-    debugPrint("Body: ");
-    debugPrint("${dataBinary}");
+    log('Header:\n ${header.marshal()}');
+    log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
     V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
@@ -419,9 +427,9 @@ class ACMIApiV2 {
       String hash = res.result["hash"];
       int code = res.result["code"];
       String message = res.result["message"];
-
-      debugPrint("API RESULT: ${txid}");
-      debugPrint("API RESULT: ${message}");
+      
+      log("API RESULT: ${txid}");
+      log("API RESULT: ${message}");
       if (code == 12) {}
     }
 
@@ -472,11 +480,8 @@ class ACMIApiV2 {
         keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
     List<int> dataBinary = tokenTx.marshalBinaryCreateKeyBook(tx);
 
-    debugPrint("Header: ");
-    debugPrint("${header.marshal()}");
-
-    debugPrint("Body: ");
-    debugPrint("${dataBinary}");
+    log('Header:\n ${header.marshal()}');
+    log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
     V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
@@ -515,7 +520,7 @@ class ACMIApiV2 {
       int code = res.result["code"];
       String message = res.result["message"];
 
-      debugPrint(message);
+      log('Response: $message');
       if (code == 12) {}
     }
 
@@ -569,11 +574,8 @@ class ACMIApiV2 {
 
     List<int> dataBinary = tokenTx.marshalBinaryCreateKeyPage(tx);
 
-    debugPrint("Header: ");
-    debugPrint("${header.marshal()}");
-
-    debugPrint("Body: ");
-    debugPrint("${dataBinary}");
+    log('Header:\n ${header.marshal()}');
+    log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
     V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
@@ -612,7 +614,7 @@ class ACMIApiV2 {
       int code = res.result["code"];
       String message = res.result["message"];
 
-      debugPrint(message);
+      log('Response: $message');
       if (code == 12) {}
     }
 
@@ -663,11 +665,8 @@ class ACMIApiV2 {
         keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
     List<int> dataBinary = tokenTx.marshalBinaryKeyPageUpdate(tx);
 
-    debugPrint("Header: ");
-    debugPrint("${header.marshal()}");
-
-    debugPrint("Body: ");
-    debugPrint("${dataBinary}");
+    log('Header:\n ${header.marshal()}');
+    log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
     V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
@@ -706,7 +705,7 @@ class ACMIApiV2 {
       int code = res.result["code"];
       String message = res.result["message"];
 
-      debugPrint(message);
+      log('Response: $message');
       if (code == 12) {}
     }
 
@@ -767,11 +766,8 @@ class ACMIApiV2 {
         keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
     List<int> dataBinary = tokenTx.marshalBinarySendTokens(tx);
 
-    debugPrint("Header: ");
-    debugPrint("${header.marshal()}");
-
-    debugPrint("Body: ");
-    debugPrint("${dataBinary}");
+    log('Header:\n ${header.marshal()}');
+    log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
     V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
@@ -810,7 +806,7 @@ class ACMIApiV2 {
       int code = res.result["code"];
       String message = res.result["message"];
 
-      debugPrint(message);
+      log('Response: $message');
       if (code == 12) {}
     }
 
@@ -913,7 +909,7 @@ class ACMIApiV2 {
       int code = res.result["code"];
       String message = res.result["message"];
 
-      debugPrint(message);
+      log('Response: $message');
     }
     return txid;
   }
