@@ -427,7 +427,7 @@ class ACMIApiV2 {
       String hash = res.result["hash"];
       int code = res.result["code"];
       String message = res.result["message"];
-      
+
       log("API RESULT: ${txid}");
       log("API RESULT: ${message}");
       if (code == 12) {}

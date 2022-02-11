@@ -1,18 +1,18 @@
 import 'dart:convert';
 
-import 'package:accumulate/src/network/client/accumulate/utils/general.dart';
-import 'package:accumulate/src/network/client/accumulate/utils/marshaller.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_adi.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_credit.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_data_account.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keybook.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keypage.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keypage_update.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_raw_data.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_account.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_create.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_issue.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx_gen.dart';
+import 'package:accumulate/src/utils/general.dart';
+import 'package:accumulate/src/utils/marshaller.dart';
+import 'package:accumulate/src/v2/requests/api_request_adi.dart';
+import 'package:accumulate/src/v2/requests/api_request_credit.dart';
+import 'package:accumulate/src/v2/requests/api_request_data_account.dart';
+import 'package:accumulate/src/v2/requests/api_request_keybook.dart';
+import 'package:accumulate/src/v2/requests/api_request_keypage.dart';
+import 'package:accumulate/src/v2/requests/api_request_keypage_update.dart';
+import 'package:accumulate/src/v2/requests/api_request_raw_data.dart';
+import 'package:accumulate/src/v2/requests/api_request_token_account.dart';
+import 'package:accumulate/src/v2/requests/api_request_token_create.dart';
+import 'package:accumulate/src/v2/requests/api_request_token_issue.dart';
+import 'package:accumulate/src/v2/requests/api_request_tx_gen.dart';
 import 'package:hex/hex.dart';
 
 class ApiRequestTxToData {

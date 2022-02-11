@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx_to.dart';
-
 import 'adi/api_request_adi.dart';
 import 'api_request_credit.dart';
 import 'api_request_keybook.dart';

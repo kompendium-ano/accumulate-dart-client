@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:accumulate/src/network/client/accumulate/utils/marshaller.dart';
+import 'package:accumulate/src/utils/marshaller.dart';
 import 'package:crypto/crypto.dart';
 
 class TransactionType {

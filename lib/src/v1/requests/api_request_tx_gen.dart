@@ -1,9 +1,6 @@
 import 'dart:convert';
-import 'dart:math';
-import 'dart:typed_data';
-import 'package:accumulate/src/utils/format.dart';
+import 'package:accumulate/src/utils/marshaller.dart';
 import 'package:crypto/crypto.dart';
-import 'package:fixnum/fixnum.dart';
 
 // this is a special type we follow
 // to reproduce hash created inside Accumulate node
