@@ -3,6 +3,12 @@ import 'dart:typed_data';
 import 'dart:developer';
 
 import 'package:accumulate/src/json_rpc.dart';
+import 'package:accumulate/src/model/address.dart';
+import 'package:accumulate/src/model/adi.dart';
+import 'package:accumulate/src/model/keys/keybook.dart';
+import 'package:accumulate/src/model/keys/keypage.dart';
+import 'package:accumulate/src/model/keys/key.dart' as acme;
+import 'package:accumulate/src/model/tx.dart';
 import 'package:accumulate/src/utils/marshaller.dart';
 import 'package:accumulate/src/v2/requests/api_request_tx.dart';
 import 'package:accumulate/src/v2/requests/api_request_url_pagination.dart';
