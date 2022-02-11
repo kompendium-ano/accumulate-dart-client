@@ -11,13 +11,14 @@ JSON RPC client for Accumulate blockchain
 Lite Accounts are simple anonymous accounts, that can be create in following manner
 
 ```dart
+// Additional setup goes here.
 // 1. initiate public/private keypage
 var privateKey = ed.newKeyFromSeed([0..32]);
-var publicKey = ed.public(privateKey);
+var publicKey  = ed.public(privateKey);
 
-// 2. Create New unique ACME url based on Protocol definition 
-AccumulateURL currentURL = liteAccount.generateAddressViaProtocol(publicKey.bytes, "ACME"); 
-Address liteAccount = Address(currentURL.getPath(), "ACME Account", "")
+// 2. Create New unique ACME url based on Protocol definition
+AccumulateURL currentURL = Address.generateAddressViaProtocol(publicKey.bytes, "ACME");
+Address liteAccount = Address(currentURL.getPath(), "ACME Account", "");
 liteAccount.URL = currentURL;
 
 // 3. Initiate API class instance and register address on the network with faucet

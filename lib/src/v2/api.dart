@@ -30,6 +30,8 @@ class ACMIApiV2 {
   String apiRPCUrl = "https://testnet.accumulatenetwork.io";
   String apiPrefix = "/v2";
 
+  ACMIApiV2(this.apiRPCUrl, this.apiPrefix );
+
   Future<String> callGetVersion() async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
     // ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase(), false);
