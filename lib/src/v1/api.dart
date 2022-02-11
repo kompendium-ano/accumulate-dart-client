@@ -3,41 +3,40 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:accumulate/src/constants/globals.dart';
+import 'package:accumulate/src/json_rpc.dart';
 import 'package:accumulate/src/model/native/address.dart';
 import 'package:accumulate/src/model/native/adi.dart';
 import 'package:accumulate/src/model/native/keys/key.dart' as acme;
 import 'package:accumulate/src/model/native/keys/keybook.dart';
 import 'package:accumulate/src/model/native/keys/keypage.dart';
 import 'package:accumulate/src/model/native/tx.dart';
-import 'package:accumulate/src/network/client/accumulate/v1/requests/adi/api_request_adi.dart';
-import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_credit.dart';
-import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_keybook.dart';
-import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_keypage.dart';
-import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_keypage_update.dart';
-import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_mask.dart';
-import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_metrics.dart';
-import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_token_account.dart';
-import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_tx_gen.dart';
-import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_url_pagination.dart';
-import 'package:accumulate/src/network/client/accumulate/v1/responses/resp_token_get.dart';
-import 'package:accumulate/src/utils/format.dart';
+import 'package:accumulate/src/v1/requests/adi/api_request_adi.dart';
+import 'package:accumulate/src/v1/requests/api_request_credit.dart';
+import 'package:accumulate/src/v1/requests/api_request_keybook.dart';
+import 'package:accumulate/src/v1/requests/api_request_keypage.dart';
+import 'package:accumulate/src/v1/requests/api_request_keypage_update.dart';
+import 'package:accumulate/src/v1/requests/api_request_mask.dart';
+import 'package:accumulate/src/v1/requests/api_request_metrics.dart';
+import 'package:accumulate/src/v1/requests/api_request_token_account.dart';
+import 'package:accumulate/src/v1/requests/api_request_tx_gen.dart';
+import 'package:accumulate/src/v1/requests/api_request_url_pagination.dart';
+import 'package:accumulate/src/v1/responses/resp_token_get.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
-import 'package:flutter/foundation.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hex/hex.dart';
 import 'package:http/http.dart';
 import 'package:tuple/tuple.dart';
-
-import '../../json_rpc.dart';
-import 'data_resp.dart';
+import 'responses/data_resp.dart';
 import 'requests/api_request_tx.dart';
 import 'requests/api_request_tx_to.dart';
 import 'requests/api_request_url.dart';
 
 class ACMIApi {
+  String apiRPCUrl = "https://testnet.accumulatenetwork.io";
+  String apiPrefix = "/v2";
+
   // RPC: "get" - Get Data
   Future<Data> callGetData(String path) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
 
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(path, false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
@@ -69,7 +68,7 @@ class ACMIApi {
 
   // RPC: "get-directory" - Get Directory Data
   Future<DataDirectory> callGetDirectory(String path) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
 
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(path.toLowerCase(), false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
@@ -97,7 +96,7 @@ class ACMIApi {
 
   // RPC: "chain" - Get Chain Data By Id
   Future<Data> callGetChainById(Address currAddr) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     var hexEncodedAddr = HEX.encode(utf8.encode(currAddr.address.toLowerCase()));
     //ApiRequestUrl apiRequestUrl = new ApiRequestUrl(hexEncodedAddr, false);
 
@@ -114,7 +113,7 @@ class ACMIApi {
 
   // RPC: "adi" - Get ADI information
   Future<String> callGetAdi(Address currAddr) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase(), false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("adi", [apiRequestUrl]);
@@ -131,7 +130,7 @@ class ACMIApi {
   // RPC: "adi-create"
   Future<String> callCreateAdi(Address currAddr, IdentityADI adiToCreate, int timestamp,
       [String keybookName, String keypageName]) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
 
     ApiRequestADI data = new ApiRequestADI(adiToCreate.path, currAddr.puk, keybookName ?? "", keypageName ?? "");
 
@@ -220,7 +219,7 @@ class ACMIApi {
   // RPC:"token" - Returns information about Token
   // Response:
   Future<void> callGetToken(Address currAddr) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase(), false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("token", [apiRequestUrl]);
@@ -228,7 +227,7 @@ class ACMIApi {
   }
 
   Future<String> callGetVersion() async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     // ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase(), false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("version", []); //[apiRequestUrl]);
@@ -243,7 +242,7 @@ class ACMIApi {
   }
 
   Future<void> callGetMetrics(String type, String timeframe) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     ApiRequestMetrics apiRequestMetrics = new ApiRequestMetrics(type, timeframe);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("metrics", [apiRequestMetrics]);
@@ -253,7 +252,7 @@ class ACMIApi {
   // RPC: "token-create" - Creates new Token
   // Response:
   Future<void> callCreateToken(Address currAddr) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase(), false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("token-create", [apiRequestUrl]);
@@ -265,7 +264,7 @@ class ACMIApi {
   Future<String> callCreateTokenAccount(
       Address currAddr, IdentityADI sponsorADI, String tokenAccountName, String keybookPath, int timestamp,
       [String keyPuk, String keyPik, int keyPageHeight]) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
 
     ApiRequestTokenAccount data = new ApiRequestTokenAccount(sponsorADI.path + "/" + tokenAccountName, "acc://acme",
         keybookPath); // previously keybook defaulted as: sponsorADI.path + "/" + "book0"
@@ -368,7 +367,7 @@ class ACMIApi {
   // RPC: token-account-get
   // Response: {"data":{"balance":"2000000000","tokenURL":"dc/ACME","url":"acme-467dc69eb1212c2c864bffc75355629fe5ead46ff966e7d1/dc/ACME"},"type":"tokenAccount"}
   Future<void> callGetTokenAccount(String path) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(path, false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("token-account", [apiRequestUrl]);
@@ -389,7 +388,7 @@ class ACMIApi {
   // remote:     1257894000      // uint64(time.Now().Unix())
   Future<String> callCreateTokenTransaction(Address addrFrom, Address addrTo, String amount, int timestamp,
       [acme.Key providedKey, int providedKeyPageChainHeight, int keyPageIndexInsideKeyBook]) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
 
     //prepare data
     int amountToDeposit = (double.parse(amount) * 100000000).round().toInt(); // assume 8 decimal places
@@ -532,7 +531,7 @@ class ACMIApi {
 
   // RPC: "get" - Get Date
   Future<Data> callGetAdiDirectory(Address currAddr) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase(), false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("adi-directory", [apiRequestUrl]);
@@ -564,7 +563,7 @@ class ACMIApi {
   // RPC: "token-tx"
   // Response:
   Future<Transaction> callGetTokenTransaction(String txhash) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     List<int> txhashB = txhash.codeUnits;
     //var txhashEncoded = HEX.encode(utf8.encode(txhash));
     ApiRequestTx apiRequestHash = new ApiRequestTx(txhash);
@@ -608,7 +607,7 @@ class ACMIApi {
   // RPC: "token-account-history"
   // Response:
   Future<List<Transaction>> callGetTokenTransactionHistory(Address currAddr) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     //var hexEncodedAddr = HEX.encode(utf8.encode(currAddr.address.toLowerCase()));
     ApiRequestUrWithPagination apiRequestUrlWithPagination =
         new ApiRequestUrWithPagination(currAddr.address.toLowerCase(), 1, 100);
@@ -642,7 +641,7 @@ class ACMIApi {
   // RPC: "faucet" - add 10 tokens with faucet functionality
   // Response:
   Future<String> callFaucet(Address currAddr) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase(), false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("faucet", [apiRequestUrl]);
@@ -659,7 +658,7 @@ class ACMIApi {
 
   Future<String> callAddCredits(Address currAddr, int amount, int timestamp,
       [KeyPage currKeyPage, acme.Key currKey]) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
 
     // Because we can send to accounts and keybooks ath the same time
     ApiRequestCredits data;
@@ -762,7 +761,7 @@ class ACMIApi {
   }
 
   Future<String> callGetCredits(Address currAddr) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase(), false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("credits", [apiRequestUrl]);
@@ -779,7 +778,7 @@ class ACMIApi {
   Future<Tuple2<String, String>> callKeyBookCreate(
       IdentityADI sponsorADI, KeyBook keybook, List<String> pages, int timestamp,
       [String keyPuk, String keyPik, int keyPageHeight, String keybookPath]) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
 
     ApiRequestKeyBook data = new ApiRequestKeyBook(keybook.path, pages);
 
@@ -884,7 +883,7 @@ class ACMIApi {
   }
 
   Future<DataKeybook> callGetKeyBook(String path) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(path, false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("sig-spec-group", [apiRequestUrl]);
@@ -911,7 +910,7 @@ class ACMIApi {
   Future<Tuple2<String, String>> callKeyPageCreate(
       IdentityADI sponsorADI, KeyPage keypage, List<String> keys, int timestamp,
       [String keyPuk, String keyPik, int keyPageHeight, String keybookPath]) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
 
     var keysParam = keys.map((e) => KeySpecParams(e)).toList();
     ApiRequestKeyPage data = new ApiRequestKeyPage(keypage.path, keysParam);
@@ -1015,7 +1014,7 @@ class ACMIApi {
   }
 
   Future<DataKeyPage> callGetKeyPage(String path) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(path, false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("sig-spec", [apiRequestUrl]);
@@ -1042,7 +1041,7 @@ class ACMIApi {
 
   Future<Tuple2<String, String>> callKeyPageUpdate(KeyPage keypage, String operationName, String keyPuk, String keyPik,
       String newKeyPuk, int timestamp, int keyPageHeight) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v1";
+    String ACMEApiUrl = apiRPCUrl + "/v1";
 
     ApiRequestKeyPageUpdate data = new ApiRequestKeyPageUpdate(operationName, "", newKeyPuk);
 

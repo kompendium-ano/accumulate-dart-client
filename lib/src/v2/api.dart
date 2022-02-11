@@ -1,47 +1,23 @@
 import 'dart:collection';
 import 'dart:typed_data';
 
-import 'package:accumulate/src/constants/globals.dart';
-import 'package:accumulate/src/model/native/address.dart';
-import 'package:accumulate/src/model/native/adi.dart';
-import 'package:accumulate/src/model/native/keys/key.dart' as acme;
-import 'package:accumulate/src/model/native/keys/keybook.dart';
-import 'package:accumulate/src/model/native/keys/keypage.dart';
-import 'package:accumulate/src/model/native/tx.dart';
-import 'package:accumulate/src/network/client/accumulate/utils/marshaller.dart';
-import 'package:accumulate/src/network/client/accumulate/v1/requests/api_request_metrics.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_adi.dart' as V2;
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keybook.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keypage.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_keypage_update.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_token_account.dart' as V2;
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx_gen.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_credit.dart' as V2;
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx_to.dart' as V2;
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_tx_gen.dart' as V2;
-import 'package:accumulate/src/network/client/accumulate/v1/responses/resp_token_get.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_url.dart';
-import 'package:accumulate/src/network/client/accumulate/v2/requests/api_request_url_pagination.dart';
-import 'package:accumulate/src/network/client/json_rpc.dart';
+import 'package:accumulate/src/json_rpc.dart';
+import 'package:accumulate/src/utils/marshaller.dart';
+import 'package:accumulate/src/v2/requests/api_request_tx.dart';
+import 'package:accumulate/src/v2/responses/resp_token_get.dart';
+import 'package:accumulate/src/v2/requests/api_request_metrics.dart';
+import 'package:accumulate/src/v2/requests/api_request_url.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart';
 import 'package:http/http.dart';
 import 'package:tuple/tuple.dart';
 
 class ACMIApiV2 {
-  // "http://45.77.193.205:56660"
-  // "http://0.yellowstone.devnet.accumulatenetwork.io:33001"
-  // ""
-
   String apiRPCUrl = "https://testnet.accumulatenetwork.io";
-
   String apiPrefix = "/v2";
 
   Future<String> callGetVersion() async {
-    String ACMEApiUrl = apiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
     // ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase(), false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("version", []); //[apiRequestUrl]);
@@ -56,7 +32,7 @@ class ACMIApiV2 {
   }
 
   Future<void> callGetMetrics(String type, String timeframe) async {
-    String ACMEApiUrl = apiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
     ApiRequestMetrics apiRequestMetrics = new ApiRequestMetrics(type, timeframe);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("metrics", [apiRequestMetrics]);
@@ -65,7 +41,7 @@ class ACMIApiV2 {
 
   // "faucet":  m.Faucet,
   Future<String> callFaucet(Address currAddr) async {
-    String ACMEApiUrl = apiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase());
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("faucet", [apiRequestUrl]);
@@ -82,7 +58,7 @@ class ACMIApiV2 {
 
   // RPC: "query" - query data
   Future<Data> callQuery(String path) async {
-    String ACMEApiUrl = apiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(path);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
@@ -151,7 +127,7 @@ class ACMIApiV2 {
 
   // "query-directory":  m.QueryDirectory,
   Future<DataDirectory> callQueryDirectory(String path) async {
-    String ACMEApiUrl = apiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(path);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
@@ -179,7 +155,7 @@ class ACMIApiV2 {
   // "query-tx":         m.QueryTx,
   // RPC: "token-tx"
   Future<Transaction> callGetTokenTransaction(String txhash) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
     ApiRequestTx apiRequestHash = ApiRequestTx(txhash);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     final res = await acmeApi.call("query-tx", [apiRequestHash]);
@@ -241,7 +217,7 @@ class ACMIApiV2 {
 
 // RPC: "query-tx-history" (in v1 - "token-account-history")
   Future<List<Transaction>> callGetTokenTransactionHistory(Address currAddr) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     ApiRequestUrWithPagination apiRequestUrlWithPagination =
         new ApiRequestUrWithPagination(currAddr.address.toLowerCase(), 1, 100);
@@ -273,7 +249,7 @@ class ACMIApiV2 {
 // "create-adi":           m.ExecuteWith(func() PL { return new(protocol.IdentityCreate) }),
   Future<String> callCreateAdi(Address currAddr, IdentityADI adiToCreate, int timestamp,
       [String keybookName, String keypageName]) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     timestamp = timestamp * 1000;
 
@@ -362,7 +338,7 @@ class ACMIApiV2 {
   Future<String> callCreateTokenAccount(
       Address currAddr, IdentityADI sponsorADI, String tokenAccountName, String keybookPath, int timestamp,
       [String keyPuk, String keyPik, int keyPageHeight]) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     timestamp = timestamp * 1000;
 
@@ -456,7 +432,7 @@ class ACMIApiV2 {
   Future<Tuple2<String, String>> callKeyBookCreate(
       IdentityADI sponsorADI, KeyBook keybook, List<String> pages, int timestamp,
       [String keyPuk, String keyPik, int keyPageHeight, String keybookPath]) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     timestamp = timestamp * 1000;
     int keypageHeightToUse = 1;
@@ -550,7 +526,7 @@ class ACMIApiV2 {
   Future<Tuple2<String, String>> callKeyPageCreate(
       IdentityADI sponsorADI, KeyPage keypage, List<String> keys, int timestamp,
       [String keyPuk, String keyPik, int keyPageHeight, String keybookPath]) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     timestamp = timestamp * 1000;
     int keypageHeightToUse = 1;
@@ -646,7 +622,7 @@ class ACMIApiV2 {
 // "update-key-page":      m.ExecuteWith(func() PL { return new(protocol.UpdateKeyPage) })
   Future<Tuple2<String, String>> callKeyPageUpdate(KeyPage keypage, String operationName, String keyPuk, String keyPik,
       String newKeyPuk, int timestamp, int keyPageHeight) async {
-    String ACMEApiUrl = currentApiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     timestamp = timestamp * 1000;
     int keypageHeightToUse = 1;
@@ -740,7 +716,7 @@ class ACMIApiV2 {
 // "send-tokens":          m.ExecuteWith(func() PL { return new(api.SendTokens) }, "From", "To"),
   Future<String> callCreateTokenTransaction(Address addrFrom, Address addrTo, String amount, int timestamp,
       [acme.Key providedKey, int providedKeyPageChainHeight, int keyPageIndexInsideKeyBook]) async {
-    String ACMEApiUrl = apiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     timestamp = timestamp * 1000;
 
@@ -844,7 +820,7 @@ class ACMIApiV2 {
 // "add-credits":          m.ExecuteWith(func() PL { return new(protocol.AddCredits) }),
   Future<String> callAddCredits(Address currAddr, int amount, int timestamp,
       [KeyPage currKeyPage, acme.Key currKey]) async {
-    String ACMEApiUrl = apiRPCUrl + "/v2";
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     timestamp = timestamp * 1000;
     int keypageHeightToUse = 1;
