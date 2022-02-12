@@ -11,7 +11,7 @@ import 'package:tuple/tuple.dart';
 
 void main() {
   group('A group of tests', () {
-    final acmiAPI = ACMIApiV2("https://testnet.accumulatenetwork.io", "v2");
+    final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io", "v2");
 
     setUp(() async {
       // Additional setup goes here.
@@ -25,12 +25,12 @@ void main() {
       liteAccount.URL = currentURL;
 
       // 3. Initiate API class instance and register address on the network with faucet
-      final acmiAPI = ACMIApiV2("https://testnet.accumulatenetwork.io", "v2");
-      final resp = await acmiAPI.callFaucet(liteAccount);
+      final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io", "v2");
+      final resp = await acmeAPI.callFaucet(liteAccount);
     });
 
     test('First Test', () {
-      expect(acmiAPI.toString(), isTrue);
+      expect(acmeAPI.toString(), isTrue);
     });
   });
 }

@@ -11,8 +11,9 @@ JSON RPC client for Accumulate blockchain
 Lite Accounts are simple anonymous accounts, that can be create in following manner
 
 ```dart
+
 // Additional setup goes here.
-// 1. initiate public/private keypage
+// 1. initiate public/private key from some seed
 var privateKey = ed.newKeyFromSeed([0..32]);
 var publicKey  = ed.public(privateKey);
 
@@ -22,7 +23,7 @@ Address liteAccount = Address(currentURL.getPath(), "ACME Account", "");
 liteAccount.URL = currentURL;
 
 // 3. Initiate API class instance and register address on the network with faucet
-ACMIApiV2 api = ACMIApiV2();
+ACMEApiV2 api = ACMEApiV2();
 final resp = await api.callFaucet(liteAccount);
 ```
 
@@ -37,6 +38,29 @@ Note that any Lite Account need to participate in a transaction to be registered
 ### 3. Generate ADI with default keybooks
 
 ```dart
+
+IdentityADI newADI = IdentityADI("", "acc://cosmonaut1", "");
+newADI
+  ..sponsor = liteAccount.address
+  ..puk = liteAccount.puk
+  ..pik = liteAccount.pik
+  ..countKeybooks = 1
+
+// 3. add timestamp as Nonce value
+int timestamp = DateTime
+    .now()
+    .toUtc()
+    .millisecondsSinceEpoch;
+
+final acmeAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
+String txhash = "";
+try {
+  final resp = await api.callCreateAdi(currAddr, newADI, timestamp);
+  txhash = resp;
+} catch (e) {
+  e.toString();
+}
+
 ```
 
 
