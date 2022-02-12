@@ -206,6 +206,18 @@ class ACMEApiV2 {
           tx.created = dateNonce;
 
           break;
+        case "acmeFaucet":
+          String txid = res.result["data"]["txid"];
+          String from = res.result["data"]["from"];
+          String to = res.result["data"]["url"];
+          int amount = 1000000000;
+          LinkedHashMap sigs = res.result["signatures"][0];
+          int dateNonce = sigs["Nonce"];
+
+          tx = new Transaction(type, "", txid, from, to, amount, "ACME");
+          tx.created = dateNonce;
+
+          break;
         default:
           String txid = res.result["data"]["txid"];
           String from = res.result["data"]["from"];
