@@ -10,8 +10,8 @@ jobs:
           path: ~/library
 
       - run:
-          name: dir
-          command: ls -al
+          name: Get dependencies
+          command: dart pub get
 
       - run:
           name: Build the library
