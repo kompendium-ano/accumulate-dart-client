@@ -10,5 +10,9 @@ jobs:
           path: ~/
 
       - run:
+          name: dir
+          command: ls -al
+
+      - run:
           name: Build the library
           command: dart run example/accumulate_example.dart
