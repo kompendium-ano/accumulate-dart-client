@@ -33,8 +33,8 @@ import 'package:http/http.dart';
 import 'package:tuple/tuple.dart';
 
 class ACMIApiV2 {
-  String apiRPCUrl = "https://testnet.accumulatenetwork.io";
-  String apiPrefix = "/v2";
+  String apiRPCUrl = "https://testnet.accumulatenetwork.io/";
+  String apiPrefix = "v2";
 
   ACMIApiV2(this.apiRPCUrl, this.apiPrefix );
 

@@ -10,9 +10,5 @@ jobs:
           path: ~/
 
       - run:
-          name: Run Flutter doctor
-          command: flutter doctor
-
-      - run:
           name: Build the library
-          command: flutter build
+          command: dart run example/accumulate_example.dart
