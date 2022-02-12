@@ -2,12 +2,12 @@ version: 2.1
 
 jobs:
   build:
-    working_directory: ~/
+    working_directory: ~/library
     docker:
       - image: cirrusci/flutter:2.8.1
     steps:
       - checkout:
-          path: ~/
+          path: ~/library
 
       - run:
           name: dir
