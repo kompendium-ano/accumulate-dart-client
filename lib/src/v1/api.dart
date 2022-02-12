@@ -32,7 +32,7 @@ import 'requests/api_request_tx.dart';
 import 'requests/api_request_tx_to.dart';
 import 'requests/api_request_url.dart';
 
-class ACMIApi {
+class ACMEApi {
   String apiRPCUrl = "https://testnet.accumulatenetwork.io";
   String apiPrefix = "/v2";
 

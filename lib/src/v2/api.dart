@@ -20,23 +20,20 @@ import 'package:accumulate/src/v2/requests/api_request_keybook.dart';
 import 'package:accumulate/src/v2/requests/api_request_keypage.dart';
 import 'package:accumulate/src/v2/requests/api_request_keypage_update.dart';
 import 'package:accumulate/src/v2/requests/api_request_token_account.dart' as V2;
-import 'package:accumulate/src/v2/requests/api_request_tx.dart';
 import 'package:accumulate/src/v2/requests/api_request_tx_gen.dart';
 import 'package:accumulate/src/v2/requests/api_request_credit.dart' as V2;
 import 'package:accumulate/src/v2/requests/api_request_tx_to.dart' as V2;
 import 'package:accumulate/src/v2/requests/api_request_tx_gen.dart' as V2;
-import 'package:accumulate/src/v2/requests/api_request_url.dart';
-import 'package:accumulate/src/v2/requests/api_request_url_pagination.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:hex/hex.dart';
 import 'package:http/http.dart';
 import 'package:tuple/tuple.dart';
 
-class ACMIApiV2 {
+class ACMEApiV2 {
   String apiRPCUrl = "https://testnet.accumulatenetwork.io/";
   String apiPrefix = "v2";
 
-  ACMIApiV2(this.apiRPCUrl, this.apiPrefix );
+  ACMEApiV2(this.apiRPCUrl, this.apiPrefix );
 
   Future<String> callGetVersion() async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
