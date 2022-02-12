@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:accumulate/accumulate.dart';
@@ -14,7 +15,9 @@ void main() {
     final acmiAPI = ACMIApiV2("https://testnet.accumulatenetwork.io/", "v2");
 
     setUp(() async {
+    });
 
+    Future<String> makeFaucetTest() async {
       // Generate some random data for private keys
       String mnemonic = bip39.generateMnemonic();
       Uint8List seed = bip39.mnemonicToSeed(mnemonic);
@@ -33,12 +36,15 @@ void main() {
       print(liteAccount.address);
 
       // 3. Initiate API class instance and register address on the network with faucet
-      final acmiAPI = ACMIApiV2("https://testnet.accumulatenetwork.io/", "v2");
+      final acmiAPI = ACMIApiV2("https://devnet.accumulatenetwork.io/", "v2");
       final resp = await acmiAPI.callFaucet(liteAccount);
-    });
+      return resp;
+    }
 
-    test('First Test', () {
-      expect(acmiAPI.toString(), isTrue);
+    test('First Test', () async {
+      final String resp = await makeFaucetTest();
+      expect(resp.isNotEmpty, isTrue);
+      exit(0);
     });
   });
 }
