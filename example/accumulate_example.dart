@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:math';
 
 import 'package:accumulate/accumulate.dart';
 import 'package:accumulate/src/model/address.dart';
@@ -89,52 +90,112 @@ void main() {
     }
 
     Future<String> makeAdiTest() async {
-      Address currAddr = Address("acc://dfdc4d9ec31f8dce909cdcaba2ec1d17ccd07f49fdb2bff0/acme", "web1", "");
-      currAddr
-        ..pikHex =
-            "5aa68d91be19c570d01b2c4bb24fd4fd3e3d4fa27a0d8f3a89796c8adf2bef90efc5553bb18b3ab3a41629e72eb32fe0d6060d954b0c6d854ee7c6caae061a77"
-        ..puk = "efc5553bb18b3ab3a41629e72eb32fe0d6060d954b0c6d854ee7c6caae061a77";
 
-      IdentityADI newADI = IdentityADI("", "acc://cosmonaut1", "");
+      // 1. Generate some random data for private keys
+      String mnemonic = bip39.generateMnemonic();
+      Uint8List seed = bip39.mnemonicToSeed(mnemonic);
+
+      // 2. initiate public/private keypage
+      var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32)); // Uint8List.fromList(List.generate(32, (index) => 0)));
+      var publicKey = ed.public(privateKey);
+
+      // 3. Create New unique ACME url based on Protocol definition
+      Address liteAccount = Address("", "ACME Account", "");
+      AccumulateURL currentURL = liteAccount.generateAddressViaProtocol(publicKey.bytes, "ACME");
+      liteAccount.address = currentURL.getPath();
+      liteAccount.URL = currentURL;
+
+      //   3.1 Store associated private key data along with Address structure
+      //       internal methods will use it to sign payloads
+      liteAccount.puk = HEX.encode(publicKey.bytes);
+      liteAccount.pik = privateKey.bytes;
+      liteAccount.pikHex = HEX.encode(privateKey.bytes);
+
+      print(liteAccount.address);
+
+      // 4. Initialize API class
+      final acmeAPI = ACMEApiV2("http://178.20.158.25:56660/", "v2");
+
+      // 5. Add ACME tokens from faucet, at least 3 times because fee is high
+      //      - must maintain 4s delay for tx to settle, otherwise it may stall account chain
+      final respFaucet = await acmeAPI.callFaucet(liteAccount);
+      final sleep = await Future.delayed(Duration(seconds: 4));
+      final respFaucet2 = await acmeAPI.callFaucet(liteAccount);
+      final sleep2 = await Future.delayed(Duration(seconds: 4));
+      final respFaucet3 = await acmeAPI.callFaucet(liteAccount);
+      final sleep3 = await Future.delayed(Duration(seconds: 4));
+      print('faucet - ${respFaucet}');
+
+      // 6. Credits are converted from ACME token
+      //   6.1 Get current timestamp in microseconds it works as Nonce
+      int timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
+
+      //   6.2 Execute actual credits call
+      final respCredits = await acmeAPI.callAddCredits(liteAccount, 2500, timestamp);
+      print('credits - ${respCredits}');
+
+      // 6. Generate ADI
+      // 6.1 Every ADI is unique, in order to avoid name clash, create random number
+      //var rng = new Random();
+      //var num = new List.generate(12, (_) => rng.nextInt(100)).reduce((value, element) => value + element);
+
+      // OR use timestamp
+
+      // 6.2 Prepare ADI structure that we'll forward to API
+      //    - here we reuse keys from lite account but new can be created and supplied
+      //    - sponsor defines who will pay the creation fee
+      IdentityADI newADI = IdentityADI("", "acc://cosmonaut-" + timestamp.toString(), "");
       newADI
-        ..sponsor = currAddr.address
-        ..puk = currAddr.puk
-        ..pik = currAddr.pik
+        ..sponsor = liteAccount.address
+        ..puk = liteAccount.puk
+        ..pik = liteAccount.pik
         ..countKeybooks = 1
         ..countAccounts = 0;
 
-      // 3. add timestamp
-      int timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
-      //int timestampShort = (DateTime.now().millisecondsSinceEpoch / 1000).toInt();
+      print('ADI - ${newADI.path}');
 
-      final acmeAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
+      // 7. Add timestamp
+      //    Every tx should maintain unique Nonce, thus calling it again
+      //    otherwise tx will fail
+      int timestampForAdi = DateTime.now().toUtc().millisecondsSinceEpoch;
+
+      // 8. Execute specific API method and provide arguments
       String txhash = "";
       try {
-        final resp = await acmeAPI.callCreateAdi(currAddr, newADI, timestamp);
+        final resp = await acmeAPI.callCreateAdi(liteAccount, newADI, timestampForAdi);
         txhash = resp;
       } catch (e) {
         e.toString();
         return "";
       }
 
+      // 9. Check created ADI
+      final respAccount = await acmeAPI.callQuery(newADI.path);
+      print('ADI: ${respAccount.url}');
+
       return txhash;
     }
 
-    test('Faucet Test - Single Call', () async {
+    test('Tests', () async {
       final String resp = await makeFaucetTest();
       expect(resp.isNotEmpty, isTrue);
+
       final String respC = await makeCreditsTest();
       expect(respC.isNotEmpty, isTrue);
+
+      final String respA = await makeAdiTest();
+      expect(respA.isNotEmpty, isTrue);
+
     });
 
-    // test('Faucet Test - Multiple Calls Over Short Period', () async {
-    //   // final String resp = await makeFaucetTest();
-    //   // for (int i = 0; i < 10; i++) {
-    //   //   final String resp = await makeFaucetTest();
-    //   //   final sleep = await Future.delayed(Duration(seconds: 1));
-    //   // }
-    //   // expect(resp.isNotEmpty, isTrue);
-    // });
+    test('Faucet Test - Multiple Calls Over Short Period', () async {
+      // final String resp = await makeFaucetTest();
+      // for (int i = 0; i < 10; i++) {
+      //   final String resp = await makeFaucetTest();
+      //   final sleep = await Future.delayed(Duration(seconds: 1));
+      // }
+      // expect(resp.isNotEmpty, isTrue);
+    });
 
     //exit(0);
   });
