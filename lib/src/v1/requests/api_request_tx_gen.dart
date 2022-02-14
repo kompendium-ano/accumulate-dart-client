@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:accumulate/src/utils/marshaller.dart';
+import 'package:accumulate_api/src/utils/marshaller.dart';
 import 'package:crypto/crypto.dart';
 
 // this is a special type we follow

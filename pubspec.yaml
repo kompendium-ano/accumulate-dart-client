@@ -1,4 +1,4 @@
-name: accumulate
+name: accumulate_api
 description: JSON RPC Dart client for Accumulate blockchain.
 version: 0.2.0
 

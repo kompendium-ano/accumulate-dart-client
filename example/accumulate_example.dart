@@ -2,9 +2,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:math';
 
-import 'package:accumulate/accumulate.dart';
-import 'package:accumulate/src/model/address.dart';
-import 'package:accumulate/src/model/adi.dart';
+import 'package:accumulate_api/accumulate.dart';
+import 'package:accumulate_api/src/model/address.dart';
+import 'package:accumulate_api/src/model/adi.dart';
 import 'package:test/test.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:bip39/bip39.dart' as bip39;

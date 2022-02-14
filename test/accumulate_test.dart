@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:accumulate/accumulate.dart';
-import 'package:accumulate/src/model/address.dart';
-import 'package:accumulate/src/v2/api.dart';
+import 'package:accumulate_api/accumulate.dart';
+import 'package:accumulate_api/src/model/address.dart';
+import 'package:accumulate_api/src/v2/api.dart';
 import 'package:test/test.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:hex/hex.dart';
