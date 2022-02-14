@@ -71,6 +71,8 @@ class ACMEApiV2 {
     if (res != null) {
       txid = res.result["txid"];
       String envelopeHash = res.result["envelopeHash"];
+      String message = res.result["message"];
+      print("Faucet: ${message}" );
     }
 
     return txid;
@@ -138,6 +140,12 @@ class ACMEApiV2 {
             urlData.txcount = txcount;
             urlData.nonce = nonce;
             urlData.creditBalance = int.parse(creditBalance);
+          }
+          break;
+        default:
+          if (dt.length > 2) {
+            String url = res.result["data"]["url"];
+            urlData.url = url;
           }
           break;
       }
@@ -927,7 +935,7 @@ class ACMEApiV2 {
       int code = res.result["code"];
       String message = res.result["message"];
 
-      log('Response: $message');
+      print('Response: $message');
     }
     return txid;
   }

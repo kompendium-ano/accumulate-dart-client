@@ -16,8 +16,8 @@ import 'package:tuple/tuple.dart';
 @Timeout(Duration(seconds: 300))
 void main() {
 
-  group('TestNet Tests', () {
-    final testnetAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
+  group('DevNet Tests', () {
+    final testnetAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
 
     setUp(() async {});
 
@@ -40,7 +40,7 @@ void main() {
       print(liteAccount.address);
 
       // 3. Initiate API class instance and register address on the network with faucet
-      final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
+      final acmeAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
       final resp = await acmeAPI.callFaucet(liteAccount);
       return resp;
     }
@@ -69,7 +69,7 @@ void main() {
       print(liteAccount.address);
 
       // 4. Initiate API class instance and register address on the network with faucet
-      final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
+      final acmeAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
       final respFaucet = await acmeAPI.callFaucet(liteAccount);
       print('faucet - ${respFaucet}');
 
@@ -122,16 +122,15 @@ void main() {
       // 5. Add ACME tokens from faucet, at least 3 times because fee is high
       //      - must maintain 4s delay for tx to settle, otherwise it may stall account chain
       final respFaucet = await acmeAPI.callFaucet(liteAccount);
-      final sleep = await Future.delayed(Duration(seconds: 8));
+      final sleep = await Future.delayed(Duration(seconds: 15));
       final respFaucet2 = await acmeAPI.callFaucet(liteAccount);
-      final sleep2 = await Future.delayed(Duration(seconds: 8));
+      final sleep2 = await Future.delayed(Duration(seconds: 15));
       final respFaucet3 = await acmeAPI.callFaucet(liteAccount);
-      final sleep3 = await Future.delayed(Duration(seconds: 8));
-      final respFaucet4 = await acmeAPI.callFaucet(liteAccount);
-      final sleep4 = await Future.delayed(Duration(seconds: 8));
-      final respFaucet5 = await acmeAPI.callFaucet(liteAccount);
-      final sleep5 = await Future.delayed(Duration(seconds: 8));
+      final sleep3 = await Future.delayed(Duration(seconds: 15));
       print('faucets - ${respFaucet}');
+
+      final respAccountL = await acmeAPI.callQuery(liteAccount.address);
+      print('Lite Account Credits: ${respAccountL.balance}');
 
       // 6. Credits are converted from ACME token
       //   6.1 Get current timestamp in microseconds it works as Nonce
@@ -140,8 +139,22 @@ void main() {
       //   6.2 Execute actual credits call
       //       ADI very expensive, needs 5000 credits
       final respCredits = await acmeAPI.callAddCredits(liteAccount, 5000 * 100, timestamp);
-      final sleep6 = await Future.delayed(Duration(seconds: 8));
+      final sleep6 = await Future.delayed(Duration(seconds: 15));
       print('credits - ${respCredits}');
+
+      // we need more credits
+      final respFaucet4 = await acmeAPI.callFaucet(liteAccount);
+      final sleep4 = await Future.delayed(Duration(seconds: 15));
+      final respFaucet5 = await acmeAPI.callFaucet(liteAccount);
+      final sleep5 = await Future.delayed(Duration(seconds: 15));
+
+      timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
+      final respCredits2 = await acmeAPI.callAddCredits(liteAccount, 5000 * 100, timestamp);
+      final sleep62 = await Future.delayed(Duration(seconds: 15));
+      print('credits - ${respCredits2}');
+
+      final respAccount = await acmeAPI.callQuery(liteAccount.address);
+      print('Lite Account Credits: ${respAccount.creditBalance}');
 
       // 6. Generate ADI
       // 6.1 Every ADI is unique, in order to avoid name clash, create random number
@@ -181,8 +194,8 @@ void main() {
       final sleep7 = await Future.delayed(Duration(seconds: 10));
 
       // 9. Check created ADI
-      final respAccount = await acmeAPI.callQuery(newADI.path);
-      print('ADI: ${respAccount.url}');
+      final respAccountAdi = await acmeAPI.callQuery(newADI.path);
+      print('ADI: ${respAccountAdi.url}');
 
       return txhash;
     }

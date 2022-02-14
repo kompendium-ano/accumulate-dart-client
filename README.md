@@ -60,7 +60,7 @@ int timestamp = DateTime
     .toUtc()
     .millisecondsSinceEpoch;
 
-final acmeAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
+final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
 String txhash = "";
 try {
   final resp = await api.callCreateAdi(currAddr, newADI, timestamp);
