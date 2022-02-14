@@ -29,6 +29,7 @@ import 'package:hex/hex.dart';
 import 'package:http/http.dart';
 import 'package:tuple/tuple.dart';
 
+
 class ACMEApiV2 {
   String apiRPCUrl = "https://testnet.accumulatenetwork.io/";
   String apiPrefix = "v2";
@@ -282,7 +283,7 @@ class ACMEApiV2 {
       [String keybookName, String keypageName]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
-    timestamp = timestamp * 1000;
+    //timestamp = timestamp * 1000;
 
     int keypageHeightToUse = 1;
     int keyPageIndexInsideKeyBook = 0;
@@ -355,7 +356,7 @@ class ACMEApiV2 {
       int code = res.result["code"];
       String message = res.result["message"];
 
-      log('Response: $message');
+      print('Response: $message');
       if (code == 12) {}
     }
 
@@ -835,7 +836,7 @@ class ACMEApiV2 {
       [KeyPage currKeyPage, acme.Key currKey]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
-    timestamp = timestamp * 1000;
+    //timestamp = timestamp * 1000;
     int keypageHeightToUse = 1;
     String currOrigin;
 

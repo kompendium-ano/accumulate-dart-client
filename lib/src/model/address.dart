@@ -454,4 +454,9 @@ class Address {
     }
     // 1. get hash of the address including prefix
   }
+
+  @override
+  String toString() {
+    return "path: " + address + "\n - balance: " + amount.toString() + "\n - credits: " + amountCredits.toString();
+  }
 }
