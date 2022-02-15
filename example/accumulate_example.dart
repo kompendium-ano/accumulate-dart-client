@@ -17,7 +17,7 @@ import 'package:tuple/tuple.dart';
 void main() {
 
   group('DevNet Tests', () {
-    final testnetAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
+    final testnetAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
 
     setUp(() async {});
 
@@ -40,7 +40,7 @@ void main() {
       print(liteAccount.address);
 
       // 3. Initiate API class instance and register address on the network with faucet
-      final acmeAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
+      final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
       final resp = await acmeAPI.callFaucet(liteAccount);
       return resp;
     }
@@ -69,7 +69,7 @@ void main() {
       print(liteAccount.address);
 
       // 4. Initiate API class instance and register address on the network with faucet
-      final acmeAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
+      final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
       final respFaucet = await acmeAPI.callFaucet(liteAccount);
       print('faucet - ${respFaucet}');
 
@@ -117,7 +117,7 @@ void main() {
       print(liteAccount.address);
 
       // 4. Initialize API class
-      final acmeAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
+      final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
 
       // 5. Add ACME tokens from faucet, at least 3 times because fee is high
       //      - must maintain 4s delay for tx to settle, otherwise it may stall account chain
