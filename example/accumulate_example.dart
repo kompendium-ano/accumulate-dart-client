@@ -17,7 +17,7 @@ import 'package:tuple/tuple.dart';
 void main() {
 
   group('DevNet Tests', () {
-    final testnetAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
+    final testnetAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
 
     setUp(() async {});
 
@@ -40,7 +40,7 @@ void main() {
       print(liteAccount.address);
 
       // 3. Initiate API class instance and register address on the network with faucet
-      final acmeAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
+      final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
       final resp = await acmeAPI.callFaucet(liteAccount);
       return resp;
     }
@@ -69,7 +69,7 @@ void main() {
       print(liteAccount.address);
 
       // 4. Initiate API class instance and register address on the network with faucet
-      final acmeAPI = ACMEApiV2("https://devnet.accumulatenetwork.io/", "v2");
+      final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
       final respFaucet = await acmeAPI.callFaucet(liteAccount);
       print('faucet - ${respFaucet}');
 
@@ -127,10 +127,10 @@ void main() {
       final sleep2 = await Future.delayed(Duration(seconds: 15));
       final respFaucet3 = await acmeAPI.callFaucet(liteAccount);
       final sleep3 = await Future.delayed(Duration(seconds: 15));
-      print('faucets - ${respFaucet}');
+      print('Faucets - ${respFaucet}');
 
       final respAccountL = await acmeAPI.callQuery(liteAccount.address);
-      print('Lite Account Credits: ${respAccountL.balance}');
+      print('Lite Account ${respAccountL.url}:\n ACME - ${respAccountL.balance}, Credits - ${respAccountL.creditBalance}');
 
       // 6. Credits are converted from ACME token
       //   6.1 Get current timestamp in microseconds it works as Nonce
@@ -138,9 +138,13 @@ void main() {
 
       //   6.2 Execute actual credits call
       //       ADI very expensive, needs 5000 credits
-      final respCredits = await acmeAPI.callAddCredits(liteAccount, 5000 * 100, timestamp);
+      final respCredits = await acmeAPI.callAddCredits(liteAccount, 3000 * 100, timestamp);
       final sleep6 = await Future.delayed(Duration(seconds: 15));
-      print('credits - ${respCredits}');
+      print('Faucets - ${respCredits}');
+
+      // Collect info about Balances
+      final respAccountL2 = await acmeAPI.callQuery(liteAccount.address);
+      print('Lite Account ${respAccountL2.url}:\n ACME - ${respAccountL2.balance}, Credits - ${respAccountL2.creditBalance}');
 
       // we need more credits
       final respFaucet4 = await acmeAPI.callFaucet(liteAccount);
@@ -149,12 +153,12 @@ void main() {
       final sleep5 = await Future.delayed(Duration(seconds: 15));
 
       timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
-      final respCredits2 = await acmeAPI.callAddCredits(liteAccount, 5000 * 100, timestamp);
+      final respCredits2 = await acmeAPI.callAddCredits(liteAccount, 2000 * 100, timestamp);
       final sleep62 = await Future.delayed(Duration(seconds: 15));
-      print('credits - ${respCredits2}');
 
-      final respAccount = await acmeAPI.callQuery(liteAccount.address);
-      print('Lite Account Credits: ${respAccount.creditBalance}');
+      // Collect info about Balances
+      final respAccountL3 = await acmeAPI.callQuery(liteAccount.address);
+      print('Lite Account ${respAccountL3.url}:\n ACME - ${respAccountL3.balance}, Credits - ${respAccountL3.creditBalance}');
 
       // 6. Generate ADI
       // 6.1 Every ADI is unique, in order to avoid name clash, create random number

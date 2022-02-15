@@ -31,7 +31,7 @@ import 'package:tuple/tuple.dart';
 
 
 class ACMEApiV2 {
-  String apiRPCUrl = "https://testnet.accumulatenetwork.io/";
+  String apiRPCUrl = "https://devnet.accumulatenetwork.io/";
   String apiPrefix = "v2";
 
   ACMEApiV2(this.apiRPCUrl, this.apiPrefix );

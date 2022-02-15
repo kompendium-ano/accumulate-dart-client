@@ -6,6 +6,8 @@ JSON RPC client for Accumulate blockchain
 
 ## Usage
 
+Note: v1 deprecated and soon will be removed from source code. Use v2 only.
+
 ### 1. Generate Lite Account
 
 Lite Accounts are simple anonymous accounts, that can be create in following manner
@@ -63,7 +65,8 @@ int timestamp = DateTime
 final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
 String txhash = "";
 try {
-  final resp = await api.callCreateAdi(currAddr, newADI, timestamp);
+  // book0 and page0 are default books created during ADI creation
+  final resp = await api.callCreateAdi(currAddr, newADI, timestamp, "book0", "page0");
   txhash = resp;
 } catch (e) {
   e.toString();
@@ -74,13 +77,35 @@ try {
 ### 4. Generate ADI with non-default keybooks
 
 ```dart
+// 5. Prepare ADI structure
+IdentityADI newADI = IdentityADI("", "acc://cosmonaut1", "");
+newADI
+  ..sponsor = liteAccount.address
+  ..puk = liteAccount.puk
+  ..pik = liteAccount.pik
+  ..countKeybooks = 1
+
+// 3. add timestamp as Nonce value
+int timestamp = DateTime
+    .now()
+    .toUtc()
+    .millisecondsSinceEpoch;
+
+final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
+String txhash = "";
+try {
+  // Here we supply keybook and keypage paths of initially created entities
+  final resp = await api.callCreateAdi(currAddr, newADI, timestamp, keybook, keypagePage);
+  txhash = resp;
+} catch (e) {
+  e.toString();
+}
+
 ```
 
 
 ### 5. Generate ADI Token Account
 
-```dart
-```
 
 
 ### 6. Make Token Transactions
@@ -88,4 +113,7 @@ try {
 ```dart
 ```
 
- 
+### 7. Generate ADI Data Account
+
+
+### 8. Write Data to ADI Data Account
