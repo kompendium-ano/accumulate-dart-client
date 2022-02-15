@@ -74,14 +74,48 @@ try {
 
 ```
 
-### 4. Generate ADI with non-default keybooks
+### 4. Create Keybook with Keypages
+```dart
+// 4. At first we need to make new keypage
+//  4.1 Initial basic model
+KeyPage newKeyPage = KeyPage("", keypagePath, "");
+newKeyPage.keysRequired = 1;
+newKeyPage.keysRequiredOf = 1;
+
+// 4.2 Then we need to assemble list of public keys to add  
+String publicKeyFroKeypage = HEX.encode(publicKey.bytes);
+List<String> keysToRegister = [""];
+
+// 4.3 Get fresh timestamp
+int timestampForKeypage = DateTime
+    .now()
+    .toUtc()
+    .millisecondsSinceEpoch;
+
+// 4.4 Make Api call
+final resp = await api.callKeyPageCreate(newADI, newKeyPage, keysToRegister, timestampForKeypage);
+
+// 4.5 Then we need to add keypage to keybook
+//   4.5.1 Prepare KeyNook Structure
+String bookName = "my-awesome-book";
+String bookPath =  newAdi.path + "/" + bookName;
+KeyBook newKeyBook = KeyBook("default", bookPath, "");
+kb.parentAdi = newAdi.path;
+
+//   4.5.2 Get fresh timestamp
+int timestampForKeybook = DateTime
+    .now()
+    .toUtc()
+    .millisecondsSinceEpoch;
+
+//  4.5.3 Make Actual call 
+final respKb = await api.callKeyBookCreate(newADI, newKeyBook, [newKeyPage], timestampForKeyBook);
+
+```
+
+### 5. Create ADI with non-default keybooks
 
 ```dart
-
-// 1. At first we need to make new keypage
-
-
-// 2. Then we need to add keypage to keybook
 
 // 5. Prepare ADI structure
 IdentityADI newADI = IdentityADI("", "acc://cosmonaut1", "");
@@ -91,35 +125,13 @@ newADI
   ..pik = liteAccount.pik
   ..countKeybooks = 1
 
-// 3. add timestamp as Nonce value
+// 5.1 add timestamp as Nonce value
 int timestamp = DateTime
     .now()
     .toUtc()
     .millisecondsSinceEpoch;
 
-final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
-String txhash = "";
-try {
-  // Here we supply keybook and keypage paths of initially created entities
-  final resp = await api.callCreateAdi(currAddr, newADI, timestamp, keybook, keypagePage);
-  txhash = resp;
-} catch (e) {
-  e.toString();
-}
-
+// 5.2
+// Here we supply keybook and keypage paths of initially created entities
+  final resp = await api.callCreateAdi(currAddr, newADI, timestamp, newKeyBook.path, newKeyPage.path);
 ```
-
-
-### 5. Generate ADI Token Account
-
-
-
-### 6. Make Token Transactions
-
-```dart
-```
-
-### 7. Generate ADI Data Account
-
-
-### 8. Write Data to ADI Data Account
