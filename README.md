@@ -161,7 +161,7 @@ timestampForTokenAccount, kpuk, kpik, keyPageHeight);
 
 ```
 
-## & Create ADI Data Account
+## 7 Create ADI Data Account
 ```dart
 // 7. Prepare Data Account structure
 // 7.1 Understand current tip of Keypage chain, represented as int value, called "height"
