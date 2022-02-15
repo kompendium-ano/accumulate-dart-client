@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:math';
 
-import 'package:accumulate_api/accumulate.dart';
+import 'package:accumulate_api/accumulate_api.dart';
 import 'package:accumulate_api/src/model/address.dart';
 import 'package:accumulate_api/src/model/adi.dart';
 import 'package:test/test.dart';

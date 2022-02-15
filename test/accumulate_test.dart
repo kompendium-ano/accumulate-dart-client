@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:accumulate_api/accumulate.dart';
+import 'package:accumulate_api/accumulate_api.dart';
 import 'package:accumulate_api/src/model/address.dart';
 import 'package:accumulate_api/src/v2/api.dart';
 import 'package:test/test.dart';
