@@ -83,6 +83,7 @@ void main() {
 
       //   6.2 Execute actual credits call
       final respCredits = await acmeAPI.callAddCredits(liteAccount, 1000, timestamp);
+      final sleepC = await Future.delayed(Duration(seconds: 15));
       print('credits - ${respCredits}');
 
       //   6.3 Check that balance indeed updated
@@ -122,11 +123,11 @@ void main() {
       // 5. Add ACME tokens from faucet, at least 3 times because fee is high
       //      - must maintain 4s delay for tx to settle, otherwise it may stall account chain
       final respFaucet = await acmeAPI.callFaucet(liteAccount);
-      final sleep = await Future.delayed(Duration(seconds: 15));
+      final sleep = await Future.delayed(Duration(seconds: 18));
       final respFaucet2 = await acmeAPI.callFaucet(liteAccount);
-      final sleep2 = await Future.delayed(Duration(seconds: 15));
+      final sleep2 = await Future.delayed(Duration(seconds: 18));
       final respFaucet3 = await acmeAPI.callFaucet(liteAccount);
-      final sleep3 = await Future.delayed(Duration(seconds: 15));
+      final sleep3 = await Future.delayed(Duration(seconds: 18));
       print('Faucets - ${respFaucet}');
 
       final respAccountL = await acmeAPI.callQuery(liteAccount.address);
@@ -139,7 +140,7 @@ void main() {
       //   6.2 Execute actual credits call
       //       ADI very expensive, needs 5000 credits
       final respCredits = await acmeAPI.callAddCredits(liteAccount, 3000 * 100, timestamp);
-      final sleep6 = await Future.delayed(Duration(seconds: 15));
+      final sleep6 = await Future.delayed(Duration(seconds: 18));
       print('Faucets - ${respCredits}');
 
       // Collect info about Balances
@@ -148,13 +149,13 @@ void main() {
 
       // we need more credits
       final respFaucet4 = await acmeAPI.callFaucet(liteAccount);
-      final sleep4 = await Future.delayed(Duration(seconds: 15));
+      final sleep4 = await Future.delayed(Duration(seconds: 18));
       final respFaucet5 = await acmeAPI.callFaucet(liteAccount);
-      final sleep5 = await Future.delayed(Duration(seconds: 15));
+      final sleep5 = await Future.delayed(Duration(seconds: 18));
 
       timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
       final respCredits2 = await acmeAPI.callAddCredits(liteAccount, 2000 * 100, timestamp);
-      final sleep62 = await Future.delayed(Duration(seconds: 15));
+      final sleep62 = await Future.delayed(Duration(seconds: 18));
 
       // Collect info about Balances
       final respAccountL3 = await acmeAPI.callQuery(liteAccount.address);
