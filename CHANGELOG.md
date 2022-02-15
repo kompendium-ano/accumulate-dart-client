@@ -1,4 +1,7 @@
 
+# 0.2.1
+- Updates examples, small refactorings
+
 ## 0.2.0
 - Major support for v2
 - Updates internal models to support Data Account
