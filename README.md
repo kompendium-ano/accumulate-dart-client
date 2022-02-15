@@ -77,6 +77,12 @@ try {
 ### 4. Generate ADI with non-default keybooks
 
 ```dart
+
+// 1. At first we need to make new keypage
+
+
+// 2. Then we need to add keypage to keybook
+
 // 5. Prepare ADI structure
 IdentityADI newADI = IdentityADI("", "acc://cosmonaut1", "");
 newADI
