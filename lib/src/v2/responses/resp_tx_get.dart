@@ -7,9 +7,9 @@ class ApiRespTxTo {
     this.amount,
   });
 
-  String txid;
-  String url;
-  int amount;
+  String? txid;
+  String? url;
+  int? amount;
 
   factory ApiRespTxTo.fromRawJson(String str) => ApiRespTxTo.fromJson(json.decode(str));
 

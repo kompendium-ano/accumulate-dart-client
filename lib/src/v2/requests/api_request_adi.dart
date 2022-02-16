@@ -1,8 +1,8 @@
 class ApiRequestADI {
-  final String url;
-  final String publicKey;
-  String keyBookName; // optional
-  String keyPageName; // optional
+  final String? url;
+  final String? publicKey;
+  String? keyBookName; // optional
+  String? keyPageName; // optional
 
   ApiRequestADI(this.url, this.publicKey, this.keyBookName, this.keyPageName);
 

@@ -1,8 +1,8 @@
 class ApiRequestTokenAccount {
-  final String url;
-  final String tokenUrl;
-  final String keyBookUrl;
-  bool isScratch;
+  final String? url;
+  final String? tokenUrl;
+  final String? keyBookUrl;
+  bool? isScratch;
 
   ApiRequestTokenAccount(this.url, this.tokenUrl, this.keyBookUrl, this.isScratch);
 

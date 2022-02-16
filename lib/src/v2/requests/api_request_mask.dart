@@ -1,6 +1,6 @@
 
 class ApiRequestMask {
-  final int val;
+  final int? val;
 
   ApiRequestMask(this.val);
 

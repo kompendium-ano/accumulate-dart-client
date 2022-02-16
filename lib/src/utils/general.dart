@@ -28,7 +28,7 @@ bool intToBool(int a) => a == 0 ? false : true;
 ///
 ///  * [setEquals], which does something similar for sets.
 ///  * [mapEquals], which does something similar for maps.
-bool listEquals<T>(List<T> a, List<T> b) {
+bool listEquals<T>(List<T>? a, List<T> b) {
   if (a == null)
     return b == null;
   if (b == null || a.length != b.length)

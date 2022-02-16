@@ -1,7 +1,7 @@
 
 class ApiRequestMetrics {
-  final String metricName;
-  final String timeframe;
+  final String? metricName;
+  final String? timeframe;
 
   ApiRequestMetrics(this.metricName, this.timeframe);
 

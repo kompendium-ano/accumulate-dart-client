@@ -1,6 +1,6 @@
 class ApiRequestKeyBook {
-  final String url;
-  final List<String> pages;
+  final String? url;
+  final List<String>? pages;
 
   ApiRequestKeyBook(this.url, this.pages);
 

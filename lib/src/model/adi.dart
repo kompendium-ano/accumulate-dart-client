@@ -4,22 +4,22 @@ import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable()
 class IdentityADI {
-  String _type;
-  String _path;
-  String _sponsor; // address
-  String _puk;
-  List<int> _pik;
-  String _pikHex;
-  int _amount;
-  int _amountCredits;
-  int _countAccounts;
-  int _countKeybooks;
+  String? _type;
+  String? _path;
+  String? _sponsor; // address
+  String? _puk;
+  List<int>? _pik;
+  String? _pikHex;
+  int? _amount;
+  int? _amountCredits;
+  int? _countAccounts;
+  int? _countKeybooks;
 
   IdentityADI(this._type, this._path, this._sponsor);
 
-  String get type => _type;
+  String? get type => _type;
 
-  set type(String value) {
+  set type(String? value) {
     _type = value;
   }
 
@@ -48,57 +48,57 @@ class IdentityADI {
         'countKeybooks': _countKeybooks
       };
 
-  String get path => _path;
+  String? get path => _path;
 
-  set path(String value) {
+  set path(String? value) {
     _path = value;
   }
 
-  String get sponsor => _sponsor;
+  String? get sponsor => _sponsor;
 
-  set sponsor(String value) {
+  set sponsor(String? value) {
     _sponsor = value;
   }
 
-  int get amount => _amount;
+  int? get amount => _amount;
 
-  set amount(int value) {
+  set amount(int? value) {
     _amount = value;
   }
 
-  int get amountCredit => _amountCredits;
+  int? get amountCredit => _amountCredits;
 
   set amountCredits(int value) {
     _amountCredits = value;
   }
 
-  int get countKeybooks => _countKeybooks;
+  int? get countKeybooks => _countKeybooks;
 
-  set countKeybooks(int value) {
+  set countKeybooks(int? value) {
     _countKeybooks = value;
   }
 
-  int get countAccounts => _countAccounts;
+  int? get countAccounts => _countAccounts;
 
-  set countAccounts(int value) {
+  set countAccounts(int? value) {
     _countAccounts = value;
   }
 
-  List<int> get pik => _pik;
+  List<int>? get pik => _pik;
 
-  set pik(List<int> value) {
+  set pik(List<int>? value) {
     _pik = value;
   }
 
-  String get pikHex => _pikHex;
+  String? get pikHex => _pikHex;
 
-  set pikHex(String value) {
+  set pikHex(String? value) {
     _pikHex = value;
   }
 
-  String get puk => _puk;
+  String? get puk => _puk;
 
-  set puk(String value) {
+  set puk(String? value) {
     _puk = value;
   }
 

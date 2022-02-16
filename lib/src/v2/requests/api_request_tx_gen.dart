@@ -61,12 +61,12 @@ class TransactionType {
 }
 
 class TransactionHeader {
-  String origin;
-  int nonce;
-  int keyPageHeight;
-  int keyPageIndex;
+  String? origin;
+  int? nonce;
+  int? keyPageHeight;
+  int? keyPageIndex;
 
-  TransactionHeader({String origin, int nonce, int keyPageHeight, int keyPageIndex}) {
+  TransactionHeader({String? origin, int? nonce, int? keyPageHeight, int? keyPageIndex}) {
     this.origin = origin;
     this.nonce = nonce;
     this.keyPageHeight = keyPageHeight;
@@ -77,22 +77,22 @@ class TransactionHeader {
   List<int> marshal() {
     List<int> data = [];
 
-    List<int> encodedOrigin = utf8.encode(origin);
+    List<int> encodedOrigin = utf8.encode(origin!);
     data.addAll(uint64ToBytesAlt(encodedOrigin.length));
     data.addAll(encodedOrigin);
 
     ///
-    data.addAll(uint64ToBytesAlt(keyPageHeight));
+    data.addAll(uint64ToBytesAlt(keyPageHeight!));
 
     ///
     if(keyPageIndex == 0){
       data.add(0);
     } else {
-      data.addAll(uint64ToBytesAlt(keyPageIndex));
+      data.addAll(uint64ToBytesAlt(keyPageIndex!));
     }
 
     ///
-    data.addAll(uint64ToBytesNonce(nonce));
+    data.addAll(uint64ToBytesNonce(nonce!));
 
     return data;
   }

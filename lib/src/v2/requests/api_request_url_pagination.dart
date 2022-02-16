@@ -1,8 +1,8 @@
 
 class ApiRequestUrWithPagination {
-  final String url;
-  final int start;
-  final int count;
+  final String? url;
+  final int? start;
+  final int? count;
 
   ApiRequestUrWithPagination(this.url, this.start, this.count);
 

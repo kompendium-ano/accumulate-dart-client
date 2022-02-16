@@ -4,17 +4,17 @@ import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable()
 class Transaction {
-  String _type;     // name of the transaction type inside wallet
-  String _subtype;  // for better tx identification
-  String _typeNode; // name of the transaction inside node
-  String _txid;     // remote tx value
-  String _from;
-  String _to;
-  int _amount;
-  String _tokenUrl; //
-  int _created;     // when tx was actually created
+  String? _type;     // name of the transaction type inside wallet
+  String? _subtype;  // for better tx identification
+  String? _typeNode; // name of the transaction inside node
+  String? _txid;     // remote tx value
+  String? _from;
+  String? _to;
+  int? _amount;
+  String? _tokenUrl; //
+  int? _created;     // when tx was actually created
 
-  Transaction(String type, String subtype, String txid, String from, String to, int amount, String tokenUrl) {
+  Transaction(String? type, String subtype, String? txid, String? from, String? to, int? amount, String? tokenUrl) {
     this._type = type;
     this._subtype = subtype;
     this._txid = txid;
@@ -47,57 +47,57 @@ class Transaction {
         'created': _created,
       };
 
-  String get type => _type;
+  String? get type => _type;
 
-  set type(String value) {
+  set type(String? value) {
     _type = value;
   }
 
-  String get subtype => _subtype;
+  String? get subtype => _subtype;
 
-  set subtype(String value) {
+  set subtype(String? value) {
     _subtype = value;
   }
 
-  String get txid => _txid;
+  String? get txid => _txid;
 
-  set txid(String value) {
+  set txid(String? value) {
     _txid = value;
   }
 
-  String get from => _from;
+  String? get from => _from;
 
-  set from(String value) {
+  set from(String? value) {
     _from = value;
   }
 
-  String get to => _to;
+  String? get to => _to;
 
-  set to(String value) {
+  set to(String? value) {
     _to = value;
   }
 
-  int get amount => _amount;
+  int? get amount => _amount;
 
-  set amount(int value) {
+  set amount(int? value) {
     _amount = value;
   }
 
-  String get typeNode => _typeNode;
+  String? get typeNode => _typeNode;
 
-  set typeNode(String value) {
+  set typeNode(String? value) {
     _typeNode = value;
   }
 
-  String get tokenUrl => _tokenUrl;
+  String? get tokenUrl => _tokenUrl;
 
-  set tokenUrl(String value) {
+  set tokenUrl(String? value) {
     _tokenUrl = value;
   }
 
-  int get created => _created;
+  int? get created => _created;
 
-  set created(int value) {
+  set created(int? value) {
     _created = value;
   }
 }
