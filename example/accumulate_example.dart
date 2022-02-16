@@ -121,11 +121,11 @@ void main() {
       // 5. Add ACME tokens from faucet, at least 3 times because fee is high
       //      - must maintain 4s delay for tx to settle, otherwise it may stall account chain
       final respFaucet = await acmeAPI.callFaucet(liteAccount);
-      final sleep = await Future.delayed(Duration(seconds: 18));
+      final sleep = await Future.delayed(Duration(seconds: 5));
       final respFaucet2 = await acmeAPI.callFaucet(liteAccount);
-      final sleep2 = await Future.delayed(Duration(seconds: 18));
+      final sleep2 = await Future.delayed(Duration(seconds: 5));
       final respFaucet3 = await acmeAPI.callFaucet(liteAccount);
-      final sleep3 = await Future.delayed(Duration(seconds: 18));
+      final sleep3 = await Future.delayed(Duration(seconds: 5));
       print('Faucets - ${respFaucet}');
 
       final respAccountL = await acmeAPI.callQuery(liteAccount.address);
@@ -139,7 +139,7 @@ void main() {
       //   6.2 Execute actual credits call
       //       ADI very expensive, needs 5000 credits
       final respCredits = await acmeAPI.callAddCredits(liteAccount, 3000 * 100, timestamp);
-      final sleep6 = await Future.delayed(Duration(seconds: 18));
+      final sleep6 = await Future.delayed(Duration(seconds: 5));
       print('Faucets - ${respCredits}');
 
       // Collect info about Balances
@@ -149,13 +149,13 @@ void main() {
 
       // we need more credits
       final respFaucet4 = await acmeAPI.callFaucet(liteAccount);
-      final sleep4 = await Future.delayed(Duration(seconds: 18));
+      final sleep4 = await Future.delayed(Duration(seconds: 5));
       final respFaucet5 = await acmeAPI.callFaucet(liteAccount);
-      final sleep5 = await Future.delayed(Duration(seconds: 18));
+      final sleep5 = await Future.delayed(Duration(seconds: 5));
 
       timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
       final respCredits2 = await acmeAPI.callAddCredits(liteAccount, 2000 * 100, timestamp);
-      final sleep62 = await Future.delayed(Duration(seconds: 18));
+      final sleep62 = await Future.delayed(Duration(seconds: 5));
 
       // Collect info about Balances
       final respAccountL3 = await acmeAPI.callQuery(liteAccount.address);
@@ -235,11 +235,11 @@ void main() {
       // 5. Add ACME tokens from faucet, at least 3 times because fee is high
       //      - must maintain 4s delay for tx to settle, otherwise it may stall account chain
       final respFaucet = await acmeAPI.callFaucet(liteAccount);
-      final sleep = await Future.delayed(Duration(seconds: 18));
+      final sleep = await Future.delayed(Duration(seconds: 5));
       final respFaucet2 = await acmeAPI.callFaucet(liteAccount);
-      final sleep2 = await Future.delayed(Duration(seconds: 18));
+      final sleep2 = await Future.delayed(Duration(seconds: 5));
       final respFaucet3 = await acmeAPI.callFaucet(liteAccount);
-      final sleep3 = await Future.delayed(Duration(seconds: 18));
+      final sleep3 = await Future.delayed(Duration(seconds: 5));
       print('Faucets - ${respFaucet}');
 
       final respAccountL = await acmeAPI.callQuery(liteAccount.address);
@@ -253,7 +253,7 @@ void main() {
       //   6.2 Execute actual credits call
       //       ADI very expensive, needs 5000 credits
       final respCredits = await acmeAPI.callAddCredits(liteAccount, 3000 * 100, timestamp);
-      final sleep6 = await Future.delayed(Duration(seconds: 18));
+      final sleep6 = await Future.delayed(Duration(seconds: 5));
       print('Faucets - ${respCredits}');
 
       // Collect info about Balances
@@ -263,13 +263,13 @@ void main() {
 
       // we need more credits
       final respFaucet4 = await acmeAPI.callFaucet(liteAccount);
-      final sleep4 = await Future.delayed(Duration(seconds: 18));
+      final sleep4 = await Future.delayed(Duration(seconds: 5));
       final respFaucet5 = await acmeAPI.callFaucet(liteAccount);
-      final sleep5 = await Future.delayed(Duration(seconds: 18));
+      final sleep5 = await Future.delayed(Duration(seconds: 5));
 
       timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
       final respCredits2 = await acmeAPI.callAddCredits(liteAccount, 2000 * 100, timestamp);
-      final sleep62 = await Future.delayed(Duration(seconds: 18));
+      final sleep62 = await Future.delayed(Duration(seconds: 5));
 
       // Collect info about Balances
       final respAccountL3 = await acmeAPI.callQuery(liteAccount.address);
@@ -349,11 +349,11 @@ void main() {
       // 5. Add ACME tokens from faucet, at least 3 times because fee is high
       //      - must maintain 4s delay for tx to settle, otherwise it may stall account chain
       final respFaucet = await acmeAPI.callFaucet(liteAccount);
-      final sleep = await Future.delayed(Duration(seconds: 18));
+      final sleep = await Future.delayed(Duration(seconds: 5));
       final respFaucet2 = await acmeAPI.callFaucet(liteAccount);
-      final sleep2 = await Future.delayed(Duration(seconds: 18));
+      final sleep2 = await Future.delayed(Duration(seconds: 5));
       final respFaucet3 = await acmeAPI.callFaucet(liteAccount);
-      final sleep3 = await Future.delayed(Duration(seconds: 18));
+      final sleep3 = await Future.delayed(Duration(seconds: 5));
       print('Faucets - ${respFaucet}');
 
       final respAccountL = await acmeAPI.callQuery(liteAccount.address);
@@ -367,7 +367,7 @@ void main() {
       //   6.2 Execute actual credits call
       //       ADI very expensive, needs 5000 credits
       final respCredits = await acmeAPI.callAddCredits(liteAccount, 3000 * 100, timestamp);
-      final sleepC = await Future.delayed(Duration(seconds: 18));
+      final sleepC = await Future.delayed(Duration(seconds: 5));
       print('Faucets - ${respCredits}');
 
       // Collect info about Balances
@@ -377,13 +377,13 @@ void main() {
 
       // we need more credits
       final respFaucet4 = await acmeAPI.callFaucet(liteAccount);
-      final sleep4 = await Future.delayed(Duration(seconds: 18));
+      final sleep4 = await Future.delayed(Duration(seconds: 5));
       final respFaucet5 = await acmeAPI.callFaucet(liteAccount);
-      final sleep5 = await Future.delayed(Duration(seconds: 18));
+      final sleep5 = await Future.delayed(Duration(seconds: 5));
 
       timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
       final respCredits2 = await acmeAPI.callAddCredits(liteAccount, 2000 * 100, timestamp);
-      final sleepC2 = await Future.delayed(Duration(seconds: 18));
+      final sleepC2 = await Future.delayed(Duration(seconds: 5));
 
       // Collect info about Balances
       final respAccountL3 = await acmeAPI.callQuery(liteAccount.address);
@@ -425,7 +425,7 @@ void main() {
         print(e.toString());
         return "";
       }
-      final sleep7 = await Future.delayed(Duration(seconds: 18));
+      final sleep7 = await Future.delayed(Duration(seconds: 5));
 
       // 9. Check created ADI
       final respAccountAdi = await acmeAPI.callQuery(newADI.path);
@@ -433,16 +433,16 @@ void main() {
 
       // we need more credits BUT this time for ADI keypage
       final respFaucet6 = await acmeAPI.callFaucet(liteAccount);
-      final sleep6 = await Future.delayed(Duration(seconds: 18));
+      final sleep6 = await Future.delayed(Duration(seconds: 5));
       final respFaucet7 = await acmeAPI.callFaucet(liteAccount);
-      final sleep8 = await Future.delayed(Duration(seconds: 18));
+      final sleep8 = await Future.delayed(Duration(seconds: 5));
       final respFaucet8 = await acmeAPI.callFaucet(liteAccount);
-      final sleep9 = await Future.delayed(Duration(seconds: 18));
+      final sleep9 = await Future.delayed(Duration(seconds: 5));
 
       timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
       KeyPage defKeypage = KeyPage(newADI.path! + "/book0", newADI.path! + "/page0", "");
       final respCredits3 = await acmeAPI.callAddCredits(liteAccount, 2500 * 100, timestamp, defKeypage);
-      final sleepC3 = await Future.delayed(Duration(seconds: 18));
+      final sleepC3 = await Future.delayed(Duration(seconds: 5));
 
       // Collect info about Balances
       final respAccountL4 = await acmeAPI.callQuery(defKeypage.path);
@@ -476,18 +476,19 @@ void main() {
 
       // we need more credits
       final respFaucet10 = await acmeAPI.callFaucet(liteAccount);
-      final sleep11 = await Future.delayed(Duration(seconds: 18));
+      final sleep11 = await Future.delayed(Duration(seconds: 5));
       final respFaucet11 = await acmeAPI.callFaucet(liteAccount);
-      final sleep12 = await Future.delayed(Duration(seconds: 18));
+      final sleep12 = await Future.delayed(Duration(seconds: 5));
       final respFaucet12 = await acmeAPI.callFaucet(liteAccount);
-      final sleep13 = await Future.delayed(Duration(seconds: 18));
+      final sleep13 = await Future.delayed(Duration(seconds: 5));
 
       timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
       //KeyPage defKeypage = KeyPage(newADI.path! + "/book0", newADI.path! + "/page0", "");
       final respCredits4 = await acmeAPI.callAddCredits(liteAccount, 3000 * 100, timestamp, defKeypage);
       final sleepC4 = await Future.delayed(Duration(seconds: 15));
 
-      final kbData2 = await acmeAPI.callQuery(newADI.path! + "/page0");
+      final kbData2 = await acmeAPI.callQuery(defKeypage.path);
+      print('Key Page ${kbData2.url}:\n Credits - ${kbData2.creditBalance}');
       kbData2.hashCode;
       if (kbData2 != null) {
         keyPageHeight = kbData2.nonce!;
@@ -496,20 +497,20 @@ void main() {
       // 8. Execute specific API method and provide arguments
       txhash = "";
       int timestampForAdiDataAccount = DateTime.now().toUtc().millisecondsSinceEpoch;
-      String? dtknName = "data-tkna-" + timestampForAdiTokenAccount.toString();
+      String? dtknName = "data-tkna-" + timestampForAdiDataAccount.toString();
       try {
         final resp = await acmeAPI.callCreateDataAccount(
-            liteAccount, newADI, dtknName, timestampForAdiDataAccount, "book0", false); // is scratch or not
+            liteAccount, newADI, dtknName, timestampForAdiDataAccount, newADI.path! + "/book0", false, keyPageHeight); // is scratch or not
         txhash = resp;
       } catch (e) {
         e.toString();
         print(e.toString());
         return "";
       }
-      final sleep13 = await Future.delayed(Duration(seconds: 15));
+      final sleep14 = await Future.delayed(Duration(seconds: 15));
 
       // 11. Check created Data Account
-      final respDataAccount = await acmeAPI.callQuery(newADI.path! + "/" + tknName);
+      final respDataAccount = await acmeAPI.callQuery(newADI.path! + "/" + dtknName);
       print('ADI Data Account: ${respDataAccount.url}');
 
       return txhash;
@@ -539,5 +540,5 @@ void main() {
     });
 
     //exit(0);
-  }, timeout: Timeout(Duration(minutes: 5)));
+  }, timeout: Timeout(Duration(minutes: 8)));
 }
