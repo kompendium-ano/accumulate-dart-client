@@ -658,25 +658,37 @@ class TokenTx {
     List<int> msg = [];
 
     // VLQ converted transaction type
-    msg.addAll(uint64ToBytes(TransactionType.CreateDataAccount));
+    msg.addAll(uint64ToBytesAlt(TransactionType.CreateDataAccount));
 
     /// Converted url as (length of url + url)
     List<int> encodedAddress = utf8.encode(tx.payload!.url!);
-    msg.addAll(uint64ToBytes(encodedAddress.length));
+    msg.addAll(uint64ToBytesAlt(encodedAddress.length));
     msg.addAll(encodedAddress);
 
     ///
     List<int> encodedKeybook = utf8.encode(tx.payload!.keyBookUrl!);
-    msg.addAll(uint64ToBytes(encodedKeybook.length));
-    msg.addAll(encodedKeybook);
+    if(encodedKeybook.length > 0) {
+      msg.addAll(uint64ToBytesAlt(encodedKeybook.length));
+      msg.addAll(encodedKeybook);
+    } else {
+      msg.add(0);
+    }
 
     ///
     List<int> encodedManagerKeybook = utf8.encode(tx.payload!.managerKeyBookUrl!);
-    msg.addAll(uint64ToBytes(encodedManagerKeybook.length));
-    msg.addAll(encodedManagerKeybook);
+    if(encodedManagerKeybook.length > 0) {
+      msg.addAll(uint64ToBytesAlt(encodedManagerKeybook.length));
+      msg.addAll(encodedManagerKeybook);
+    } else {
+      msg.add(0);
+    }
 
     ///
-    msg.addAll(uint64ToBytes(boolToInt(tx.payload!.isScratch!)));
+    if(tx.payload!.isScratch!){
+      msg.add(1);
+    } else {
+      msg.add(0);
+    }
 
     ///
     return msg;
