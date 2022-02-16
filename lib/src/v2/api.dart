@@ -255,37 +255,37 @@ class ACMEApiV2 {
 
 // "create-data-account":  m.ExecuteWith(func() PL { return new(protocol.CreateDataAccount) }),
   Future<String?> callCreateDataAccount(Address currAddr, IdentityADI parentAdi, String accountName, int timestamp,
-      String? keybookName, bool? isScratch) async {
+      String? keybookName, bool? isScratch, [int? keyPageHeight]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
-    int keypageHeightToUse = 1;
+    int keypageHeightToUse = keyPageHeight ?? 1;
     int keyPageIndexInsideKeyBook = 0;
 
     // TODO: check if keybook name available
     // TODO: allow newly generated keypair
 
-    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currAddr.puk!));
-    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex!));
+    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(parentAdi.puk!));
+    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(parentAdi.pikHex!));
     var keyPair = ed.KeyPair(privateKey, publicKey);
 
-    Signer signer = Signer(publicKey: currAddr.puk, nonce: timestamp);
+    Signer signer = Signer(publicKey: parentAdi.puk, nonce: timestamp);
     ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(height: 1); //, index: 0);
 
     // prepare data
     ApiRequestDataAccount data =
-        ApiRequestDataAccount(parentAdi.path! + "/" + accountName, currAddr.puk, keybookName ?? "", isScratch);
+        ApiRequestDataAccount(parentAdi.path! + "/" + accountName, keybookName ?? "", keybookName ?? "", isScratch);
 
     ApiRequestRawTx_DataAccount tx = ApiRequestRawTx_DataAccount(
         payload: data,
         signer: signer,
         signature: "",
-        sponsor: currAddr.address,
-        origin: currAddr.address,
+        sponsor: parentAdi.path,
+        origin: parentAdi.path,
         keyPage: keyPage);
 
     TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
-        origin: currAddr.address,
+        origin: parentAdi.path,
         nonce: timestamp,
         keyPageHeight: keypageHeightToUse,
         keyPageIndex: keyPageIndexInsideKeyBook);
@@ -532,8 +532,8 @@ class ACMEApiV2 {
       int? code = res.result["code"];
       String? message = res.result["message"];
 
-      log("API RESULT: ${txid}");
-      log("API RESULT: ${message}");
+      print("API RESULT: ${txid}");
+      print("API RESULT: ${message}");
       if (code == 12) {}
     }
 
