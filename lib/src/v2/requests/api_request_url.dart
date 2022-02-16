@@ -1,6 +1,6 @@
 
 class ApiRequestUrl {
-  final String url;
+  final String? url;
 
   ApiRequestUrl(this.url);
 

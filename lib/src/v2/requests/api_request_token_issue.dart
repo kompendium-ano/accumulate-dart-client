@@ -1,6 +1,6 @@
 class ApiRequestTokenIssue {
-  final String url;
-  final int amount;
+  final String? url;
+  final int? amount;
 
   ApiRequestTokenIssue(this.url, this.amount);
 

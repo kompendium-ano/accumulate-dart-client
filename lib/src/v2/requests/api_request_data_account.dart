@@ -1,8 +1,8 @@
 class ApiRequestDataAccount {
-  final String url;
-  final String keyBookUrl;
-  final String managerKeyBookUrl;
-  final bool isScratch;
+  final String? url;
+  final String? keyBookUrl;
+  final String? managerKeyBookUrl;
+  final bool? isScratch;
 
   ApiRequestDataAccount(this.url, this.keyBookUrl, this.managerKeyBookUrl, this.isScratch);
 

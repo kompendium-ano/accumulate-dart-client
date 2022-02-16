@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 class ApiRequestKeyPageUpdate {
-  final String owner;
-  final String operation; // update, remove, add, set threshold
-  final String key; //
-  final String newKey;
+  final String? owner;
+  final String? operation; // update, remove, add, set threshold
+  final String? key; //
+  final String? newKey;
 
   ApiRequestKeyPageUpdate(this.operation, this.key, this.newKey, this.owner);
 

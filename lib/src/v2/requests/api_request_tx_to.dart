@@ -21,8 +21,8 @@ class ApiRequestTxToData {
     this.hash,
   });
 
-  String hash;
-  List<ApiRequestTxToDataTo> to;
+  String? hash;
+  List<ApiRequestTxToDataTo>? to;
 
   factory ApiRequestTxToData.fromRawJson(String str) => ApiRequestTxToData.fromJson(json.decode(str));
 
@@ -35,7 +35,7 @@ class ApiRequestTxToData {
 
   Map<String, dynamic> toJson() => {
         "hash": hash,
-        "to": List<dynamic>.from(to.map((x) => x.toJson())),
+        "to": List<dynamic>.from(to!.map((x) => x.toJson())),
       };
 }
 
@@ -45,8 +45,8 @@ class ApiRequestTxToDataTo {
     this.amount,
   });
 
-  String url;
-  int amount;
+  String? url;
+  int? amount;
 
   factory ApiRequestTxToDataTo.fromRawJson(String str) => ApiRequestTxToDataTo.fromJson(json.decode(str));
 
@@ -66,13 +66,13 @@ class ApiRequestTxToDataTo {
 class ApiRequestRawTx {
   ApiRequestRawTx({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
-  bool checkOnly;
-  String sponsor;
-  String origin;
-  ApiRequestTxToData payload;
-  Signer signer;
-  String signature;
-  ApiRequestRawTxKeyPage keyPage;
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestTxToData? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
 
   factory ApiRequestRawTx.fromRawJson(String str) => ApiRequestRawTx.fromJson(json.decode(str));
 
@@ -88,10 +88,10 @@ class ApiRequestRawTx {
   Map<String, dynamic> toJson() => {
         "origin": origin,
         "sponsor": sponsor,
-        "signer": signer.toJson(),
+        "signer": signer!.toJson(),
         "signature": signature,
-        "keyPage": keyPage.toJson(),
-        "payload": payload.toJson(),
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
       };
 }
 
@@ -101,8 +101,8 @@ class ApiRequestRawTxKeyPage {
     this.index,
   });
 
-  int height;
-  int index;
+  int? height;
+  int? index;
 
   factory ApiRequestRawTxKeyPage.fromRawJson(String str) => ApiRequestRawTxKeyPage.fromJson(json.decode(str));
 
@@ -122,13 +122,13 @@ class ApiRequestRawTxKeyPage {
 class ApiRequestRawTx_Credits {
   ApiRequestRawTx_Credits({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
-  bool checkOnly;
-  String sponsor;
-  String origin;
-  ApiRequestCredits payload;
-  Signer signer;
-  String signature;
-  ApiRequestRawTxKeyPage keyPage;
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestCredits? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
 
   factory ApiRequestRawTx_Credits.fromRawJson(String str) => ApiRequestRawTx_Credits.fromJson(json.decode(str));
 
@@ -144,10 +144,10 @@ class ApiRequestRawTx_Credits {
   Map<String, dynamic> toJson() => {
         "origin": origin,
         "sponsor": sponsor,
-        "signer": signer.toJson(),
+        "signer": signer!.toJson(),
         "signature": signature,
-        "keyPage": keyPage.toJson(),
-        "payload": payload.toJson(),
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
       };
 }
 
@@ -156,13 +156,13 @@ class ApiRequestRawTx_Credits {
 class ApiRequestRawTx_ADI {
   ApiRequestRawTx_ADI({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
-  bool checkOnly;
-  String sponsor;
-  String origin;
-  ApiRequestADI payload;
-  Signer signer;
-  String signature;
-  ApiRequestRawTxKeyPage keyPage;
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestADI? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
 
   factory ApiRequestRawTx_ADI.fromRawJson(String str) => ApiRequestRawTx_ADI.fromJson(json.decode(str));
 
@@ -178,23 +178,23 @@ class ApiRequestRawTx_ADI {
   Map<String, dynamic> toJson() => {
         "origin": origin,
         "sponsor": sponsor,
-        "payload": payload.toJson(),
-        "signer": signer.toJson(),
+        "payload": payload!.toJson(),
+        "signer": signer!.toJson(),
         "signature": signature,
-        "keyPage": keyPage.toJson(),
+        "keyPage": keyPage!.toJson(),
       };
 }
 
 class ApiRequestRawTx_TokenAccount {
   ApiRequestRawTx_TokenAccount({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
-  bool checkOnly;
-  String sponsor;
-  String origin;
-  ApiRequestTokenAccount payload;
-  Signer signer;
-  String signature;
-  ApiRequestRawTxKeyPage keyPage;
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestTokenAccount? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
 
   factory ApiRequestRawTx_TokenAccount.fromRawJson(String str) =>
       ApiRequestRawTx_TokenAccount.fromJson(json.decode(str));
@@ -211,23 +211,23 @@ class ApiRequestRawTx_TokenAccount {
   Map<String, dynamic> toJson() => {
         "origin": origin,
         "sponsor": sponsor,
-        "signer": signer.toJson(),
+        "signer": signer!.toJson(),
         "signature": signature,
-        "keyPage": keyPage.toJson(),
-        "payload": payload.toJson(),
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
       };
 }
 
 class ApiRequestRawTx_DataAccount {
   ApiRequestRawTx_DataAccount({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
-  bool checkOnly;
-  String sponsor;
-  String origin;
-  ApiRequestDataAccount payload;
-  Signer signer;
-  String signature;
-  ApiRequestRawTxKeyPage keyPage;
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestDataAccount? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
 
   factory ApiRequestRawTx_DataAccount.fromRawJson(String str) => ApiRequestRawTx_DataAccount.fromJson(json.decode(str));
 
@@ -243,23 +243,23 @@ class ApiRequestRawTx_DataAccount {
   Map<String, dynamic> toJson() => {
         "origin": origin,
         "sponsor": sponsor,
-        "signer": signer.toJson(),
+        "signer": signer!.toJson(),
         "signature": signature,
-        "keyPage": keyPage.toJson(),
-        "payload": payload.toJson(),
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
       };
 }
 
 class ApiRequestRawTx_KeyBook {
   ApiRequestRawTx_KeyBook({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
-  bool checkOnly;
-  String sponsor;
-  String origin;
-  ApiRequestKeyBook payload;
-  Signer signer;
-  String signature;
-  ApiRequestRawTxKeyPage keyPage;
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestKeyBook? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
 
   factory ApiRequestRawTx_KeyBook.fromRawJson(String str) => ApiRequestRawTx_KeyBook.fromJson(json.decode(str));
 
@@ -275,23 +275,23 @@ class ApiRequestRawTx_KeyBook {
   Map<String, dynamic> toJson() => {
         "origin": origin,
         "sponsor": sponsor,
-        "signer": signer.toJson(),
+        "signer": signer!.toJson(),
         "signature": signature,
-        "keyPage": keyPage.toJson(),
-        "payload": payload.toJson(),
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
       };
 }
 
 class ApiRequestRawTx_KeyPage {
   ApiRequestRawTx_KeyPage({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
-  bool checkOnly;
-  String sponsor;
-  String origin;
-  ApiRequestKeyPage payload;
-  Signer signer;
-  String signature;
-  ApiRequestRawTxKeyPage keyPage;
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestKeyPage? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
 
   factory ApiRequestRawTx_KeyPage.fromRawJson(String str) => ApiRequestRawTx_KeyPage.fromJson(json.decode(str));
 
@@ -307,23 +307,23 @@ class ApiRequestRawTx_KeyPage {
   Map<String, dynamic> toJson() => {
     "origin": origin,
     "sponsor": sponsor,
-    "signer": signer.toJson(),
+    "signer": signer!.toJson(),
     "signature": signature,
-    "keyPage": keyPage.toJson(),
-    "payload": payload.toJson(),
+    "keyPage": keyPage!.toJson(),
+    "payload": payload!.toJson(),
   };
 }
 
 class ApiRequestRawTx_KeyPageUpdate {
   ApiRequestRawTx_KeyPageUpdate({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
-  bool checkOnly;
-  String sponsor;
-  String origin;
-  ApiRequestKeyPageUpdate payload;
-  Signer signer;
-  String signature;
-  ApiRequestRawTxKeyPage keyPage;
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestKeyPageUpdate? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
 
   factory ApiRequestRawTx_KeyPageUpdate.fromRawJson(String str) => ApiRequestRawTx_KeyPageUpdate.fromJson(json.decode(str));
 
@@ -339,23 +339,23 @@ class ApiRequestRawTx_KeyPageUpdate {
   Map<String, dynamic> toJson() => {
     "origin": origin,
     "sponsor": sponsor,
-    "signer": signer.toJson(),
+    "signer": signer!.toJson(),
     "signature": signature,
-    "keyPage": keyPage.toJson(),
-    "payload": payload.toJson(),
+    "keyPage": keyPage!.toJson(),
+    "payload": payload!.toJson(),
   };
 }
 
 class ApiRequestRawTx_Token {
   ApiRequestRawTx_Token({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
-  bool checkOnly;
-  String sponsor;
-  String origin;
-  ApiRequestToken payload;
-  Signer signer;
-  String signature;
-  ApiRequestRawTxKeyPage keyPage;
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestToken? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
 
   factory ApiRequestRawTx_Token.fromRawJson(String str) => ApiRequestRawTx_Token.fromJson(json.decode(str));
 
@@ -371,23 +371,23 @@ class ApiRequestRawTx_Token {
   Map<String, dynamic> toJson() => {
         "origin": origin,
         "sponsor": sponsor,
-        "signer": signer.toJson(),
+        "signer": signer!.toJson(),
         "signature": signature,
-        "keyPage": keyPage.toJson(),
-        "payload": payload.toJson(),
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
       };
 }
 
 class ApiRequestRawTx_TokenIssue {
   ApiRequestRawTx_TokenIssue({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
-  bool checkOnly;
-  String sponsor;
-  String origin;
-  ApiRequestTokenIssue payload;
-  Signer signer;
-  String signature;
-  ApiRequestRawTxKeyPage keyPage;
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestTokenIssue? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
 
   factory ApiRequestRawTx_TokenIssue.fromRawJson(String str) => ApiRequestRawTx_TokenIssue.fromJson(json.decode(str));
 
@@ -403,23 +403,23 @@ class ApiRequestRawTx_TokenIssue {
   Map<String, dynamic> toJson() => {
         "origin": origin,
         "sponsor": sponsor,
-        "signer": signer.toJson(),
+        "signer": signer!.toJson(),
         "signature": signature,
-        "keyPage": keyPage.toJson(),
-        "payload": payload.toJson(),
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
       };
 }
 
 class ApiRequestRawTx_WriteData {
   ApiRequestRawTx_WriteData({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
-  bool checkOnly;
-  String sponsor;
-  String origin;
-  ApiRequestData payload;
-  Signer signer;
-  String signature;
-  ApiRequestRawTxKeyPage keyPage;
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestData? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
 
   factory ApiRequestRawTx_WriteData.fromRawJson(String str) => ApiRequestRawTx_WriteData.fromJson(json.decode(str));
 
@@ -435,10 +435,10 @@ class ApiRequestRawTx_WriteData {
   Map<String, dynamic> toJson() => {
         "origin": origin,
         "sponsor": sponsor,
-        "signer": signer.toJson(),
+        "signer": signer!.toJson(),
         "signature": signature,
-        "keyPage": keyPage.toJson(),
-        "payload": payload.toJson(),
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
       };
 }
 
@@ -450,8 +450,8 @@ class Signer {
     this.publicKey,
   });
 
-  int nonce;
-  String publicKey;
+  int? nonce;
+  String? publicKey;
 
   factory Signer.fromRawJson(String str) => Signer.fromJson(json.decode(str));
 
@@ -469,10 +469,10 @@ class Signer {
 }
 
 class TokenTx {
-  String hash;
-  String urlChain;
-  List<ApiRequestTxToDataTo> to;
-  String meta;
+  String? hash;
+  String? urlChain;
+  List<ApiRequestTxToDataTo>? to;
+  String? meta;
 
   List<int> marshalBinarySendTokens(ApiRequestRawTx tx) {
     /// Empty hash to fill out space
@@ -488,16 +488,16 @@ class TokenTx {
     msg.addAll([0]);
 
     /// number of "to" values
-    msg.addAll(uint64ToBytesAlt(tx.payload.to.length));
+    msg.addAll(uint64ToBytesAlt(tx.payload!.to!.length));
 
     /// in loop "to" values
-    for (var i = 0; i < tx.payload.to.length; i++) {
-      List<int> encodedTo = utf8.encode(tx.payload.to[i].url);
+    for (var i = 0; i < tx.payload!.to!.length; i++) {
+      List<int> encodedTo = utf8.encode(tx.payload!.to![i].url!);
       msg.addAll(uint64ToBytesAlt(encodedTo.length)); // converted string length
       msg.addAll(encodedTo); // actual converted string
 
       // converted/encoded amount length as it's a big number
-      List<int> encodedAmount = uint64ToBytesAlt(tx.payload.to[i].amount);
+      List<int> encodedAmount = uint64ToBytesAlt(tx.payload!.to![i].amount!);
       msg.addAll(uint64ToBytesAlt(encodedAmount.length));
       msg.addAll(encodedAmount);
     }
@@ -512,12 +512,12 @@ class TokenTx {
     msg.addAll(uint64ToBytesAlt(TransactionType.AddCredits));
 
     /// Converted recipient
-    List<int> encodedRecipient = utf8.encode(tx.payload.url);
+    List<int> encodedRecipient = utf8.encode(tx.payload!.url!);
     msg.addAll(uint64ToBytesAlt(encodedRecipient.length)); // converted string length
     msg.addAll(encodedRecipient); // actual converted string
 
     /// Converted amount
-    msg.addAll(uint64ToBytesNonce(tx.payload.amount));
+    msg.addAll(uint64ToBytesNonce(tx.payload!.amount!));
     // List<int> encodedAmount = uint64ToBytesAlt(tx.payload.amount);
     // msg.addAll(uint64ToBytesAlt(encodedAmount.length));
     // msg.addAll(encodedAmount);
@@ -532,33 +532,33 @@ class TokenTx {
     msg.addAll(uint64ToBytes(TransactionType.CreateToken));
 
     ///
-    List<int> encodedUrl = utf8.encode(tx.payload.url);
+    List<int> encodedUrl = utf8.encode(tx.payload!.url!);
     msg.addAll(uint64ToBytes(encodedUrl.length));
     msg.addAll(encodedUrl);
 
     ///
-    List<int> encodedKeyBookUrl = utf8.encode(tx.payload.keyBookUrl);
+    List<int> encodedKeyBookUrl = utf8.encode(tx.payload!.keyBookUrl!);
     msg.addAll(uint64ToBytes(encodedKeyBookUrl.length));
     msg.addAll(encodedKeyBookUrl);
 
     ///
-    List<int> encodedSymbol = utf8.encode(tx.payload.tokenSymbol);
+    List<int> encodedSymbol = utf8.encode(tx.payload!.tokenSymbol!);
     msg.addAll(uint64ToBytes(encodedSymbol.length));
     msg.addAll(encodedSymbol);
 
     ///
-    msg.addAll(uint64ToBytes(tx.payload.precision));
+    msg.addAll(uint64ToBytes(tx.payload!.precision!));
 
     ///
-    List<int> encodedProperties = utf8.encode(tx.payload.properties);
+    List<int> encodedProperties = utf8.encode(tx.payload!.properties!);
     msg.addAll(uint64ToBytes(encodedProperties.length));
     msg.addAll(encodedProperties);
 
     ///
-    msg.addAll(uint64ToBytes(tx.payload.initialSupply));
+    msg.addAll(uint64ToBytes(tx.payload!.initialSupply!));
 
     ///
-    msg.addAll(uint64ToBytes(boolToInt(tx.payload.hasSupplyLimit)));
+    msg.addAll(uint64ToBytes(boolToInt(tx.payload!.hasSupplyLimit!)));
 
     return msg;
   }
@@ -570,12 +570,12 @@ class TokenTx {
     msg.addAll(uint64ToBytes(TransactionType.IssueTokens));
 
     ///
-    List<int> encodedRecipient = utf8.encode(tx.payload.url);
+    List<int> encodedRecipient = utf8.encode(tx.payload!.url!);
     msg.addAll(uint64ToBytes(encodedRecipient.length)); // converted string length
     msg.addAll(encodedRecipient); // actual converted string
 
     ///
-    msg.addAll(uint64ToBytes(tx.payload.amount));
+    msg.addAll(uint64ToBytes(tx.payload!.amount!));
 
     return msg;
   }
@@ -587,7 +587,7 @@ class TokenTx {
     msg.addAll(uint64ToBytes(TransactionType.BurnTokens));
 
     ///
-    msg.addAll(uint64ToBytes(tx.payload.amount));
+    msg.addAll(uint64ToBytes(tx.payload!.amount!));
 
     return msg;
   }
@@ -599,22 +599,22 @@ class TokenTx {
     msg.addAll(uint64ToBytesAlt(TransactionType.CreateIdentity));
 
     ///
-    List<int> encodedAddress = utf8.encode(tx.payload.url);
+    List<int> encodedAddress = utf8.encode(tx.payload!.url!);
     msg.addAll(uint64ToBytesAlt(encodedAddress.length));
     msg.addAll(encodedAddress);
 
     ///
-    List<int> encodedPubKey = HEX.decode(tx.payload.publicKey);
+    List<int> encodedPubKey = HEX.decode(tx.payload!.publicKey!);
     msg.addAll(uint64ToBytesAlt(encodedPubKey.length));
     msg.addAll(encodedPubKey);
 
     ///
-    List<int> encodedKeybook = utf8.encode(tx.payload.keyBookName);
+    List<int> encodedKeybook = utf8.encode(tx.payload!.keyBookName!);
     msg.addAll(uint64ToBytesAlt(encodedKeybook.length));
     msg.addAll(encodedKeybook);
 
     ///
-    List<int> encodedKeypage = utf8.encode(tx.payload.keyPageName);
+    List<int> encodedKeypage = utf8.encode(tx.payload!.keyPageName!);
     msg.addAll(uint64ToBytesAlt(encodedKeypage.length));
     msg.addAll(encodedKeypage);
 
@@ -629,22 +629,22 @@ class TokenTx {
     msg.addAll(uint64ToBytesAlt(TransactionType.CreateTokenAccount));
 
     ///
-    List<int> encodedAddress = utf8.encode(tx.payload.url);
+    List<int> encodedAddress = utf8.encode(tx.payload!.url!);
     msg.addAll(uint64ToBytesAlt(encodedAddress.length));
     msg.addAll(encodedAddress);
 
     ///
-    List<int> encodedTokeUrl = utf8.encode(tx.payload.tokenUrl);
+    List<int> encodedTokeUrl = utf8.encode(tx.payload!.tokenUrl!);
     msg.addAll(uint64ToBytesAlt(encodedTokeUrl.length));
     msg.addAll(encodedTokeUrl);
 
     ///
-    List<int> encodedKeybook = utf8.encode(tx.payload.keyBookUrl);
+    List<int> encodedKeybook = utf8.encode(tx.payload!.keyBookUrl!);
     msg.addAll(uint64ToBytesAlt(encodedKeybook.length));
     msg.addAll(encodedKeybook);
 
     ///
-    if(tx.payload.isScratch){
+    if(tx.payload!.isScratch!){
      msg.add(1);
     } else {
      msg.add(0);
@@ -661,22 +661,22 @@ class TokenTx {
     msg.addAll(uint64ToBytes(TransactionType.CreateDataAccount));
 
     /// Converted url as (length of url + url)
-    List<int> encodedAddress = utf8.encode(tx.payload.url);
+    List<int> encodedAddress = utf8.encode(tx.payload!.url!);
     msg.addAll(uint64ToBytes(encodedAddress.length));
     msg.addAll(encodedAddress);
 
     ///
-    List<int> encodedKeybook = utf8.encode(tx.payload.keyBookUrl);
+    List<int> encodedKeybook = utf8.encode(tx.payload!.keyBookUrl!);
     msg.addAll(uint64ToBytes(encodedKeybook.length));
     msg.addAll(encodedKeybook);
 
     ///
-    List<int> encodedManagerKeybook = utf8.encode(tx.payload.managerKeyBookUrl);
+    List<int> encodedManagerKeybook = utf8.encode(tx.payload!.managerKeyBookUrl!);
     msg.addAll(uint64ToBytes(encodedManagerKeybook.length));
     msg.addAll(encodedManagerKeybook);
 
     ///
-    msg.addAll(uint64ToBytes(boolToInt(tx.payload.isScratch)));
+    msg.addAll(uint64ToBytes(boolToInt(tx.payload!.isScratch!)));
 
     ///
     return msg;
@@ -689,16 +689,16 @@ class TokenTx {
     msg.addAll(uint64ToBytesAlt(TransactionType.CreateKeyBook));
 
     ///
-    List<int> encodedKeybook = utf8.encode(tx.payload.url);
+    List<int> encodedKeybook = utf8.encode(tx.payload!.url!);
     msg.addAll(uint64ToBytesAlt(encodedKeybook.length));
     msg.addAll(encodedKeybook);
 
     // number of "pages" values
-    msg.addAll(uint64ToBytesAlt(tx.payload.pages.length));
+    msg.addAll(uint64ToBytesAlt(tx.payload!.pages!.length));
 
     // in loop pages values
-    for (var i = 0; i < tx.payload.pages.length; i++) {
-      List<int> encodedPage = utf8.encode(tx.payload.pages[i]);
+    for (var i = 0; i < tx.payload!.pages!.length; i++) {
+      List<int> encodedPage = utf8.encode(tx.payload!.pages![i]);
       msg.addAll(uint64ToBytesAlt(encodedPage.length));
       msg.addAll(encodedPage);
     }
@@ -713,16 +713,16 @@ class TokenTx {
     msg.addAll(uint64ToBytesAlt(TransactionType.CreateKeyPage));
 
     ///
-    List<int> encodedKeyPage = utf8.encode(tx.payload.url);
+    List<int> encodedKeyPage = utf8.encode(tx.payload!.url!);
     msg.addAll(uint64ToBytesAlt(encodedKeyPage.length));
     msg.addAll(encodedKeyPage);
 
     // number of "keys" values
-    msg.addAll(uint64ToBytesAlt(tx.payload.keys.length));
+    msg.addAll(uint64ToBytesAlt(tx.payload!.keys!.length));
 
     // in loop keys values
-    for (var i = 0; i < tx.payload.keys.length; i++) {
-      List<int> encodedKeys = HEX.decode(tx.payload.keys[i].publickey);
+    for (var i = 0; i < tx.payload!.keys!.length; i++) {
+      List<int> encodedKeys = HEX.decode(tx.payload!.keys![i].publickey!);
       msg.addAll(uint64ToBytesAlt(encodedKeys.length));
       msg.addAll(encodedKeys);
     }
@@ -737,7 +737,7 @@ class TokenTx {
     msg.addAll(uint64ToBytesAlt(TransactionType.UpdateKeyPage));
 
     /// Save Operation type
-    switch (tx.payload.operation) {
+    switch (tx.payload!.operation) {
       case "update":
         msg.addAll(uint64ToBytesAlt(1));
         break;
@@ -750,12 +750,12 @@ class TokenTx {
     }
 
     /// Key
-    List<int> encodedKey = HEX.decode(tx.payload.key);
+    List<int> encodedKey = HEX.decode(tx.payload!.key!);
     msg.addAll(uint64ToBytesAlt(encodedKey.length));
     msg.addAll(encodedKey);
 
     /// New Key
-    List<int> encodedNewKey = HEX.decode(tx.payload.newKey);
+    List<int> encodedNewKey = HEX.decode(tx.payload!.newKey!);
     msg.addAll(uint64ToBytesAlt(encodedNewKey.length));
     msg.addAll(encodedNewKey);
 
@@ -779,17 +779,17 @@ class TokenTx {
     msg.addAll(uint64ToBytes(TransactionType.WriteData));
 
     /// number of "extIDs" values
-    msg.addAll(uint64ToBytes(tx.payload.extIds.length));
+    msg.addAll(uint64ToBytes(tx.payload!.extIds!.length));
 
     // in loop pages values
-    for (var i = 0; i < tx.payload.extIds.length; i++) {
-      List<int> encodedExtId = utf8.encode(tx.payload.extIds[i]);
+    for (var i = 0; i < tx.payload!.extIds!.length; i++) {
+      List<int> encodedExtId = utf8.encode(tx.payload!.extIds![i]);
       msg.addAll(uint64ToBytes(encodedExtId.length));
       msg.addAll(encodedExtId);
     }
 
     ///
-    List<int> encodedData = utf8.encode(tx.payload.data);
+    List<int> encodedData = utf8.encode(tx.payload!.data!);
     msg.addAll(uint64ToBytes(encodedData.length));
     msg.addAll(encodedData);
 
@@ -806,8 +806,8 @@ class ApiRequestRaw {
     this.wait,
   });
 
-  ApiRequestRawTx tx;
-  bool wait;
+  ApiRequestRawTx? tx;
+  bool? wait;
 
   factory ApiRequestRaw.fromRawJson(String str) => ApiRequestRaw.fromJson(json.decode(str));
 
@@ -817,7 +817,7 @@ class ApiRequestRaw {
       ApiRequestRaw(tx: ApiRequestRawTx.fromJson(json["tx"]), wait: json["wait"]);
 
   Map<String, dynamic> toJson() => {
-        "tx": tx.toJson(),
+        "tx": tx!.toJson(),
         "wait": wait,
       };
 }
@@ -828,8 +828,8 @@ class ApiRequestRaw_ADI {
     this.wait,
   });
 
-  ApiRequestRawTx_ADI tx;
-  bool wait;
+  ApiRequestRawTx_ADI? tx;
+  bool? wait;
 
   factory ApiRequestRaw_ADI.fromRawJson(String str) => ApiRequestRaw_ADI.fromJson(json.decode(str));
 
@@ -839,7 +839,7 @@ class ApiRequestRaw_ADI {
       ApiRequestRaw_ADI(tx: ApiRequestRawTx_ADI.fromJson(json["tx"]), wait: json["wait"]);
 
   Map<String, dynamic> toJson() => {
-        "tx": tx.toJson(),
+        "tx": tx!.toJson(),
         "wait": wait,
       };
 }

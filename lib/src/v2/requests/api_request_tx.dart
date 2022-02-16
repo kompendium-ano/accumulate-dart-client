@@ -1,6 +1,6 @@
 
 class ApiRequestTx {
-  final String txid;
+  final String? txid;
   //final String from;
 
   ApiRequestTx(this.txid);

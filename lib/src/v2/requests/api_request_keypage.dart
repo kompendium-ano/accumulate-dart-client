@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class KeySpecParams {
-  final String publickey;
+  final String? publickey;
 
   KeySpecParams(this.publickey);
 
@@ -13,8 +13,8 @@ class KeySpecParams {
 }
 
 class ApiRequestKeyPage {
-  final String url;
-  final List<KeySpecParams> keys; // list of public keys to register
+  final String? url;
+  final List<KeySpecParams>? keys; // list of public keys to register
 
   ApiRequestKeyPage(this.url, this.keys);
 

@@ -1,6 +1,6 @@
 class ApiRequestData {
-  final String data;
-  final List<String> extIds;
+  final String? data;
+  final List<String>? extIds;
 
   ApiRequestData(this.data, this.extIds);
 
