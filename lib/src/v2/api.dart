@@ -10,31 +10,31 @@ import 'package:accumulate_api/src/model/keys/keypage.dart';
 import 'package:accumulate_api/src/model/keys/key.dart' as acme;
 import 'package:accumulate_api/src/model/tx.dart';
 import 'package:accumulate_api/src/utils/marshaller.dart';
+import 'package:accumulate_api/src/v2/requests/api_request_data_account.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_tx.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_url_pagination.dart';
 import 'package:accumulate_api/src/v2/responses/resp_token_get.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_metrics.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_url.dart';
-import 'package:accumulate_api/src/v2/requests/api_request_adi.dart' as V2;
+import 'package:accumulate_api/src/v2/requests/api_request_adi.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_keybook.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_keypage.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_keypage_update.dart';
-import 'package:accumulate_api/src/v2/requests/api_request_token_account.dart' as V2;
+import 'package:accumulate_api/src/v2/requests/api_request_token_account.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_tx_gen.dart';
-import 'package:accumulate_api/src/v2/requests/api_request_credit.dart' as V2;
-import 'package:accumulate_api/src/v2/requests/api_request_tx_to.dart' as V2;
-import 'package:accumulate_api/src/v2/requests/api_request_tx_gen.dart' as V2;
+import 'package:accumulate_api/src/v2/requests/api_request_credit.dart';
+import 'package:accumulate_api/src/v2/requests/api_request_tx_to.dart';
+import 'package:accumulate_api/src/v2/requests/api_request_tx_gen.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:hex/hex.dart';
 import 'package:http/http.dart';
 import 'package:tuple/tuple.dart';
 
-
 class ACMEApiV2 {
   String apiRPCUrl = "https://devnet.accumulatenetwork.io/";
   String apiPrefix = "v2";
 
-  ACMEApiV2(this.apiRPCUrl, this.apiPrefix );
+  ACMEApiV2(this.apiRPCUrl, this.apiPrefix);
 
   Future<String?> callGetVersion() async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
@@ -72,7 +72,7 @@ class ACMEApiV2 {
       txid = res.result["txid"];
       String? envelopeHash = res.result["envelopeHash"];
       String? message = res.result["message"];
-      print("Faucet: ${message}" );
+      print("Faucet: ${message}");
     }
 
     return txid;
@@ -254,8 +254,8 @@ class ACMEApiV2 {
 // "query-key-index":  m.QueryKeyPageIndex,
 
 // "create-data-account":  m.ExecuteWith(func() PL { return new(protocol.CreateDataAccount) }),
-  Future<String?> callCreateDataAccount(Address currAddr, IdentityADI adiToCreate, int timestamp,
-      [String? keybookName, String? keypageName]) async {
+  Future<String?> callCreateDataAccount(
+      Address currAddr, IdentityADI adiToCreate, int timestamp, String? keybookName, bool? isScratch) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     //timestamp = timestamp * 1000;
@@ -270,13 +270,13 @@ class ACMEApiV2 {
     ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex!));
     var keyPair = ed.KeyPair(privateKey, publicKey);
 
-    V2.Signer signer = V2.Signer(publicKey: currAddr.puk, nonce: timestamp);
-    V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(height: 1); //, index: 0);
+    Signer signer = Signer(publicKey: currAddr.puk, nonce: timestamp);
+    ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(height: 1); //, index: 0);
 
     // prepare data
-    V2.ApiRequestADI data = V2.ApiRequestADI(adiToCreate.path, currAddr.puk, keybookName ?? "", keypageName ?? "");
+    ApiRequestDataAccount data = ApiRequestDataAccount(adiToCreate.path, currAddr.puk, keybookName ?? "", isScratch);
 
-    V2.ApiRequestRawTx_ADI tx = V2.ApiRequestRawTx_ADI(
+    ApiRequestRawTx_DataAccount tx = ApiRequestRawTx_DataAccount(
         payload: data,
         signer: signer,
         signature: "",
@@ -284,19 +284,19 @@ class ACMEApiV2 {
         origin: currAddr.address,
         keyPage: keyPage);
 
-    V2.TokenTx tokenTx = V2.TokenTx();
+    TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
         origin: currAddr.address,
         nonce: timestamp,
         keyPageHeight: keypageHeightToUse,
         keyPageIndex: keyPageIndexInsideKeyBook);
-    List<int> dataBinary = tokenTx.marshalBinaryCreateIdentity(tx);
+    List<int> dataBinary = tokenTx.marshalBinaryCreateDataAccount(tx);
 
     log('Header:\n ${header.marshal()}');
     log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
-    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
     txGen.hash = txGen.generateTransactionHash();
 
     List<int> msg = [];
@@ -337,7 +337,6 @@ class ACMEApiV2 {
 
     return txid;
   }
-
 
 // RPC: "query-tx-history" (in v1 - "token-account-history")
   Future<List<Transaction>> callGetTokenTransactionHistory(Address currAddr) async {
@@ -387,13 +386,13 @@ class ACMEApiV2 {
     ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex!));
     var keyPair = ed.KeyPair(privateKey, publicKey);
 
-    V2.Signer signer = V2.Signer(publicKey: currAddr.puk, nonce: timestamp);
-    V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(height: 1); //, index: 0);
+    Signer signer = Signer(publicKey: currAddr.puk, nonce: timestamp);
+    ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(height: 1); //, index: 0);
 
     // prepare data
-    V2.ApiRequestADI data = V2.ApiRequestADI(adiToCreate.path, currAddr.puk, keybookName ?? "", keypageName ?? "");
+    ApiRequestADI data = ApiRequestADI(adiToCreate.path, currAddr.puk, keybookName ?? "", keypageName ?? "");
 
-    V2.ApiRequestRawTx_ADI tx = V2.ApiRequestRawTx_ADI(
+    ApiRequestRawTx_ADI tx = ApiRequestRawTx_ADI(
         payload: data,
         signer: signer,
         signature: "",
@@ -401,7 +400,7 @@ class ACMEApiV2 {
         origin: currAddr.address,
         keyPage: keyPage);
 
-    V2.TokenTx tokenTx = V2.TokenTx();
+    TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
         origin: currAddr.address,
         nonce: timestamp,
@@ -413,7 +412,7 @@ class ACMEApiV2 {
     log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
-    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
     txGen.hash = txGen.generateTransactionHash();
 
     List<int> msg = [];
@@ -481,17 +480,17 @@ class ACMEApiV2 {
       sponsorPath = sponsorADI.path;
     }
 
-    V2.Signer signer = V2.Signer(publicKey: signerKey, nonce: timestamp);
-    V2.ApiRequestRawTxKeyPage keyPage =
-        V2.ApiRequestRawTxKeyPage(height: keypageHeightToUse); //, index: keyPageIndexInsideKeyBook); //, index: 0);
+    Signer signer = Signer(publicKey: signerKey, nonce: timestamp);
+    ApiRequestRawTxKeyPage keyPage =
+        ApiRequestRawTxKeyPage(height: keypageHeightToUse); //, index: keyPageIndexInsideKeyBook); //, index: 0);
 
-    V2.ApiRequestTokenAccount data =
-        V2.ApiRequestTokenAccount(sponsorADI.path! + "/" + tokenAccountName, "acc://acme", keybookPath, false);
+    ApiRequestTokenAccount data =
+        ApiRequestTokenAccount(sponsorADI.path! + "/" + tokenAccountName, "acc://acme", keybookPath, false);
 
-    V2.ApiRequestRawTx_TokenAccount tx = V2.ApiRequestRawTx_TokenAccount(
+    ApiRequestRawTx_TokenAccount tx = ApiRequestRawTx_TokenAccount(
         payload: data, signer: signer, origin: sponsorPath, signature: "", sponsor: sponsorPath, keyPage: keyPage);
 
-    V2.TokenTx tokenTx = V2.TokenTx();
+    TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
         origin: sponsorPath,
         nonce: timestamp,
@@ -503,7 +502,7 @@ class ACMEApiV2 {
     log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
-    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
     txGen.hash = txGen.generateTransactionHash();
 
     List<int> msg = [];
@@ -572,17 +571,17 @@ class ACMEApiV2 {
       sponsorPath = sponsorADI.path;
     }
 
-    V2.Signer signer = V2.Signer(publicKey: signerKey, nonce: timestamp);
+    Signer signer = Signer(publicKey: signerKey, nonce: timestamp);
 
-    V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(
+    ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(
         height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook); // 1,0 - for defaults
 
     ApiRequestKeyBook data = new ApiRequestKeyBook(keybook.path, pages);
 
-    V2.ApiRequestRawTx_KeyBook tx = V2.ApiRequestRawTx_KeyBook(
+    ApiRequestRawTx_KeyBook tx = ApiRequestRawTx_KeyBook(
         payload: data, signer: signer, signature: "", sponsor: sponsorPath, origin: sponsorPath, keyPage: keyPage);
 
-    V2.TokenTx tokenTx = V2.TokenTx();
+    TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
         origin: sponsorADI.path,
         nonce: timestamp,
@@ -594,7 +593,7 @@ class ACMEApiV2 {
     log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
-    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
     txGen.hash = txGen.generateTransactionHash();
 
     List<int> msg = [];
@@ -663,19 +662,19 @@ class ACMEApiV2 {
       sponsorPath = sponsorADI.path;
     }
 
-    V2.Signer signer = V2.Signer(publicKey: signerKey, nonce: timestamp);
+    Signer signer = Signer(publicKey: signerKey, nonce: timestamp);
 
-    V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(
+    ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(
         height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook); // 1,0 - for defaults
 
     //prepare payload data
     var keypageKeys = keys.map((e) => KeySpecParams(e)).toList();
     ApiRequestKeyPage data = new ApiRequestKeyPage(keypage.path, keypageKeys);
 
-    V2.ApiRequestRawTx_KeyPage tx = V2.ApiRequestRawTx_KeyPage(
+    ApiRequestRawTx_KeyPage tx = ApiRequestRawTx_KeyPage(
         payload: data, signer: signer, signature: "", sponsor: sponsorPath, origin: sponsorPath, keyPage: keyPage);
 
-    V2.TokenTx tokenTx = V2.TokenTx();
+    TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
         origin: sponsorADI.path,
         nonce: timestamp,
@@ -688,7 +687,7 @@ class ACMEApiV2 {
     log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
-    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
     txGen.hash = txGen.generateTransactionHash();
 
     List<int> msg = [];
@@ -756,18 +755,18 @@ class ACMEApiV2 {
       ;
     }
 
-    V2.Signer signer = V2.Signer(publicKey: signerKey, nonce: timestamp);
+    Signer signer = Signer(publicKey: signerKey, nonce: timestamp);
 
-    V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(
+    ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(
         height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook); // 1,0 - for defaults
 
     //prepare payload data
     ApiRequestKeyPageUpdate data = ApiRequestKeyPageUpdate(operationName, keyPuk, newKeyPuk, keypage.path);
 
-    V2.ApiRequestRawTx_KeyPageUpdate tx = V2.ApiRequestRawTx_KeyPageUpdate(
+    ApiRequestRawTx_KeyPageUpdate tx = ApiRequestRawTx_KeyPageUpdate(
         payload: data, signer: signer, signature: "", sponsor: sponsorPath, origin: sponsorPath, keyPage: keyPage);
 
-    V2.TokenTx tokenTx = V2.TokenTx();
+    TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
         origin: keypage.path,
         nonce: timestamp,
@@ -779,7 +778,7 @@ class ACMEApiV2 {
     log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
-    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
     txGen.hash = txGen.generateTransactionHash();
 
     List<int> msg = [];
@@ -851,16 +850,16 @@ class ACMEApiV2 {
 
     //prepare data
     int amountToDeposit = (double.parse(amount) * 100000000).round().toInt(); // assume 8 decimal places
-    V2.ApiRequestTxToDataTo to = V2.ApiRequestTxToDataTo(url: addrTo.address, amount: amountToDeposit);
-    V2.ApiRequestTxToData data =
-        V2.ApiRequestTxToData(to: [to], hash: "0000000000000000000000000000000000000000000000000000000000000000");
+    ApiRequestTxToDataTo to = ApiRequestTxToDataTo(url: addrTo.address, amount: amountToDeposit);
+    ApiRequestTxToData data =
+        ApiRequestTxToData(to: [to], hash: "0000000000000000000000000000000000000000000000000000000000000000");
 
-    V2.Signer signer = V2.Signer(publicKey: pukToUse, nonce: timestamp);
+    Signer signer = Signer(publicKey: pukToUse, nonce: timestamp);
 
-    V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(
+    ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(
         height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook); // 1,0 - for defaults
 
-    V2.ApiRequestRawTx tx = V2.ApiRequestRawTx(
+    ApiRequestRawTx tx = ApiRequestRawTx(
         payload: data,
         signer: signer,
         signature: "",
@@ -868,7 +867,7 @@ class ACMEApiV2 {
         origin: addrFrom.address,
         keyPage: keyPage);
 
-    V2.TokenTx tokenTx = V2.TokenTx();
+    TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
         origin: addrFrom.address,
         nonce: timestamp,
@@ -880,7 +879,7 @@ class ACMEApiV2 {
     log('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
-    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
     txGen.hash = txGen.generateTransactionHash();
 
     List<int> msg = [];
@@ -957,19 +956,19 @@ class ACMEApiV2 {
     ///////////////
 
     // Because we can send to accounts and keybooks ath the same time
-    V2.ApiRequestCredits data;
+    ApiRequestCredits data;
     if (currKeyPage != null) {
-      data = V2.ApiRequestCredits(currKeyPage.path, amount);
+      data = ApiRequestCredits(currKeyPage.path, amount);
       currOrigin = currAddr.address;
     } else {
-      data = V2.ApiRequestCredits(currAddr.address!.toLowerCase(), amount);
+      data = ApiRequestCredits(currAddr.address!.toLowerCase(), amount);
       currOrigin = currAddr.address;
     }
 
-    V2.Signer signer = V2.Signer(publicKey: puk, nonce: timestamp);
-    V2.ApiRequestRawTxKeyPage keyPageInfo = V2.ApiRequestRawTxKeyPage(height: 1, index: 0);
+    Signer signer = Signer(publicKey: puk, nonce: timestamp);
+    ApiRequestRawTxKeyPage keyPageInfo = ApiRequestRawTxKeyPage(height: 1, index: 0);
 
-    V2.ApiRequestRawTx_Credits tx = V2.ApiRequestRawTx_Credits(
+    ApiRequestRawTx_Credits tx = ApiRequestRawTx_Credits(
         payload: data,
         signer: signer,
         signature: "",
@@ -977,13 +976,13 @@ class ACMEApiV2 {
         sponsor: currAddr.address,
         keyPage: keyPageInfo);
 
-    V2.TokenTx tokenTx = V2.TokenTx();
-    V2.TransactionHeader header = V2.TransactionHeader(
+    TokenTx tokenTx = TokenTx();
+    TransactionHeader header = TransactionHeader(
         origin: currAddr.address, nonce: timestamp, keyPageHeight: keypageHeightToUse, keyPageIndex: 0);
     List<int> dataBinary = tokenTx.marshalBinaryAddCredits(tx);
 
     // Generalized version of GenTransaction in Go
-    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
     txGen.hash = txGen.generateTransactionHash();
 
     // message is (timestamp/nonce) + hash

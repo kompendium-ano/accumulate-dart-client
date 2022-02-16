@@ -12,10 +12,8 @@ import 'package:hex/hex.dart';
 import 'package:http/http.dart';
 import 'package:tuple/tuple.dart';
 
-
 @Timeout(Duration(seconds: 300))
 void main() {
-
   group('DevNet Tests', () {
     final testnetAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
 
@@ -94,7 +92,6 @@ void main() {
     }
 
     Future<String?> makeAdiTest() async {
-
       // 1. Generate some random data for private keys
       String mnemonic = bip39.generateMnemonic();
       Uint8List seed = bip39.mnemonicToSeed(mnemonic);
@@ -131,7 +128,8 @@ void main() {
       print('Faucets - ${respFaucet}');
 
       final respAccountL = await acmeAPI.callQuery(liteAccount.address);
-      print('Lite Account ${respAccountL.url}:\n ACME - ${respAccountL.balance}, Credits - ${respAccountL.creditBalance}');
+      print(
+          'Lite Account ${respAccountL.url}:\n ACME - ${respAccountL.balance}, Credits - ${respAccountL.creditBalance}');
 
       // 6. Credits are converted from ACME token
       //   6.1 Get current timestamp in microseconds it works as Nonce
@@ -145,7 +143,8 @@ void main() {
 
       // Collect info about Balances
       final respAccountL2 = await acmeAPI.callQuery(liteAccount.address);
-      print('Lite Account ${respAccountL2.url}:\n ACME - ${respAccountL2.balance}, Credits - ${respAccountL2.creditBalance}');
+      print(
+          'Lite Account ${respAccountL2.url}:\n ACME - ${respAccountL2.balance}, Credits - ${respAccountL2.creditBalance}');
 
       // we need more credits
       final respFaucet4 = await acmeAPI.callFaucet(liteAccount);
@@ -159,7 +158,8 @@ void main() {
 
       // Collect info about Balances
       final respAccountL3 = await acmeAPI.callQuery(liteAccount.address);
-      print('Lite Account ${respAccountL3.url}:\n ACME - ${respAccountL3.balance}, Credits - ${respAccountL3.creditBalance}');
+      print(
+          'Lite Account ${respAccountL3.url}:\n ACME - ${respAccountL3.balance}, Credits - ${respAccountL3.creditBalance}');
 
       // 6. Generate ADI
       // 6.1 Every ADI is unique, in order to avoid name clash, create random number
@@ -206,7 +206,6 @@ void main() {
     }
 
     Future<String?> makeTokenAccountTest() async {
-
       // 1. Generate some random data for private keys
       String mnemonic = bip39.generateMnemonic();
       Uint8List seed = bip39.mnemonicToSeed(mnemonic);
@@ -243,7 +242,8 @@ void main() {
       print('Faucets - ${respFaucet}');
 
       final respAccountL = await acmeAPI.callQuery(liteAccount.address);
-      print('Lite Account ${respAccountL.url}:\n ACME - ${respAccountL.balance}, Credits - ${respAccountL.creditBalance}');
+      print(
+          'Lite Account ${respAccountL.url}:\n ACME - ${respAccountL.balance}, Credits - ${respAccountL.creditBalance}');
 
       // 6. Credits are converted from ACME token
       //   6.1 Get current timestamp in microseconds it works as Nonce
@@ -257,7 +257,8 @@ void main() {
 
       // Collect info about Balances
       final respAccountL2 = await acmeAPI.callQuery(liteAccount.address);
-      print('Lite Account ${respAccountL2.url}:\n ACME - ${respAccountL2.balance}, Credits - ${respAccountL2.creditBalance}');
+      print(
+          'Lite Account ${respAccountL2.url}:\n ACME - ${respAccountL2.balance}, Credits - ${respAccountL2.creditBalance}');
 
       // we need more credits
       final respFaucet4 = await acmeAPI.callFaucet(liteAccount);
@@ -271,7 +272,8 @@ void main() {
 
       // Collect info about Balances
       final respAccountL3 = await acmeAPI.callQuery(liteAccount.address);
-      print('Lite Account ${respAccountL3.url}:\n ACME - ${respAccountL3.balance}, Credits - ${respAccountL3.creditBalance}');
+      print(
+          'Lite Account ${respAccountL3.url}:\n ACME - ${respAccountL3.balance}, Credits - ${respAccountL3.creditBalance}');
 
       // 6. Generate ADI
       // 6.1 Every ADI is unique, in order to avoid name clash, create random number
@@ -318,7 +320,6 @@ void main() {
     }
 
     Future<String?> makeDataAccountTest() async {
-
       // 1. Generate some random data for private keys
       String mnemonic = bip39.generateMnemonic();
       Uint8List seed = bip39.mnemonicToSeed(mnemonic);
@@ -355,7 +356,8 @@ void main() {
       print('Faucets - ${respFaucet}');
 
       final respAccountL = await acmeAPI.callQuery(liteAccount.address);
-      print('Lite Account ${respAccountL.url}:\n ACME - ${respAccountL.balance}, Credits - ${respAccountL.creditBalance}');
+      print(
+          'Lite Account ${respAccountL.url}:\n ACME - ${respAccountL.balance}, Credits - ${respAccountL.creditBalance}');
 
       // 6. Credits are converted from ACME token
       //   6.1 Get current timestamp in microseconds it works as Nonce
@@ -369,7 +371,8 @@ void main() {
 
       // Collect info about Balances
       final respAccountL2 = await acmeAPI.callQuery(liteAccount.address);
-      print('Lite Account ${respAccountL2.url}:\n ACME - ${respAccountL2.balance}, Credits - ${respAccountL2.creditBalance}');
+      print(
+          'Lite Account ${respAccountL2.url}:\n ACME - ${respAccountL2.balance}, Credits - ${respAccountL2.creditBalance}');
 
       // we need more credits
       final respFaucet4 = await acmeAPI.callFaucet(liteAccount);
@@ -383,7 +386,8 @@ void main() {
 
       // Collect info about Balances
       final respAccountL3 = await acmeAPI.callQuery(liteAccount.address);
-      print('Lite Account ${respAccountL3.url}:\n ACME - ${respAccountL3.balance}, Credits - ${respAccountL3.creditBalance}');
+      print(
+          'Lite Account ${respAccountL3.url}:\n ACME - ${respAccountL3.balance}, Credits - ${respAccountL3.creditBalance}');
 
       // 6. Generate ADI
       // 6.1 Every ADI is unique, in order to avoid name clash, create random number
@@ -413,7 +417,8 @@ void main() {
       // 8. Execute specific API method and provide arguments
       String? txhash = "";
       try {
-        final resp = await acmeAPI.callCreateDataAccount(liteAccount, newADI, timestampForAdi);
+        final resp = await acmeAPI.callCreateDataAccount(
+            liteAccount, newADI, timestampForAdi, "book0", false); // is scratch or not
         txhash = resp;
       } catch (e) {
         e.toString();
@@ -438,7 +443,6 @@ void main() {
 
       final String? respA = await (makeAdiTest());
       expect(respA?.isNotEmpty, isTrue);
-
     });
 
     test('Faucet Test - Multiple Calls Over Short Period', () async {
