@@ -269,11 +269,14 @@ class ACMEApiV2 {
     var keyPair = ed.KeyPair(privateKey, publicKey);
 
     Signer signer = Signer(publicKey: parentAdi.puk, nonce: timestamp);
-    ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(height: 1); //, index: 0);
+    ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(height: keypageHeightToUse); //, index: 0);
 
-    // prepare data
+    // prepare payload
+    String dtknPath = parentAdi.path! + "/" + accountName;
     ApiRequestDataAccount data =
-        ApiRequestDataAccount(parentAdi.path! + "/" + accountName, keybookName ?? "", keybookName ?? "", isScratch);
+        ApiRequestDataAccount(dtknPath, "", "", isScratch);
+
+    print(dtknPath);
 
     ApiRequestRawTx_DataAccount tx = ApiRequestRawTx_DataAccount(
         payload: data,
@@ -291,8 +294,8 @@ class ACMEApiV2 {
         keyPageIndex: keyPageIndexInsideKeyBook);
     List<int> dataBinary = tokenTx.marshalBinaryCreateDataAccount(tx);
 
-    log('Header:\n ${header.marshal()}');
-    log('Body: ${dataBinary}');
+    print('Header:\n ${header.marshal()}');
+    print('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
     ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
@@ -479,11 +482,17 @@ class ACMEApiV2 {
     ApiRequestRawTxKeyPage keyPage =
         ApiRequestRawTxKeyPage(height: keypageHeightToUse); //, index: keyPageIndexInsideKeyBook); //, index: 0);
 
+    // prepare payload
     ApiRequestTokenAccount data =
         ApiRequestTokenAccount(sponsorADI.path! + "/" + tokenAccountName, "acc://acme", keybookPath, false);
 
     ApiRequestRawTx_TokenAccount tx = ApiRequestRawTx_TokenAccount(
-        payload: data, signer: signer, origin: sponsorPath, signature: "", sponsor: sponsorPath, keyPage: keyPage);
+        payload: data,
+        signer: signer,
+        origin: sponsorPath,
+        signature: "",
+        sponsor: sponsorPath,
+        keyPage: keyPage);
 
     TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
@@ -493,8 +502,8 @@ class ACMEApiV2 {
         keyPageIndex: keyPageIndexInsideKeyBook);
     List<int> dataBinary = tokenTx.marshalBinaryCreateTokenAccount(tx);
 
-    log('Header:\n ${header.marshal()}');
-    log('Body: ${dataBinary}');
+    print('Header:\n ${header.marshal()}');
+    print('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
     ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);

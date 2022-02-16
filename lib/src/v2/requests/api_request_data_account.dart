@@ -13,5 +13,9 @@ class ApiRequestDataAccount {
         keyBookUrl = json['keyBookUrl'];
 
   Map<String, dynamic> toJson() =>
-      {'url': url, 'managerKeyBookUrl': managerKeyBookUrl, 'keyBookUrl': keyBookUrl, "scratch": isScratch};
+      {'url': url
+        , 'keyBookUrl': keyBookUrl
+        , 'managerKeyBookUrl': managerKeyBookUrl
+        , "scratch": isScratch
+      };
 }
