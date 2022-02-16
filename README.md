@@ -84,7 +84,7 @@ newKeyPage.keysRequiredOf = 1;
 
 // 4.2 Then we need to assemble list of public keys to add  
 String publicKeyFroKeypage = HEX.encode(publicKey.bytes);
-List<String> keysToRegister = [""];
+List<String> keysToRegister = [publicKeyForKeypage]; 
 
 // 4.3 Get fresh timestamp
 int timestampForKeypage = DateTime
@@ -188,12 +188,28 @@ timestampForTokenAccount, kpuk, kpik, keyPageHeight);
 ```
 
 ### 8. Make Token Transactions
-
 ```dart
+
+// 8.1 Prepare recepient structure
+Address liteAccountRecepient = Address("acc://065f61a515b09cafd98307616393f783528433731b58c306/acme","","")
+
+// 8.2 add timestamp as Nonce value
+int timestampForTransaction = DateTime
+    .now()
+    .toUtc()
+    .millisecondsSinceEpoch;
+
+// 8.3 Provide recipient structure and token label
+final resp =
+          await api.callCreateTokenTransaction
+                  ( liteAccount
+                  , liteAccountRecepient
+                  , 10000
+                  , timestampForTransaction
+                  , "acme");
 ```
 
 ### 9. Write Data to ADI Data Account
-
 ```dart
 ```
 
