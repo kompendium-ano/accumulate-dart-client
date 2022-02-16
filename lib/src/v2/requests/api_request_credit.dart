@@ -1,7 +1,7 @@
 
 class ApiRequestCredits {
-  final String url;
-  final int amount;
+  final String? url;
+  final int? amount;
 
   ApiRequestCredits(this.url, this.amount);
 
