@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/kompendium-ano/accumulate-dart-client/tree/master.svg?style=svg&circle-token=1ae82503101537a31f2865115486b5d64419274b)](https://circleci.com/gh/kompendium-ano/accumulate-dart-client/tree/master)
 
-JSON RPC client for Accumulate blockchain
+JSON RPC client for Accumulate blockchain, supports all API calss and basic data types that reflect network types and structures.
 
 ## Usage
 
@@ -110,13 +110,11 @@ int timestampForKeybook = DateTime
 
 //  4.5.3 Make Actual call 
 final respKb = await api.callKeyBookCreate(newADI, newKeyBook, [newKeyPage], timestampForKeyBook);
-
 ```
 
 ### 5. Create ADI with non-default keybooks
 
 ```dart
-
 // 5. Prepare ADI structure
 IdentityADI newADI = IdentityADI("", "acc://cosmonaut1", "");
 newADI
@@ -135,3 +133,75 @@ int timestamp = DateTime
 // Here we supply keybook and keypage paths of initially created entities
   final resp = await api.callCreateAdi(currAddr, newADI, timestamp, newKeyBook.path, newKeyPage.path);
 ```
+
+### 6. Create ADI Token Account
+```dart
+// 6. Prepare Token Account structure
+// 6.1 Understand current tip of Keypage chain, represented as int value, called "height"
+int keyPageHeight = 1;
+final kbData = await api.callQuery(newKeypage.path);
+kbData.hashCode;
+if (kbData != null) {
+  keyPageHeight = kbData.nonce;
+}
+
+// 6.2 Indicate keypair the we use to sign, should be from keypage
+String kpuk = HEX.encode(publicKey.bytes);
+String kpik = HEX.encode(privateKey.bytes);
+
+// 6.3 add timestamp as Nonce value
+int timestampForTokenAccount = DateTime
+    .now()
+    .toUtc()
+    .millisecondsSinceEpoch;
+
+// 6.4 Provide name for account and related basic structures
+final resp = await api.callCreateTokenAccount(liteAccount, newAdi, "my-token-acc", currentKeyBook.path,
+timestampForTokenAccount, kpuk, kpik, keyPageHeight);
+
+```
+
+## 7 Create ADI Data Account
+```dart
+// 7. Prepare Data Account structure
+// 7.1 Understand current tip of Keypage chain, represented as int value, called "height"
+int keyPageHeight = 1;
+final kbData = await api.callQuery(newKeypage.path);
+kbData.hashCode;
+if (kbData != null) {
+  keyPageHeight = kbData.nonce;
+}
+
+// 7.2 Indicate keypair the we use to sign, should be from keypage
+String kpuk = HEX.encode(publicKey.bytes);
+String kpik = HEX.encode(privateKey.bytes);
+
+// 7.3 add timestamp as Nonce value
+int timestampForTokenAccount = DateTime
+    .now()
+    .toUtc()
+    .millisecondsSinceEpoch;
+
+// 7.4 Provide name for account and related basic structures
+final resp = await api.callCreateDataAccount(liteAccount, newAdi, "my-token-acc", currentKeyBook.path,
+timestampForTokenAccount, kpuk, kpik, keyPageHeight);
+```
+
+### 8. Make Token Transactions
+
+```dart
+```
+
+### 9. Write Data to ADI Data Account
+
+```dart
+```
+
+## Contributions
+
+The Library developed by Kompendium, LLC in partnership with Kelecorix, Inc and Sergey Bushnyak(@sigrlami).
+If you're an active user or find it useful we strongly encourage you to support our efforts and ensure long maintenance by contributing a small donation to one of the following cryptocurrency addresses:
+
+- BTC: 39oVXpsgsyW8ZgzsnX3sV7HLdtXWfT96qN
+- ETH: 0x9cDBA6bb44772259B3A3fb89cf233A147a720f34
+- FCT: FA38cwer93mmPw1HxjScLmK1yF9iJTu5P87T2vdkbuLovm2YXyss
