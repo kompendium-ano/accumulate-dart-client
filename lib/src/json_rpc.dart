@@ -14,7 +14,7 @@ abstract class RpcService {
   /// When the request is successful, an [RPCResponse] with the request id and
   /// the data from the server will be returned. If not, an RPCError will be
   /// thrown. Other errors might be thrown if an IO-Error occurs.
-  Future<RPCResponse> call(String function, [List<dynamic> params]);
+  Future<RPCResponse> call(String function, [List<dynamic>? params]);
 }
 
 class JsonRPC extends RpcService {
@@ -33,7 +33,7 @@ class JsonRPC extends RpcService {
   /// the data from the server will be returned. If not, an RPCError will be
   /// thrown. Other errors might be thrown if an IO-Error occurs.
   @override
-  Future<RPCResponse> call(String function, [List<dynamic> params]) async {
+  Future<RPCResponse> call(String function, [List<dynamic>? params]) async {
     params ??= [];
 
     // final requestPayload = {
@@ -71,13 +71,13 @@ class JsonRPC extends RpcService {
     );
 
     final data = json.decode(response.body) as Map<String, dynamic>;
-    final id = data['id'] as int;
+    final id = data['id'] as int?;
 
     if (data.containsKey('error')) {
       final error = data['error'];
 
-      final code = error['code'] as int;
-      final message = error['message'] as String;
+      final code = error['code'] as int?;
+      final message = error['message'] as String?;
       final errorData = error['data'];
 
       print(message);
@@ -93,7 +93,7 @@ class JsonRPC extends RpcService {
 /// Response from the server to an rpc request. Contains the id of the request
 /// and the corresponding result as sent by the server.
 class RPCResponse {
-  final int id;
+  final int? id;
   final dynamic result;
 
   const RPCResponse(this.id, this.result);
@@ -101,8 +101,8 @@ class RPCResponse {
 
 /// Exception thrown when an the server returns an error code to an rpc request.
 class RPCError implements Exception {
-  final int errorCode;
-  final String message;
+  final int? errorCode;
+  final String? message;
   final dynamic data;
 
   const RPCError(this.errorCode, this.message, this.data);

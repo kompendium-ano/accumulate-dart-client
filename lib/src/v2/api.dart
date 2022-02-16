@@ -36,14 +36,14 @@ class ACMEApiV2 {
 
   ACMEApiV2(this.apiRPCUrl, this.apiPrefix );
 
-  Future<String> callGetVersion() async {
+  Future<String?> callGetVersion() async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
     // ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase(), false);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("version", []); //[apiRequestUrl]);
     res.result;
 
-    String ver = "";
+    String? ver = "";
     if (res.result != null) {
       ver = res.result["data"]["version"];
     }
@@ -60,18 +60,18 @@ class ACMEApiV2 {
   }
 
   // "faucet":  m.Faucet,
-  Future<String> callFaucet(Address currAddr) async {
+  Future<String?> callFaucet(Address currAddr) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
-    ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address.toLowerCase());
+    ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address!.toLowerCase());
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("faucet", [apiRequestUrl]);
     res.result;
 
-    String txid = "";
+    String? txid = "";
     if (res != null) {
       txid = res.result["txid"];
-      String envelopeHash = res.result["envelopeHash"];
-      String message = res.result["message"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? message = res.result["message"];
       print("Faucet: ${message}" );
     }
 
@@ -79,7 +79,7 @@ class ACMEApiV2 {
   }
 
   // RPC: "query" - query data
-  Future<Data> callQuery(String path) async {
+  Future<Data> callQuery(String? path) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(path);
@@ -89,20 +89,20 @@ class ACMEApiV2 {
 
     Data urlData = new Data();
     if (res != null) {
-      String accountType = res.result["type"];
+      String? accountType = res.result["type"];
       var mrState = res.result["merkleState"];
-      int nonce = mrState["count"];
+      int? nonce = mrState["count"];
       urlData.nonce = nonce;
 
-      LinkedHashMap dt = res.result["data"];
+      LinkedHashMap? dt = res.result["data"];
       switch (accountType) {
         case "keyBook":
         case "tokenAccount":
-          if (dt.length > 2) {
+          if (dt!.length > 2) {
             // process keypage
-            String url = res.result["data"]["url"];
-            String tokenUrl = res.result["data"]["tokenUrl"];
-            String balance = res.result["data"]["balance"];
+            String? url = res.result["data"]["url"];
+            String? tokenUrl = res.result["data"]["tokenUrl"];
+            String? balance = res.result["data"]["balance"];
 
             urlData.url = url;
             urlData.tokenUrl = tokenUrl;
@@ -116,8 +116,8 @@ class ACMEApiV2 {
           }
           break;
         case "keyPage":
-          if (dt.length > 2) {
-            String url = res.result["data"]["url"];
+          if (dt!.length > 2) {
+            String? url = res.result["data"]["url"];
             String creditBalance = res.result["data"]["creditBalance"] ?? "0";
 
             urlData.url = url;
@@ -126,12 +126,12 @@ class ACMEApiV2 {
           }
           break;
         case "liteTokenAccount":
-          if (dt.length > 2) {
-            String url = res.result["data"]["url"];
-            String tokenUrl = res.result["data"]["tokenUrl"];
+          if (dt!.length > 2) {
+            String? url = res.result["data"]["url"];
+            String? tokenUrl = res.result["data"]["tokenUrl"];
             String balance = res.result["data"]["balance"];
-            int txcount = res.result["data"]["txCount"];
-            int nonce = res.result["data"]["nonce"];
+            int? txcount = res.result["data"]["txCount"];
+            int? nonce = res.result["data"]["nonce"];
             String creditBalance = res.result["data"]["creditBalance"] ?? "0";
 
             urlData.url = url;
@@ -143,8 +143,8 @@ class ACMEApiV2 {
           }
           break;
         default:
-          if (dt.length > 2) {
-            String url = res.result["data"]["url"];
+          if (dt!.length > 2) {
+            String? url = res.result["data"]["url"];
             urlData.url = url;
           }
           break;
@@ -165,7 +165,7 @@ class ACMEApiV2 {
     DataDirectory directoryData = new DataDirectory();
     directoryData.keybooksCount = 1;
     if (res != null) {
-      String accountType = res.result["type"];
+      String? accountType = res.result["type"];
       int total = res.result["total"];
       //List<String> entries = res.result["data"]["entries"].cast<String>();
       //directoryData.entities = entries;
@@ -182,62 +182,62 @@ class ACMEApiV2 {
 
   // "query-tx":         m.QueryTx,
   // RPC: "token-tx"
-  Future<Transaction> callGetTokenTransaction(String txhash) async {
+  Future<Transaction?> callGetTokenTransaction(String? txhash) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
     ApiRequestTx apiRequestHash = ApiRequestTx(txhash);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     final res = await acmeApi.call("query-tx", [apiRequestHash]);
     res.result;
 
-    Transaction tx;
+    Transaction? tx;
     if (res != null) {
       var data = res.result["data"];
-      String type = res.result["type"];
+      String? type = res.result["type"];
 
       switch (type) {
         case "syntheticTokenDeposit":
-          String txid = res.result["data"]["txid"];
-          String from = res.result["data"]["from"];
-          String to = res.result["data"]["to"];
+          String? txid = res.result["data"]["txid"];
+          String? from = res.result["data"]["from"];
+          String? to = res.result["data"]["to"];
           int amount = int.parse(res.result["data"]["amount"]);
-          String tokenUrl = res.result["data"]["tokenUrl"];
+          String? tokenUrl = res.result["data"]["tokenUrl"];
 
           tx = new Transaction(type, "", txid, from, to, amount, tokenUrl);
           break;
         case "createKeyPage":
-          String txid = res.result["txid"];
-          String from = res.result["origin"];
-          String to = res.result["data"]["url"];
+          String? txid = res.result["txid"];
+          String? from = res.result["origin"];
+          String? to = res.result["data"]["url"];
           LinkedHashMap sigs = res.result["signatures"][0];
-          int dateNonce = sigs["nonce"];
+          int? dateNonce = sigs["nonce"];
 
           tx = new Transaction(type, "", txid, from, to, 0, "ACME");
           tx.created = dateNonce;
 
           break;
         case "acmeFaucet":
-          String txid = res.result["data"]["txid"];
-          String from = res.result["data"]["from"];
-          String to = res.result["data"]["url"];
+          String? txid = res.result["data"]["txid"];
+          String? from = res.result["data"]["from"];
+          String? to = res.result["data"]["url"];
           int amount = 1000000000;
           LinkedHashMap sigs = res.result["signatures"][0];
-          int dateNonce = sigs["Nonce"];
+          int? dateNonce = sigs["Nonce"];
 
           tx = new Transaction(type, "", txid, from, to, amount, "ACME");
           tx.created = dateNonce;
 
           break;
         default:
-          String txid = res.result["data"]["txid"];
-          String from = res.result["data"]["from"];
+          String? txid = res.result["data"]["txid"];
+          String? from = res.result["data"]["from"];
           //ApiRespTxTo to = res.result["data"]["to"];
           LinkedHashMap dataTo = res.result["data"]["to"][0];
-          String to = dataTo["url"];
-          int amount = dataTo["amount"];
+          String? to = dataTo["url"];
+          int? amount = dataTo["amount"];
           //int amount = int.parse(res.result["data"]["amount"]);
           //String tokenUrl = res.result["data"]["tokenUrl"];
 
-          int dateNonce = res.result["signer"]["nonce"];
+          int? dateNonce = res.result["signer"]["nonce"];
 
           tx = new Transaction(type, "", txid, from, to, amount, "ACME");
           tx.created = dateNonce;
@@ -260,7 +260,7 @@ class ACMEApiV2 {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     ApiRequestUrWithPagination apiRequestUrlWithPagination =
-        new ApiRequestUrWithPagination(currAddr.address.toLowerCase(), 1, 100);
+        new ApiRequestUrWithPagination(currAddr.address!.toLowerCase(), 1, 100);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     final res = await acmeApi.call("query-tx-history", [apiRequestUrlWithPagination]);
     res.result;
@@ -269,13 +269,13 @@ class ACMEApiV2 {
     List<Transaction> txs = [];
     if (res != null) {
       var data = res.result["data"];
-      String type = res.result["type"];
+      String? type = res.result["type"];
 
       for (var i = 0; i < data.length; i++) {
         var tx = data[i];
 
         var internalData = tx["data"];
-        String txid = internalData["txid"];
+        String? txid = internalData["txid"];
 
         // if nothing that was a faucet
         Transaction txl = new Transaction("", "", txid, "", "", 0, "");
@@ -287,8 +287,8 @@ class ACMEApiV2 {
   }
 
 // "create-adi":           m.ExecuteWith(func() PL { return new(protocol.IdentityCreate) }),
-  Future<String> callCreateAdi(Address currAddr, IdentityADI adiToCreate, int timestamp,
-      [String keybookName, String keypageName]) async {
+  Future<String?> callCreateAdi(Address currAddr, IdentityADI adiToCreate, int timestamp,
+      [String? keybookName, String? keypageName]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     //timestamp = timestamp * 1000;
@@ -299,8 +299,8 @@ class ACMEApiV2 {
     // TODO: check if keybook name available
     // TODO: allow newly generated keypair
 
-    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currAddr.puk));
-    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex));
+    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currAddr.puk!));
+    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex!));
     var keyPair = ed.KeyPair(privateKey, publicKey);
 
     V2.Signer signer = V2.Signer(publicKey: currAddr.puk, nonce: timestamp);
@@ -322,7 +322,7 @@ class ACMEApiV2 {
         origin: currAddr.address,
         nonce: timestamp,
         keyPageHeight: keypageHeightToUse,
-        keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
+        keyPageIndex: keyPageIndexInsideKeyBook);
     List<int> dataBinary = tokenTx.marshalBinaryCreateIdentity(tx);
 
     log('Header:\n ${header.marshal()}');
@@ -351,18 +351,18 @@ class ACMEApiV2 {
     var res = await acmeApi.call("create-adi", [tx]);
     res.result;
 
-    String txid = "";
+    String? txid = "";
     if (res != null) {
-      String type = res.result["type"];
+      String? type = res.result["type"];
 
       // TODO: combine into single response type
       txid = res.result["txid"];
-      String simpleHash = res.result["simpleHash"];
-      String transactionHash = res.result["transactionHash"];
-      String envelopeHash = res.result["envelopeHash"];
-      String hash = res.result["hash"];
-      int code = res.result["code"];
-      String message = res.result["message"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+      String? message = res.result["message"];
 
       print('Response: $message');
       if (code == 12) {}
@@ -372,26 +372,26 @@ class ACMEApiV2 {
   }
 
 // RPC: "token-account" - Create token account
-  Future<String> callCreateTokenAccount(
+  Future<String?> callCreateTokenAccount(
       Address currAddr, IdentityADI sponsorADI, String tokenAccountName, String keybookPath, int timestamp,
-      [String keyPuk, String keyPik, int keyPageHeight]) async {
+      [String? keyPuk, String? keyPik, int? keyPageHeight]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     timestamp = timestamp * 1000;
 
-    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currAddr.puk));
-    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex));
+    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currAddr.puk!));
+    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex!));
     var keyPair = ed.KeyPair(privateKey, publicKey);
 
-    String signerKey = currAddr.puk;
-    String sponsorPath = currAddr.address; //sponsorADI.path;
+    String? signerKey = currAddr.puk;
+    String? sponsorPath = currAddr.address; //sponsorADI.path;
 
-    int keypageHeightToUse = 1;
+    int? keypageHeightToUse = 1;
     int keyPageIndexInsideKeyBook = 0;
     if (keyPuk != null) {
       // user submitted a keybook to identify how to connect
       publicKey = ed.PublicKey(HEX.decode(keyPuk));
-      privateKey = ed.PrivateKey(HEX.decode(keyPik));
+      privateKey = ed.PrivateKey(HEX.decode(keyPik!));
       keypageHeightToUse = keyPageHeight;
       signerKey = keyPuk;
       sponsorPath = sponsorADI.path;
@@ -402,7 +402,7 @@ class ACMEApiV2 {
         V2.ApiRequestRawTxKeyPage(height: keypageHeightToUse); //, index: keyPageIndexInsideKeyBook); //, index: 0);
 
     V2.ApiRequestTokenAccount data =
-        V2.ApiRequestTokenAccount(sponsorADI.path + "/" + tokenAccountName, "acc://acme", keybookPath, false);
+        V2.ApiRequestTokenAccount(sponsorADI.path! + "/" + tokenAccountName, "acc://acme", keybookPath, false);
 
     V2.ApiRequestRawTx_TokenAccount tx = V2.ApiRequestRawTx_TokenAccount(
         payload: data, signer: signer, origin: sponsorPath, signature: "", sponsor: sponsorPath, keyPage: keyPage);
@@ -412,7 +412,7 @@ class ACMEApiV2 {
         origin: sponsorPath,
         nonce: timestamp,
         keyPageHeight: keypageHeightToUse,
-        keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
+        keyPageIndex: keyPageIndexInsideKeyBook);
     List<int> dataBinary = tokenTx.marshalBinaryCreateTokenAccount(tx);
 
     log('Header:\n ${header.marshal()}');
@@ -441,18 +441,18 @@ class ACMEApiV2 {
     var res = await acmeApi.call("create-token-account", [tx]);
     res.result;
 
-    String txid = "";
+    String? txid = "";
     if (res != null) {
-      String type = res.result["type"];
+      String? type = res.result["type"];
 
       // TODO: combine into single response type
       txid = res.result["txid"];
-      String simpleHash = res.result["simpleHash"];
-      String transactionHash = res.result["transactionHash"];
-      String envelopeHash = res.result["envelopeHash"];
-      String hash = res.result["hash"];
-      int code = res.result["code"];
-      String message = res.result["message"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+      String? message = res.result["message"];
 
       log("API RESULT: ${txid}");
       log("API RESULT: ${message}");
@@ -463,25 +463,25 @@ class ACMEApiV2 {
   }
 
 // "create-key-book":      m.ExecuteWith(func() PL { return new(protocol.CreateKeyBook) }),
-  Future<Tuple2<String, String>> callKeyBookCreate(
+  Future<Tuple2<String?, String>> callKeyBookCreate(
       IdentityADI sponsorADI, KeyBook keybook, List<String> pages, int timestamp,
-      [String keyPuk, String keyPik, int keyPageHeight, String keybookPath]) async {
+      [String? keyPuk, String? keyPik, int? keyPageHeight, String? keybookPath]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     timestamp = timestamp * 1000;
-    int keypageHeightToUse = 1;
+    int? keypageHeightToUse = 1;
     int keyPageIndexInsideKeyBook = 0;
 
-    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(sponsorADI.puk));
-    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(sponsorADI.pikHex));
+    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(sponsorADI.puk!));
+    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(sponsorADI.pikHex!));
     var keyPair = ed.KeyPair(privateKey, publicKey);
-    String signerKey = sponsorADI.puk;
-    String sponsorPath = sponsorADI.path;
+    String? signerKey = sponsorADI.puk;
+    String? sponsorPath = sponsorADI.path;
 
     if (keyPuk != null) {
       // user submitted a keybook to identify how to connect
       publicKey = ed.PublicKey(HEX.decode(keyPuk));
-      privateKey = ed.PrivateKey(HEX.decode(keyPik));
+      privateKey = ed.PrivateKey(HEX.decode(keyPik!));
 
       keypageHeightToUse = keyPageHeight;
       signerKey = keyPuk;
@@ -491,7 +491,7 @@ class ACMEApiV2 {
     V2.Signer signer = V2.Signer(publicKey: signerKey, nonce: timestamp);
 
     V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(
-        height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook ?? 0); // 1,0 - for defaults
+        height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook); // 1,0 - for defaults
 
     ApiRequestKeyBook data = new ApiRequestKeyBook(keybook.path, pages);
 
@@ -503,7 +503,7 @@ class ACMEApiV2 {
         origin: sponsorADI.path,
         nonce: timestamp,
         keyPageHeight: keypageHeightToUse,
-        keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
+        keyPageIndex: keyPageIndexInsideKeyBook);
     List<int> dataBinary = tokenTx.marshalBinaryCreateKeyBook(tx);
 
     log('Header:\n ${header.marshal()}');
@@ -532,19 +532,19 @@ class ACMEApiV2 {
     var res = await acmeApi.call("create-key-book", [tx]);
     res.result;
 
-    String txid = "";
+    String? txid = "";
     String hash = "";
     if (res != null) {
-      String type = res.result["type"];
+      String? type = res.result["type"];
 
       // TODO: combine into single response type
       txid = res.result["txid"];
-      String simpleHash = res.result["simpleHash"];
-      String transactionHash = res.result["transactionHash"];
-      String envelopeHash = res.result["envelopeHash"];
-      String hash = res.result["hash"];
-      int code = res.result["code"];
-      String message = res.result["message"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+      String? message = res.result["message"];
 
       log('Response: $message');
       if (code == 12) {}
@@ -554,25 +554,25 @@ class ACMEApiV2 {
   }
 
 // "create-key-page":      m.ExecuteWith(func() PL { return new(protocol.CreateKeyPage) }),
-  Future<Tuple2<String, String>> callKeyPageCreate(
+  Future<Tuple2<String?, String>> callKeyPageCreate(
       IdentityADI sponsorADI, KeyPage keypage, List<String> keys, int timestamp,
-      [String keyPuk, String keyPik, int keyPageHeight, String keybookPath]) async {
+      [String? keyPuk, String? keyPik, int? keyPageHeight, String? keybookPath]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     timestamp = timestamp * 1000;
-    int keypageHeightToUse = 1;
+    int? keypageHeightToUse = 1;
     int keyPageIndexInsideKeyBook = 0;
 
-    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(sponsorADI.puk));
-    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(sponsorADI.pikHex));
+    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(sponsorADI.puk!));
+    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(sponsorADI.pikHex!));
     var keyPair = ed.KeyPair(privateKey, publicKey);
-    String signerKey = sponsorADI.puk;
-    String sponsorPath = sponsorADI.path;
+    String? signerKey = sponsorADI.puk;
+    String? sponsorPath = sponsorADI.path;
 
     if (keyPuk != null) {
       // user submitted a keybook to identify how to connect
       publicKey = ed.PublicKey(HEX.decode(keyPuk));
-      privateKey = ed.PrivateKey(HEX.decode(keyPik));
+      privateKey = ed.PrivateKey(HEX.decode(keyPik!));
 
       keypageHeightToUse = keyPageHeight;
       signerKey = keyPuk;
@@ -582,7 +582,7 @@ class ACMEApiV2 {
     V2.Signer signer = V2.Signer(publicKey: signerKey, nonce: timestamp);
 
     V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(
-        height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook ?? 0); // 1,0 - for defaults
+        height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook); // 1,0 - for defaults
 
     //prepare payload data
     var keypageKeys = keys.map((e) => KeySpecParams(e)).toList();
@@ -596,7 +596,7 @@ class ACMEApiV2 {
         origin: sponsorADI.path,
         nonce: timestamp,
         keyPageHeight: keypageHeightToUse,
-        keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
+        keyPageIndex: keyPageIndexInsideKeyBook);
 
     List<int> dataBinary = tokenTx.marshalBinaryCreateKeyPage(tx);
 
@@ -626,19 +626,19 @@ class ACMEApiV2 {
     var res = await acmeApi.call("create-key-page", [tx]);
     res.result;
 
-    String txid = "";
+    String? txid = "";
     String hash = "";
     if (res != null) {
-      String type = res.result["type"];
+      String? type = res.result["type"];
 
       // TODO: combine into single response type
       txid = res.result["txid"];
-      String simpleHash = res.result["simpleHash"];
-      String transactionHash = res.result["transactionHash"];
-      String envelopeHash = res.result["envelopeHash"];
-      String hash = res.result["hash"];
-      int code = res.result["code"];
-      String message = res.result["message"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+      String? message = res.result["message"];
 
       log('Response: $message');
       if (code == 12) {}
@@ -648,7 +648,7 @@ class ACMEApiV2 {
   }
 
 // "update-key-page":      m.ExecuteWith(func() PL { return new(protocol.UpdateKeyPage) })
-  Future<Tuple2<String, String>> callKeyPageUpdate(KeyPage keypage, String operationName, String keyPuk, String keyPik,
+  Future<Tuple2<String?, String>> callKeyPageUpdate(KeyPage keypage, String operationName, String keyPuk, String keyPik,
       String newKeyPuk, int timestamp, int keyPageHeight) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
@@ -661,7 +661,7 @@ class ACMEApiV2 {
     var keyPair = ed.KeyPair(privateKey, publicKey);
 
     String signerKey = keyPuk;
-    String sponsorPath = keypage.path;
+    String? sponsorPath = keypage.path;
 
     if (keyPuk != null) {
       publicKey = ed.PublicKey(HEX.decode(keyPuk));
@@ -675,7 +675,7 @@ class ACMEApiV2 {
     V2.Signer signer = V2.Signer(publicKey: signerKey, nonce: timestamp);
 
     V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(
-        height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook ?? 0); // 1,0 - for defaults
+        height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook); // 1,0 - for defaults
 
     //prepare payload data
     ApiRequestKeyPageUpdate data = ApiRequestKeyPageUpdate(operationName, keyPuk, newKeyPuk, keypage.path);
@@ -688,7 +688,7 @@ class ACMEApiV2 {
         origin: keypage.path,
         nonce: timestamp,
         keyPageHeight: keypageHeightToUse,
-        keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
+        keyPageIndex: keyPageIndexInsideKeyBook);
     List<int> dataBinary = tokenTx.marshalBinaryKeyPageUpdate(tx);
 
     log('Header:\n ${header.marshal()}');
@@ -717,19 +717,19 @@ class ACMEApiV2 {
     var res = await acmeApi.call("update-key-page", [tx]);
     res.result;
 
-    String txid = "";
+    String? txid = "";
     String hash = "";
     if (res != null) {
-      String type = res.result["type"];
+      String? type = res.result["type"];
 
       // TODO: combine into single response type
       txid = res.result["txid"];
-      String simpleHash = res.result["simpleHash"];
-      String transactionHash = res.result["transactionHash"];
-      String envelopeHash = res.result["envelopeHash"];
-      String hash = res.result["hash"];
-      int code = res.result["code"];
-      String message = res.result["message"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+      String? message = res.result["message"];
 
       log('Response: $message');
       if (code == 12) {}
@@ -739,8 +739,8 @@ class ACMEApiV2 {
   }
 
 // "send-tokens":          m.ExecuteWith(func() PL { return new(api.SendTokens) }, "From", "To"),
-  Future<String> callCreateTokenTransaction(Address addrFrom, Address addrTo, String amount, int timestamp,
-      [acme.Key providedKey, int providedKeyPageChainHeight, int keyPageIndexInsideKeyBook]) async {
+  Future<String?> callCreateTokenTransaction(Address addrFrom, Address addrTo, String amount, int timestamp,
+      [acme.Key? providedKey, int? providedKeyPageChainHeight, int? keyPageIndexInsideKeyBook]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     timestamp = timestamp * 1000;
@@ -748,19 +748,19 @@ class ACMEApiV2 {
     ed.PublicKey publicKey;
     ed.PrivateKey privateKey;
     var pukToUse;
-    int keypageHeightToUse = 1;
+    int? keypageHeightToUse = 1;
 
     if (providedKey == null) {
       // use keys from account
       pukToUse = addrFrom.puk;
-      publicKey = ed.PublicKey(HEX.decode(addrFrom.puk));
-      privateKey = ed.PrivateKey(HEX.decode(addrFrom.pikHex));
+      publicKey = ed.PublicKey(HEX.decode(addrFrom.puk!));
+      privateKey = ed.PrivateKey(HEX.decode(addrFrom.pikHex!));
       var keyPair = ed.KeyPair(privateKey, publicKey);
     } else {
       // use provided keys values
       pukToUse = providedKey.puk;
-      publicKey = ed.PublicKey(HEX.decode(providedKey.puk));
-      privateKey = ed.PrivateKey(HEX.decode(providedKey.pikHex));
+      publicKey = ed.PublicKey(HEX.decode(providedKey.puk!));
+      privateKey = ed.PrivateKey(HEX.decode(providedKey.pikHex!));
       var keyPair = ed.KeyPair(privateKey, publicKey);
       keypageHeightToUse = providedKeyPageChainHeight;
     }
@@ -774,7 +774,7 @@ class ACMEApiV2 {
     V2.Signer signer = V2.Signer(publicKey: pukToUse, nonce: timestamp);
 
     V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(
-        height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook ?? 0); // 1,0 - for defaults
+        height: keypageHeightToUse); // , index: keyPageIndexInsideKeyBook); // 1,0 - for defaults
 
     V2.ApiRequestRawTx tx = V2.ApiRequestRawTx(
         payload: data,
@@ -789,7 +789,7 @@ class ACMEApiV2 {
         origin: addrFrom.address,
         nonce: timestamp,
         keyPageHeight: keypageHeightToUse,
-        keyPageIndex: keyPageIndexInsideKeyBook ?? 0);
+        keyPageIndex: keyPageIndexInsideKeyBook);
     List<int> dataBinary = tokenTx.marshalBinarySendTokens(tx);
 
     log('Header:\n ${header.marshal()}');
@@ -819,18 +819,18 @@ class ACMEApiV2 {
     var res = await acmeApi.call("send-tokens", [tx]);
     res.result;
 
-    String txid = "";
+    String? txid = "";
     if (res != null) {
-      String type = res.result["type"];
+      String? type = res.result["type"];
 
       // TODO: combine into single response type
       txid = res.result["txid"];
-      String simpleHash = res.result["simpleHash"];
-      String transactionHash = res.result["transactionHash"];
-      String envelopeHash = res.result["envelopeHash"];
-      String hash = res.result["hash"];
-      int code = res.result["code"];
-      String message = res.result["message"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+      String? message = res.result["message"];
 
       log('Response: $message');
       if (code == 12) {}
@@ -840,17 +840,17 @@ class ACMEApiV2 {
   }
 
 // "add-credits":          m.ExecuteWith(func() PL { return new(protocol.AddCredits) }),
-  Future<String> callAddCredits(Address currAddr, int amount, int timestamp,
-      [KeyPage currKeyPage, acme.Key currKey]) async {
+  Future<String?> callAddCredits(Address currAddr, int amount, int timestamp,
+      [KeyPage? currKeyPage, acme.Key? currKey]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     //timestamp = timestamp * 1000;
     int keypageHeightToUse = 1;
-    String currOrigin;
+    String? currOrigin;
 
     ed.PublicKey publicKey;
     ed.PrivateKey privateKey;
-    String puk = currAddr.puk;
+    String? puk = currAddr.puk;
     // if (currKeyPage != null) {
     //   if (currKey != null) {
     //     puk = currKey.puk;
@@ -868,8 +868,8 @@ class ACMEApiV2 {
     // NB: temp, only lite to lite, lite to kp supported, override key
     //     as origin and sponsor always Lite Account for now
     puk = currAddr.puk;
-    publicKey = ed.PublicKey(HEX.decode(currAddr.puk));
-    privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex));
+    publicKey = ed.PublicKey(HEX.decode(currAddr.puk!));
+    privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex!));
     ///////////////
 
     // Because we can send to accounts and keybooks ath the same time
@@ -878,7 +878,7 @@ class ACMEApiV2 {
       data = V2.ApiRequestCredits(currKeyPage.path, amount);
       currOrigin = currAddr.address;
     } else {
-      data = V2.ApiRequestCredits(currAddr.address.toLowerCase(), amount);
+      data = V2.ApiRequestCredits(currAddr.address!.toLowerCase(), amount);
       currOrigin = currAddr.address;
     }
 
@@ -922,18 +922,18 @@ class ACMEApiV2 {
     var res = await acmeApi.call("add-credits", [tx]);
     res.result;
 
-    String txid = "";
+    String? txid = "";
     if (res != null) {
-      String type = res.result["type"];
+      String? type = res.result["type"];
 
       // TODO: combine into single response type
       txid = res.result["txid"];
-      String simpleHash = res.result["simpleHash"];
-      String transactionHash = res.result["transactionHash"];
-      String envelopeHash = res.result["envelopeHash"];
-      String hash = res.result["hash"];
-      int code = res.result["code"];
-      String message = res.result["message"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+      String? message = res.result["message"];
 
       print('Response: $message');
     }
