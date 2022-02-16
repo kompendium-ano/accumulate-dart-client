@@ -254,11 +254,9 @@ class ACMEApiV2 {
 // "query-key-index":  m.QueryKeyPageIndex,
 
 // "create-data-account":  m.ExecuteWith(func() PL { return new(protocol.CreateDataAccount) }),
-  Future<String?> callCreateDataAccount(
-      Address currAddr, IdentityADI adiToCreate, int timestamp, String? keybookName, bool? isScratch) async {
+  Future<String?> callCreateDataAccount(Address currAddr, IdentityADI parentAdi, String accountName, int timestamp,
+      String? keybookName, bool? isScratch) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
-
-    //timestamp = timestamp * 1000;
 
     int keypageHeightToUse = 1;
     int keyPageIndexInsideKeyBook = 0;
@@ -274,7 +272,8 @@ class ACMEApiV2 {
     ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(height: 1); //, index: 0);
 
     // prepare data
-    ApiRequestDataAccount data = ApiRequestDataAccount(adiToCreate.path, currAddr.puk, keybookName ?? "", isScratch);
+    ApiRequestDataAccount data =
+        ApiRequestDataAccount(parentAdi.path! + "/" + accountName, currAddr.puk, keybookName ?? "", isScratch);
 
     ApiRequestRawTx_DataAccount tx = ApiRequestRawTx_DataAccount(
         payload: data,
@@ -374,8 +373,6 @@ class ACMEApiV2 {
       [String? keybookName, String? keypageName]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
-    //timestamp = timestamp * 1000;
-
     int keypageHeightToUse = 1;
     int keyPageIndexInsideKeyBook = 0;
 
@@ -459,8 +456,6 @@ class ACMEApiV2 {
       Address currAddr, IdentityADI sponsorADI, String tokenAccountName, String keybookPath, int timestamp,
       [String? keyPuk, String? keyPik, int? keyPageHeight]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
-
-    timestamp = timestamp * 1000;
 
     ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currAddr.puk!));
     ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex!));
@@ -551,7 +546,6 @@ class ACMEApiV2 {
       [String? keyPuk, String? keyPik, int? keyPageHeight, String? keybookPath]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
-    timestamp = timestamp * 1000;
     int? keypageHeightToUse = 1;
     int keyPageIndexInsideKeyBook = 0;
 
@@ -642,7 +636,6 @@ class ACMEApiV2 {
       [String? keyPuk, String? keyPik, int? keyPageHeight, String? keybookPath]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
-    timestamp = timestamp * 1000;
     int? keypageHeightToUse = 1;
     int keyPageIndexInsideKeyBook = 0;
 
@@ -735,7 +728,6 @@ class ACMEApiV2 {
       String newKeyPuk, int timestamp, int keyPageHeight) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
-    timestamp = timestamp * 1000;
     int keypageHeightToUse = 1;
     int keyPageIndexInsideKeyBook = 0;
 
@@ -825,8 +817,6 @@ class ACMEApiV2 {
   Future<String?> callCreateTokenTransaction(Address addrFrom, Address addrTo, String amount, int timestamp,
       [acme.Key? providedKey, int? providedKeyPageChainHeight, int? keyPageIndexInsideKeyBook]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
-
-    timestamp = timestamp * 1000;
 
     ed.PublicKey publicKey;
     ed.PrivateKey privateKey;
@@ -927,7 +917,6 @@ class ACMEApiV2 {
       [KeyPage? currKeyPage, acme.Key? currKey]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
-    //timestamp = timestamp * 1000;
     int keypageHeightToUse = 1;
     String? currOrigin;
 
