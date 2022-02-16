@@ -21,7 +21,7 @@ void main() {
 
     setUp(() async {});
 
-    Future<String> makeFaucetTest() async {
+    Future<String?> makeFaucetTest() async {
       // Generate some random data for private keys
       String mnemonic = bip39.generateMnemonic();
       Uint8List seed = bip39.mnemonicToSeed(mnemonic);
@@ -45,7 +45,7 @@ void main() {
       return resp;
     }
 
-    Future<String> makeCreditsTest() async {
+    Future<String?> makeCreditsTest() async {
       // 1. Generate some random data for private keys
       String mnemonic = bip39.generateMnemonic();
       Uint8List seed = bip39.mnemonicToSeed(mnemonic);
@@ -93,7 +93,7 @@ void main() {
       return respAccount.url;
     }
 
-    Future<String> makeAdiTest() async {
+    Future<String?> makeAdiTest() async {
 
       // 1. Generate some random data for private keys
       String mnemonic = bip39.generateMnemonic();
@@ -118,7 +118,7 @@ void main() {
       print(liteAccount.address);
 
       // 4. Initialize API class
-      final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
+      final acmeAPI = ACMEApiV2("http://178.20.158.25:56660/", "v2");
 
       // 5. Add ACME tokens from faucet, at least 3 times because fee is high
       //      - must maintain 4s delay for tx to settle, otherwise it may stall account chain
@@ -187,7 +187,7 @@ void main() {
       print('ADI - ${newADI.path}');
 
       // 8. Execute specific API method and provide arguments
-      String txhash = "";
+      String? txhash = "";
       try {
         final resp = await acmeAPI.callCreateAdi(liteAccount, newADI, timestampForAdi, "book0", "page0");
         txhash = resp;
@@ -212,8 +212,8 @@ void main() {
       // final String respC = await makeCreditsTest();
       // expect(respC.isNotEmpty, isTrue);
 
-      final String respA = await makeAdiTest();
-      expect(respA.isNotEmpty, isTrue);
+      final String? respA = await (makeAdiTest());
+      expect(respA?.isNotEmpty, isTrue);
 
     });
 

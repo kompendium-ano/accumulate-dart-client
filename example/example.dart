@@ -11,10 +11,10 @@ final testnetAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
 
 Future<void> main() async {
   // Example on how tp create new ADI
-  final String respA = await makeAdiTest();
+  final String? respA = await makeAdiTest();
 }
 
-Future<String> makeFaucetTest() async {
+Future<String?> makeFaucetTest() async {
   // Generate some random data for private keys
   String mnemonic = bip39.generateMnemonic();
   Uint8List seed = bip39.mnemonicToSeed(mnemonic);
@@ -38,7 +38,7 @@ Future<String> makeFaucetTest() async {
   return resp;
 }
 
-Future<String> makeCreditsTest() async {
+Future<String?> makeCreditsTest() async {
   // 1. Generate some random data for private keys
   String mnemonic = bip39.generateMnemonic();
   Uint8List seed = bip39.mnemonicToSeed(mnemonic);
@@ -85,7 +85,7 @@ Future<String> makeCreditsTest() async {
   return respAccount.url;
 }
 
-Future<String> makeAdiTest() async {
+Future<String?> makeAdiTest() async {
   // 1. Generate some random data for private keys
   String mnemonic = bip39.generateMnemonic();
   Uint8List seed = bip39.mnemonicToSeed(mnemonic);
@@ -180,7 +180,7 @@ Future<String> makeAdiTest() async {
   print('ADI - ${newADI.path}');
 
   // 8. Execute specific API method and provide arguments
-  String txhash = "";
+  String? txhash = "";
   try {
     final resp = await acmeAPI.callCreateAdi(liteAccount, newADI, timestampForAdi, "book0", "page0");
     txhash = resp;
