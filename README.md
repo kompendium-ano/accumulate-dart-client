@@ -1,8 +1,36 @@
 # Accumulate Dart Client
 
 [![CircleCI](https://circleci.com/gh/kompendium-ano/accumulate-dart-client/tree/master.svg?style=svg&circle-token=1ae82503101537a31f2865115486b5d64419274b)](https://circleci.com/gh/kompendium-ano/accumulate-dart-client/tree/master)
+![Pub Version](https://img.shields.io/pub/v/accumulate_api)
+![GitHub](https://img.shields.io/github/license/kompendium-ano/accumulate-dart-client)
 
-JSON RPC client for Accumulate blockchain, supports all API calss and basic data types that reflect network types and structures.
+JSON RPC client for Accumulate blockchain, supports all API calss and basic data types that reflect network types and structures. Based on Accumulate API [documentation](https://docs.accumulatenetwork.io/accumulate/developers/api/api-reference). 
+
+## Installation
+
+With Dart:
+```
+$ dart pub add accumulate_api
+```
+
+With Flutter:
+```
+$ flutter pub add accumulate_api
+```
+
+This will add a line like this to your package's pubspec.yaml (and run an implicit dart pub get):
+
+```
+dependencies:
+  accumulate_api: ^0.2.1
+```
+Alternatively, your editor might support dart pub get or flutter pub get. Check the docs for your editor to learn more.
+Import it
+
+Now in your Dart code, you can use:
+```
+import 'package:accumulate_api/accumulate_api.dart';
+```
 
 ## Usage
 
