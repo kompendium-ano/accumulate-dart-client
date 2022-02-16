@@ -16,11 +16,11 @@ import 'package:json_annotation/json_annotation.dart';
 // }
 @JsonSerializable()
 class AccumulateURL {
-  String _userInfo;
-  String _authority;
-  String _path;
-  String _query;
-  String _fragment;
+  String? _userInfo;
+  String? _authority;
+  String? _path;
+  String? _query;
+  String? _fragment;
 
   AccumulateURL() {
   }
@@ -41,7 +41,7 @@ class AccumulateURL {
       };
 
   String getPath() {
-    return "acc://" + _authority + _path;
+    return "acc://" + _authority! + _path!;
   }
 
   // Hostname returns the hostname from the authority component.
@@ -50,7 +50,7 @@ class AccumulateURL {
   //     return s
   // }
   String hostname() {
-    return authority.split(":").first;
+    return authority!.split(":").first;
   }
 
   // ResourceChain constructs a chain identifier from the lower case hostname and
@@ -69,7 +69,7 @@ class AccumulateURL {
   //    return chain(u.Hostname() + ensurePath(u.Path))
   //  }
   List<int> resourceChain() {
-    String combo = hostname() + ensurePath(path);
+    String combo = hostname() + ensurePath(path)!;
     Digest chainHash = sha256.convert(utf8.encode(combo.toLowerCase()));
     return chainHash.bytes.sublist(0, 32);
   }
@@ -81,8 +81,8 @@ class AccumulateURL {
   // }
   // return "/" + s
   // }
-  String ensurePath(String input) {
-    if (input == "" || input.startsWith('/', 0)) {
+  String? ensurePath(String? input) {
+    if (input == "" || input!.startsWith('/', 0)) {
       return input;
     } else {
       return "/" + input;
@@ -90,33 +90,33 @@ class AccumulateURL {
   }
 
   //////////////////////////////////////////////////////
-  String get userInfo => _userInfo;
+  String? get userInfo => _userInfo;
 
-  set userInfo(String value) {
+  set userInfo(String? value) {
     _userInfo = value;
   }
 
-  String get authority => _authority;
+  String? get authority => _authority;
 
-  set authority(String value) {
+  set authority(String? value) {
     _authority = value;
   }
 
-  String get path => _path;
+  String? get path => _path;
 
-  set path(String value) {
+  set path(String? value) {
     _path = value;
   }
 
-  String get query => _query;
+  String? get query => _query;
 
-  set query(String value) {
+  set query(String? value) {
     _query = value;
   }
 
-  String get fragment => _fragment;
+  String? get fragment => _fragment;
 
-  set fragment(String value) {
+  set fragment(String? value) {
     _fragment = value;
   }
 }
@@ -180,57 +180,57 @@ Either<String, AccumulateURL> parseStringToAccumulateURL(String input) {
 
 @JsonSerializable()
 class Address {
-  String _nickname;
-  String _spendingpass;
-  String _address;
-  AccumulateURL _URL;
-  int _amount;
-  int _amountCredits;
-  String _puk;
-  List<int> _pik;
-  String _pikHex;
-  String _mnemonic;
-  List<String> _mnemonicList;
-  String _parentAdi;
-  String _affiliatedKeybook; // path to controlling keybook
+  String? _nickname;
+  String? _spendingpass;
+  String? _address;
+  AccumulateURL? _URL;
+  int? _amount;
+  int? _amountCredits;
+  String? _puk;
+  List<int>? _pik;
+  String? _pikHex;
+  String? _mnemonic;
+  List<String>? _mnemonicList;
+  String? _parentAdi;
+  String? _affiliatedKeybook; // path to controlling keybook
 
   /////////////////////////////////////////////////////
 
-  String get address => _address;
+  String? get address => _address;
 
-  int get amount => _amount;
+  int? get amount => _amount;
 
-  String get nickname => _nickname;
+  String? get nickname => _nickname;
 
-  String get spendingpass => _spendingpass;
+  String? get spendingpass => _spendingpass;
 
-  String get puk => _puk;
+  String? get puk => _puk;
 
-  String get pikHex => _pikHex;
+  String? get pikHex => _pikHex;
 
-  List<int> get pik => _pik;
+  List<int>? get pik => _pik;
 
-  int get amountCredits => _amountCredits;
+  int? get amountCredits => _amountCredits;
 
-  set amountCredits(int value) {
+  set amountCredits(int? value) {
     _amountCredits = value;
   }
 
-  set pik(List<int> value) {
+  set pik(List<int>? value) {
     _pik = value;
   }
 
-  String get parentAdi => _parentAdi;
+  String? get parentAdi => _parentAdi;
 
-  set parentAdi(String value) {
+  set parentAdi(String? value) {
     _parentAdi = value;
   }
 
-  List<String> get mnemonicList => _mnemonicList;
+  List<String>? get mnemonicList => _mnemonicList;
 
-  AccumulateURL get URL => _URL;
+  AccumulateURL? get URL => _URL;
 
-  set URL(AccumulateURL value) {
+  set URL(AccumulateURL? value) {
     _URL = value;
   }
 
@@ -267,43 +267,43 @@ class Address {
         'affiliatedKeybook': _affiliatedKeybook
       };
 
-  set nickname(String value) {
+  set nickname(String? value) {
     _nickname = value;
   }
 
-  set spendingpass(String value) {
+  set spendingpass(String? value) {
     _spendingpass = value;
   }
 
-  set address(String value) {
+  set address(String? value) {
     _address = value;
   }
 
-  set amount(int value) {
+  set amount(int? value) {
     _amount = value;
   }
 
-  set puk(String value) {
+  set puk(String? value) {
     _puk = value;
   }
 
-  set pikHex(String value) {
+  set pikHex(String? value) {
     _pikHex = value;
   }
 
-  set mnemonicList(List<String> value) {
+  set mnemonicList(List<String>? value) {
     _mnemonicList = value;
   }
 
-  String get mnemonic => _mnemonic;
+  String? get mnemonic => _mnemonic;
 
-  set mnemonic(String value) {
+  set mnemonic(String? value) {
     _mnemonic = value;
   }
 
-  String get affiliatedKeybook => _affiliatedKeybook;
+  String? get affiliatedKeybook => _affiliatedKeybook;
 
-  set affiliatedKeybook(String value) {
+  set affiliatedKeybook(String? value) {
     _affiliatedKeybook = value;
   }
 
@@ -358,7 +358,7 @@ class Address {
     if (res.isLeft())
       return new AccumulateURL();
     else {
-      final AccumulateURL tokenUrl = res.toOption().toNullable();
+      final AccumulateURL tokenUrl = res.toOption().toNullable()!;
       tokenUrl.authority;
 
       // 1. Get the hash of the public key
@@ -386,7 +386,7 @@ class Address {
       print("encoded keyhash crop $keyStr");
 
       anonUrl.authority = keyStr;
-      anonUrl.path = "/" + tokenUrl.authority + tokenUrl.path;
+      anonUrl.path = "/" + tokenUrl.authority! + tokenUrl.path!;
 
       // 3. Calculate checksum
       Digest checkSum = sha256.convert(utf8.encode(keyStr)); //checkSum := sha256.Sum256([]byte(keyStr))
@@ -453,10 +453,11 @@ class Address {
       return false;
     }
     // 1. get hash of the address including prefix
+    return true;
   }
 
   @override
   String toString() {
-    return "path: " + address + "\n - balance: " + amount.toString() + "\n - credits: " + amountCredits.toString();
+    return "path: " + address! + "\n - balance: " + amount.toString() + "\n - credits: " + amountCredits.toString();
   }
 }
