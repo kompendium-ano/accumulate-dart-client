@@ -118,7 +118,7 @@ void main() {
       print(liteAccount.address);
 
       // 4. Initialize API class
-      final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
+      final acmeAPI = ACMEApiV2("http://178.20.158.25:56660/", "v2");
 
       // 5. Add ACME tokens from faucet, at least 3 times because fee is high
       //      - must maintain 4s delay for tx to settle, otherwise it may stall account chain
