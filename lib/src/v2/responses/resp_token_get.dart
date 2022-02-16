@@ -7,8 +7,8 @@ class TokenAccountGetResponse {
     this.type,
   });
 
-  Data data;
-  String type;
+  Data? data;
+  String? type;
 
   factory TokenAccountGetResponse.fromRawJson(String str) => TokenAccountGetResponse.fromJson(json.decode(str));
 
@@ -20,7 +20,7 @@ class TokenAccountGetResponse {
   );
 
   Map<String, dynamic> toJson() => {
-    "data": data.toJson(),
+    "data": data!.toJson(),
     "type": type,
   };
 
@@ -49,12 +49,12 @@ class Data {
     this.creditBalance
   });
 
-  int balance;
-  int txcount;
-  int nonce;
-  int creditBalance;
-  String tokenUrl;
-  String url;
+  int? balance;
+  int? txcount;
+  int? nonce;
+  int? creditBalance;
+  String? tokenUrl;
+  String? url;
 
   factory Data.fromRawJson(String str) => Data.fromJson(json.decode(str));
 
@@ -84,13 +84,13 @@ class DataDirectory {
     this.entities
   });
 
-  int balance;
-  int keybooksCount;
-  int tokenAccountsCount;
-  int creditBalance;
-  String tokenUrl;
-  String url;
-  List<String> entities;
+  int? balance;
+  int? keybooksCount;
+  int? tokenAccountsCount;
+  int? creditBalance;
+  String? tokenUrl;
+  String? url;
+  List<String>? entities;
 
   factory DataDirectory.fromRawJson(String str) => DataDirectory.fromJson(json.decode(str));
 
@@ -115,8 +115,8 @@ class DataKeybook {
     this.mdroot,
   });
 
-  String url;
-  String mdroot;
+  String? url;
+  String? mdroot;
 
 }
 
@@ -127,8 +127,8 @@ class DataKeyPage {
     this.balanceCredits,
   });
 
-  int balanceCredits;
-  String url;
-  String mdroot;
+  int? balanceCredits;
+  String? url;
+  String? mdroot;
 
 }
