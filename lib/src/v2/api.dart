@@ -254,6 +254,90 @@ class ACMEApiV2 {
 // "query-key-index":  m.QueryKeyPageIndex,
 
 // "create-data-account":  m.ExecuteWith(func() PL { return new(protocol.CreateDataAccount) }),
+  Future<String?> callCreateDataAccount(Address currAddr, IdentityADI adiToCreate, int timestamp,
+      [String? keybookName, String? keypageName]) async {
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
+
+    //timestamp = timestamp * 1000;
+
+    int keypageHeightToUse = 1;
+    int keyPageIndexInsideKeyBook = 0;
+
+    // TODO: check if keybook name available
+    // TODO: allow newly generated keypair
+
+    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currAddr.puk!));
+    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex!));
+    var keyPair = ed.KeyPair(privateKey, publicKey);
+
+    V2.Signer signer = V2.Signer(publicKey: currAddr.puk, nonce: timestamp);
+    V2.ApiRequestRawTxKeyPage keyPage = V2.ApiRequestRawTxKeyPage(height: 1); //, index: 0);
+
+    // prepare data
+    V2.ApiRequestADI data = V2.ApiRequestADI(adiToCreate.path, currAddr.puk, keybookName ?? "", keypageName ?? "");
+
+    V2.ApiRequestRawTx_ADI tx = V2.ApiRequestRawTx_ADI(
+        payload: data,
+        signer: signer,
+        signature: "",
+        sponsor: currAddr.address,
+        origin: currAddr.address,
+        keyPage: keyPage);
+
+    V2.TokenTx tokenTx = V2.TokenTx();
+    TransactionHeader header = TransactionHeader(
+        origin: currAddr.address,
+        nonce: timestamp,
+        keyPageHeight: keypageHeightToUse,
+        keyPageIndex: keyPageIndexInsideKeyBook);
+    List<int> dataBinary = tokenTx.marshalBinaryCreateIdentity(tx);
+
+    log('Header:\n ${header.marshal()}');
+    log('Body: ${dataBinary}');
+
+    // Generalized version of GenTransaction in Go
+    V2.ApiRequestTxGen txGen = V2.ApiRequestTxGen([], header, dataBinary);
+    txGen.hash = txGen.generateTransactionHash();
+
+    List<int> msg = [];
+    msg.addAll(uint64ToBytesNonce(timestamp)); // VLQ converted timestamp
+    msg.addAll(txGen.hash);
+    Uint8List msgToSign = Uint8List.fromList(msg);
+
+    // sign message which is (timestamp/nonce) + txHash
+    Uint8List signature = ed.sign(privateKey, msgToSign);
+
+    // NB: sig is 64 bytes string created from hexing generated signature
+    // var bytes = utf8.encode("60aa13125cbe0dd496a2f0248e6a46c04b799c160734b248e83eb4573ca4d560");
+    // sig = HEX.encode(bytes);
+    String sig = "";
+    sig = HEX.encode(signature);
+    tx.signature = sig; // update underlying structure
+
+    JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
+    var res = await acmeApi.call("create-data-account", [tx]);
+    res.result;
+
+    String? txid = "";
+    if (res != null) {
+      String? type = res.result["type"];
+
+      // TODO: combine into single response type
+      txid = res.result["txid"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+      String? message = res.result["message"];
+
+      print('Response: $message');
+      if (code == 12) {}
+    }
+
+    return txid;
+  }
+
 
 // RPC: "query-tx-history" (in v1 - "token-account-history")
   Future<List<Transaction>> callGetTokenTransactionHistory(Address currAddr) async {
