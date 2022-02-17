@@ -181,7 +181,6 @@ class ACMEApiV2 {
   // "query-chain":      m.QueryChain,
 
   // "query-tx":         m.QueryTx,
-  // RPC: "token-tx"
   Future<Transaction?> callGetTokenTransaction(String? txhash) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
     ApiRequestTx apiRequestHash = ApiRequestTx(txhash);
@@ -245,6 +244,37 @@ class ACMEApiV2 {
     }
 
     return tx;
+  }
+
+  // RPC: "query-tx-history" (in v1 - "token-account-history")
+  Future<List<Transaction>> callGetTokenTransactionHistory(Address currAddr) async {
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
+
+    ApiRequestUrWithPagination apiRequestUrlWithPagination =
+    new ApiRequestUrWithPagination(currAddr.address!.toLowerCase(), 1, 100);
+    JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
+    final res = await acmeApi.call("query-tx-history", [apiRequestUrlWithPagination]);
+    res.result;
+
+    // Collect transaction iteratively
+    List<Transaction> txs = [];
+    if (res != null) {
+      var data = res.result["data"];
+      String? type = res.result["type"];
+
+      for (var i = 0; i < data.length; i++) {
+        var tx = data[i];
+
+        var internalData = tx["data"];
+        String? txid = internalData["txid"];
+
+        // if nothing that was a faucet
+        Transaction txl = new Transaction("", "", txid, "", "", 0, "");
+        txs.add(txl);
+      }
+    }
+
+    return txs;
   }
 
 // "query-data":       m.QueryData,
@@ -340,35 +370,8 @@ class ACMEApiV2 {
     return txid;
   }
 
-// RPC: "query-tx-history" (in v1 - "token-account-history")
-  Future<List<Transaction>> callGetTokenTransactionHistory(Address currAddr) async {
-    String ACMEApiUrl = apiRPCUrl + apiPrefix;
-
-    ApiRequestUrWithPagination apiRequestUrlWithPagination =
-        new ApiRequestUrWithPagination(currAddr.address!.toLowerCase(), 1, 100);
-    JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
-    final res = await acmeApi.call("query-tx-history", [apiRequestUrlWithPagination]);
-    res.result;
-
-    // Collect transaction iteratively
-    List<Transaction> txs = [];
-    if (res != null) {
-      var data = res.result["data"];
-      String? type = res.result["type"];
-
-      for (var i = 0; i < data.length; i++) {
-        var tx = data[i];
-
-        var internalData = tx["data"];
-        String? txid = internalData["txid"];
-
-        // if nothing that was a faucet
-        Transaction txl = new Transaction("", "", txid, "", "", 0, "");
-        txs.add(txl);
-      }
-    }
-
-    return txs;
+  Future<String?> callWriteData() async{
+    return "";
   }
 
 // "create-adi":           m.ExecuteWith(func() PL { return new(protocol.IdentityCreate) }),

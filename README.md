@@ -4,7 +4,10 @@
 ![Pub Version](https://img.shields.io/pub/v/accumulate_api)
 ![GitHub](https://img.shields.io/github/license/kompendium-ano/accumulate-dart-client)
 
-JSON RPC client for Accumulate blockchain, supports all API calss and basic data types that reflect network types and structures. Based on Accumulate API [documentation](https://docs.accumulatenetwork.io/accumulate/developers/api/api-reference). 
+JSON RPC client for [Accumulate](https://github.com/AccumulateNetwork/accumulate) blockchain, a novel blockchain network designed to be hugely scalable while maintaining securit.
+THis library supports all API class and basic data types that reflect network types and structures and utility functions to ease up creation of specific requests.
+
+Full API reference available here: https://docs.accumulatenetwork.io/accumulate/developers/api/api-reference
 
 ## Installation
 
@@ -34,7 +37,8 @@ import 'package:accumulate_api/accumulate_api.dart';
 
 ## Usage
 
-Note: v1 deprecated and soon will be removed from source code. Use v2 only.
+- `lib/src/v2/` - holds collection of API calls to JSON RPC 
+- `lib/src/model/` - holds models that used to build up native models and use them either during calls or as intermediary structure.
 
 ### 1. Generate Lite Account
 
@@ -144,6 +148,7 @@ final respKb = await api.callKeyBookCreate(newADI, newKeyBook, [newKeyPage], tim
 
 ```dart
 // 5. Prepare ADI structure
+//    2nd parameter is desired name of ADI
 IdentityADI newADI = IdentityADI("", "acc://cosmonaut1", "");
 newADI
   ..sponsor = liteAccount.address
@@ -158,14 +163,14 @@ int timestamp = DateTime
     .millisecondsSinceEpoch;
 
 // 5.2
-// Here we supply keybook and keypage paths of initially created entities
+// Here we supply KeyBook and KeyPage paths of initially created entities
   final resp = await api.callCreateAdi(currAddr, newADI, timestamp, newKeyBook.path, newKeyPage.path);
 ```
 
 ### 6. Create ADI Token Account
 ```dart
 // 6. Prepare Token Account structure
-// 6.1 Understand current tip of Keypage chain, represented as int value, called "height"
+// 6.1 Understand current tip of KeyPage chain, represented as int value, called "height"
 int keyPageHeight = 1;
 final kbData = await api.callQuery(newKeypage.path);
 kbData.hashCode;
@@ -186,7 +191,6 @@ int timestampForTokenAccount = DateTime
 // 6.4 Provide name for account and related basic structures
 final resp = await api.callCreateTokenAccount(liteAccount, newAdi, "my-token-acc", currentKeyBook.path,
 timestampForTokenAccount, kpuk, kpik, keyPageHeight);
-
 ```
 
 ## 7 Create ADI Data Account
@@ -200,19 +204,16 @@ if (kbData != null) {
   keyPageHeight = kbData.nonce;
 }
 
-// 7.2 Indicate keypair the we use to sign, should be from keypage
-String kpuk = HEX.encode(publicKey.bytes);
-String kpik = HEX.encode(privateKey.bytes);
-
-// 7.3 add timestamp as Nonce value
-int timestampForTokenAccount = DateTime
+// 7. Always get new timestamp for creational calls
+int timestampForDataAccount = DateTime
     .now()
     .toUtc()
     .millisecondsSinceEpoch;
 
-// 7.4 Provide name for account and related basic structures
-final resp = await api.callCreateDataAccount(liteAccount, newAdi, "my-token-acc", currentKeyBook.path,
-timestampForTokenAccount, kpuk, kpik, keyPageHeight);
+// 7. Provide name for account and related basic structures
+//  NB: Always ensure you have enough credits on keypage before execution
+final resp = await api.callCreateDataAccount(liteAccount, newAdi, "my-data-acc", timestampForDataAccount, currentKeyBook.path,
+,keyPageHeight);
 ```
 
 ### 8. Make Token Transactions
@@ -237,6 +238,10 @@ final resp =
                   , "acme");
 ```
 
-## Contributions
 
-The Library developed by Kompendium, LLC. Contributions are welcome, open new PR or submit new issue.
+## Contributions
+The Library developed by Kompendium, LLC in partnership with Kelecorix, Inc and Sergey Bushnyak. Contributions are welcome
+, open new PR or submit new issue.
+
+Current maintainer:
+Sergey Bushnyak / @sigrlami
