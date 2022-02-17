@@ -238,10 +238,8 @@ final resp =
                   , "acme");
 ```
 
-
 ## Contributions
-The Library developed by Kompendium, LLC in partnership with Kelecorix, Inc and Sergey Bushnyak. Contributions are welcome
-, open new PR or submit new issue.
+The Library developed by Kompendium, LLC in partnership with Kelecorix, Inc and Sergey Bushnyak. Contributions are welcome, open new PR or submit new issue.
 
 Current maintainer:
-Sergey Bushnyak / @sigrlami
+Sergey Bushnyak <sergey.bushnyak@kelecorix.com>
