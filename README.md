@@ -4,8 +4,8 @@
 ![Pub Version](https://img.shields.io/pub/v/accumulate_api)
 ![GitHub](https://img.shields.io/github/license/kompendium-ano/accumulate-dart-client)
 
-JSON RPC client for [Accumulate](https://github.com/AccumulateNetwork/accumulate) blockchain, a novel blockchain network designed to be hugely scalable while maintaining securit.
-THis library supports all API class and basic data types that reflect network types and structures and utility functions to ease up creation of specific requests.
+JSON RPC client for [Accumulate](https://github.com/AccumulateNetwork/accumulate) blockchain, a novel blockchain network designed to be hugely scalable while maintaining security.
+This library supports all API class and basic data types that reflect network types and structures and utility functions to ease up creation of specific requests.
 
 Full API reference available here: https://docs.accumulatenetwork.io/accumulate/developers/api/api-reference
 
