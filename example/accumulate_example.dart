@@ -513,6 +513,8 @@ void main() {
       final respDataAccount = await acmeAPI.callQuery(newADI.path! + "/" + dtknName);
       print('ADI Data Account: ${respDataAccount.url}');
 
+      // 12. Write Data to Data Account
+
       return txhash;
     }
 
