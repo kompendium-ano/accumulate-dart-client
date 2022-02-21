@@ -1,3 +1,7 @@
+# 0.2.6
+- refactor responses for history
+- various bug fixes
+
 # 0.2.5
 - provides support for null-safety
 - refactor binary marshalling for data accounts

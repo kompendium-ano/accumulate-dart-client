@@ -226,15 +226,29 @@ class ACMEApiV2 {
       var data = res.result["data"];
       String? type = res.result["type"];
 
+      print(type);
       switch (type) {
         case "syntheticTokenDeposit":
+        case "syntheticDepositTokens":
           String? txid = res.result["data"]["txid"];
           String? from = res.result["data"]["from"];
           String? to = res.result["data"]["to"];
           int amount = int.parse(res.result["data"]["amount"]);
           String? tokenUrl = res.result["data"]["tokenUrl"];
 
-          tx = new Transaction(type, "", txid, from, to, amount, tokenUrl);
+          tx = new Transaction("Outgoing", "", txid, from, to, amount, tokenUrl);
+          break;
+        case "addCredits":
+          String? txid = res.result["data"]["txid"];
+          String? from = res.result["sponsor"];
+          String? to = res.result["data"]["recipient"];
+          int amount = res.result["data"]["amount"];
+          //String? tokenUrl = res.result["data"]["tokenUrl"];
+
+          tx = new Transaction("Incoming", "add-credits", txid, from, to, amount, "");
+          break;
+        case "syntheticDepositCredits":
+          // TODO: handle differently from "addCredits"
           break;
         case "createKeyPage":
           String? txid = res.result["txid"];
@@ -243,7 +257,7 @@ class ACMEApiV2 {
           LinkedHashMap sigs = res.result["signatures"][0];
           int? dateNonce = sigs["nonce"];
 
-          tx = new Transaction(type, "", txid, from, to, 0, "ACME");
+          tx = new Transaction("Outgoing", "", txid, from, to, 0, "ACME");
           tx.created = dateNonce;
 
           break;
@@ -255,9 +269,19 @@ class ACMEApiV2 {
           LinkedHashMap sigs = res.result["signatures"][0];
           int? dateNonce = sigs["Nonce"];
 
-          tx = new Transaction(type, "", txid, from, to, amount, "ACME");
+          tx = new Transaction("Incoming", "", txid, from, to, amount, "ACME");
           tx.created = dateNonce;
 
+          break;
+        case "syntheticCreateChain":
+          String? txid = res.result["data"]["txid"];
+          String? sponsor = res.result["sponsor"];
+          String? origin = res.result["origin"];
+          LinkedHashMap sigs = res.result["signatures"][0];
+          int? dateNonce = sigs["Nonce"];
+
+          tx = new Transaction("Outgoing", "", txid, sponsor, origin, 0, "ACME");
+          tx.created = dateNonce;
           break;
         default:
           String? txid = res.result["data"]["txid"];
@@ -268,10 +292,11 @@ class ACMEApiV2 {
           int? amount = dataTo["amount"];
           //int amount = int.parse(res.result["data"]["amount"]);
           //String tokenUrl = res.result["data"]["tokenUrl"];
+          //int? dateNonce = res.result["signer"]["nonce"];
+          LinkedHashMap sigs = res.result["signatures"][0];
+          int? dateNonce = sigs["Nonce"];
 
-          int? dateNonce = res.result["signer"]["nonce"];
-
-          tx = new Transaction(type, "", txid, from, to, amount, "ACME");
+          tx = new Transaction("Outgoing", "", txid, from, to, amount, "ACME");
           tx.created = dateNonce;
       }
     }
@@ -295,7 +320,7 @@ class ACMEApiV2 {
     if (res != null) {
       var records = res.result["items"];
 
-      if(records==null) {
+      if (records == null) {
         return [];
       }
 
@@ -315,7 +340,7 @@ class ACMEApiV2 {
             break;
           case "addCredits":
             String? txid = tx["txid"];
-            int? amountCredits = tx["data"]["amount"];    // that's amount of credits
+            int? amountCredits = tx["data"]["amount"]; // that's amount of credits
             int amount = (amountCredits! * 0.01).toInt() * 100000000; // in acmes
 
             Transaction txl = new Transaction("Incoming", "credits", txid, "", "", amount, "acc://ACME");
@@ -324,11 +349,23 @@ class ACMEApiV2 {
           case "sendTokens":
             String? txid = tx["txid"];
             String? form = tx["data"]["from"];
-            List to =  tx["data"]["to"];
-            String? amount = to[0]["amount"];
-            String? urlRecepient   = to[0]["url"];
+            List to = tx["data"]["to"];
+            String? amount = "";
+            String? urlRecepient = "";
+            if (to != null) {
+              amount = to[0]["amount"];
+              urlRecepient = to[0]["url"];
+            }
 
             Transaction txl = new Transaction("Outgoing", "transaction", txid, "", "", int.parse(amount!), "acc://");
+            txs.add(txl);
+            break;
+          case "syntheticCreateChain":
+            String? txid = tx["txid"];
+            int? amount = tx["data"]["amount"];
+            String? token = tx["data"]["token"];
+
+            Transaction txl = new Transaction("Outgoing", type!, txid, "", "", amount, "acc://$token");
             txs.add(txl);
             break;
           default:
