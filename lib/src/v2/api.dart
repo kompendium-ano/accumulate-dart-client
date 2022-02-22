@@ -236,14 +236,7 @@ class ACMEApiV2 {
           int amount = int.parse(res.result["data"]["amount"]);
           String? tokenUrl = res.result["data"]["tokenUrl"];
 
-          tx = new Transaction(
-              "Outgoing",
-              "",
-              txid,
-              from,
-              to,
-              amount,
-              tokenUrl);
+          tx = new Transaction("Outgoing", "", txid, from, to, amount, tokenUrl);
           break;
         case "addCredits":
           String? txid = res.result["data"]["txid"];
@@ -252,19 +245,12 @@ class ACMEApiV2 {
           int amount = res.result["data"]["amount"];
           //String? tokenUrl = res.result["data"]["tokenUrl"];
 
-          tx = new Transaction(
-              "Incoming",
-              "add-credits",
-              txid,
-              from,
-              to,
-              amount,
-              "");
+          tx = new Transaction("Incoming", "add-credits", txid, from, to, amount, "");
           break;
         case "sendTokens":
-          String? txid = tx["txid"];
-          String? form = tx["data"]["from"];
-          List to = tx["data"]["to"];
+          String? txid = res.result["txid"];
+          String? from = res.result["data"]["from"];
+          List to = res.result["data"]["to"];
           String? amount = "";
           String? urlRecepient = "";
           if (to != null) {
@@ -272,27 +258,12 @@ class ACMEApiV2 {
             urlRecepient = to[0]["url"];
           }
 
-          Transaction txl = new Transaction(
-              "Outgoing",
-              "transaction",
-              txid,
-              "",
-              "",
-              int.parse(amount!),
-              "acc://");
-          txs.add(txl);
+          tx = new Transaction("Outgoing", "transaction", txid, from, urlRecepient, int.parse(amount!), "acc://");
           break;
         case "syntheticDepositCredits":
-        // TODO: handle differently from "addCredits"
+          // TODO: handle differently from "addCredits"
           String? txid = res.result["data"]["txid"];
-          tx = new Transaction(
-              "",
-              "",
-              txid,
-              "",
-              "",
-              0,
-              ""); // use dummy structure for now
+          tx = new Transaction("", "", txid, "", "", 0, ""); // use dummy structure for now
           break;
         case "createKeyPage":
           String? txid = res.result["txid"];
@@ -301,14 +272,7 @@ class ACMEApiV2 {
           LinkedHashMap sigs = res.result["signatures"][0];
           int? dateNonce = sigs["nonce"];
 
-          tx = new Transaction(
-              "Outgoing",
-              "",
-              txid,
-              from,
-              to,
-              0,
-              "ACME");
+          tx = new Transaction("Outgoing", "", txid, from, to, 0, "ACME");
           tx.created = dateNonce;
 
           break;
@@ -320,14 +284,7 @@ class ACMEApiV2 {
           LinkedHashMap sigs = res.result["signatures"][0];
           int? dateNonce = sigs["Nonce"];
 
-          tx = new Transaction(
-              "Incoming",
-              "",
-              txid,
-              from,
-              to,
-              amount,
-              "ACME");
+          tx = new Transaction("Incoming", "", txid, from, to, amount, "ACME");
           tx.created = dateNonce;
 
           break;
@@ -338,27 +295,13 @@ class ACMEApiV2 {
           LinkedHashMap sigs = res.result["signatures"][0];
           int? dateNonce = sigs["Nonce"];
 
-          tx = new Transaction(
-              "Outgoing",
-              "",
-              txid,
-              sponsor,
-              origin,
-              0,
-              "ACME");
+          tx = new Transaction("Outgoing", "", txid, sponsor, origin, 0, "ACME");
           tx.created = dateNonce;
           break;
         case "createIdentity":
-        // TODO: handle differently from "syntethicCreateChain"
+          // TODO: handle differently from "syntethicCreateChain"
           String? txid = res.result["data"]["txid"];
-          tx = new Transaction(
-              "",
-              "",
-              txid,
-              "",
-              "",
-              0,
-              ""); // use dummy structure for now
+          tx = new Transaction("", "", txid, "", "", 0, ""); // use dummy structure for now
           break;
           break;
         default:
@@ -375,14 +318,7 @@ class ACMEApiV2 {
           LinkedHashMap sigs = res.result["signatures"][0];
           int? dateNonce = sigs["Nonce"];
 
-          tx = new Transaction(
-              "Outgoing",
-              "",
-              txid,
-              from,
-              to,
-              amount,
-              "ACME");
+          tx = new Transaction("Outgoing", "", txid, from, to, amount, "ACME");
           tx.created = dateNonce;
       }
     }
@@ -396,7 +332,7 @@ class ACMEApiV2 {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     ApiRequestUrWithPagination apiRequestUrlWithPagination =
-    new ApiRequestUrWithPagination(currAddr.address!.toLowerCase(), 0, 100);
+        new ApiRequestUrWithPagination(currAddr.address!.toLowerCase(), 0, 100);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     final res = await acmeApi.call("query-tx-history", [apiRequestUrlWithPagination]);
     res.result;
@@ -421,14 +357,7 @@ class ACMEApiV2 {
             String? token = tx["data"]["token"];
 
             // if nothing that was a faucet
-            Transaction txl = new Transaction(
-                "Incoming",
-                "",
-                txid,
-                "",
-                "",
-                int.parse(amount!),
-                "acc://$token");
+            Transaction txl = new Transaction("Incoming", "", txid, "", "", int.parse(amount!), "acc://$token");
             txs.add(txl);
             break;
           case "addCredits":
@@ -436,19 +365,12 @@ class ACMEApiV2 {
             int? amountCredits = tx["data"]["amount"]; // that's amount of credits
             int amount = (amountCredits! * 0.01).toInt() * 100000000; // in acmes
 
-            Transaction txl = new Transaction(
-                "Incoming",
-                "credits",
-                txid,
-                "",
-                "",
-                amount,
-                "acc://ACME");
+            Transaction txl = new Transaction("Incoming", "credits", txid, "", "", amount, "acc://ACME");
             txs.add(txl);
             break;
           case "sendTokens":
             String? txid = tx["txid"];
-            String? form = tx["data"]["from"];
+            String? from = tx["data"]["from"];
             List to = tx["data"]["to"];
             String? amount = "";
             String? urlRecepient = "";
@@ -457,14 +379,7 @@ class ACMEApiV2 {
               urlRecepient = to[0]["url"];
             }
 
-            Transaction txl = new Transaction(
-                "Outgoing",
-                "transaction",
-                txid,
-                "",
-                "",
-                int.parse(amount!),
-                "acc://");
+            Transaction txl = new Transaction("Outgoing", "transaction", txid, from, urlRecepient, int.parse(amount!), "acc://");
             txs.add(txl);
             break;
           case "syntheticCreateChain":
@@ -472,14 +387,7 @@ class ACMEApiV2 {
             int? amount = tx["data"]["amount"];
             String? token = tx["data"]["token"];
 
-            Transaction txl = new Transaction(
-                "Outgoing",
-                type!,
-                txid,
-                "",
-                "",
-                amount,
-                "acc://$token");
+            Transaction txl = new Transaction("Outgoing", type!, txid, "", "", amount, "acc://$token");
             txs.add(txl);
             break;
           default:
@@ -487,14 +395,7 @@ class ACMEApiV2 {
             int? amount = tx["data"]["amount"];
             String? token = tx["data"]["token"];
 
-            Transaction txl = new Transaction(
-                "Outgoing",
-                type!,
-                txid,
-                "",
-                "",
-                amount,
-                "acc://$token");
+            Transaction txl = new Transaction("Outgoing", type!, txid, "", "", amount, "acc://$token");
             txs.add(txl);
             break;
         }
@@ -515,8 +416,8 @@ class ACMEApiV2 {
 
   ///
   // "create-data-account":  m.ExecuteWith(func() PL { return new(protocol.CreateDataAccount) }),
-  Future<String?> callCreateDataAccount(Address currAddr, IdentityADI parentAdi, String accountName, int timestamp,
-      String? keybookName, bool? isScratch,
+  Future<String?> callCreateDataAccount(
+      Address currAddr, IdentityADI parentAdi, String accountName, int timestamp, String? keybookName, bool? isScratch,
       [int? keyPageHeight]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
@@ -693,8 +594,8 @@ class ACMEApiV2 {
 
   ///
   /// RPC: "token-account" - Create token account
-  Future<String?> callCreateTokenAccount(Address currAddr, IdentityADI sponsorADI, String tokenAccountName,
-      String keybookPath, int timestamp,
+  Future<String?> callCreateTokenAccount(
+      Address currAddr, IdentityADI sponsorADI, String tokenAccountName, String keybookPath, int timestamp,
       [String? keyPuk, String? keyPik, int? keyPageHeight]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
@@ -718,19 +619,14 @@ class ACMEApiV2 {
 
     Signer signer = Signer(publicKey: signerKey, nonce: timestamp);
     ApiRequestRawTxKeyPage keyPage =
-    ApiRequestRawTxKeyPage(height: keypageHeightToUse); //, index: keyPageIndexInsideKeyBook); //, index: 0);
+        ApiRequestRawTxKeyPage(height: keypageHeightToUse); //, index: keyPageIndexInsideKeyBook); //, index: 0);
 
     // prepare payload
     ApiRequestTokenAccount data =
-    ApiRequestTokenAccount(sponsorADI.path! + "/" + tokenAccountName, "acc://acme", keybookPath, false);
+        ApiRequestTokenAccount(sponsorADI.path! + "/" + tokenAccountName, "acc://acme", keybookPath, false);
 
     ApiRequestRawTx_TokenAccount tx = ApiRequestRawTx_TokenAccount(
-        payload: data,
-        signer: signer,
-        origin: sponsorPath,
-        signature: "",
-        sponsor: sponsorPath,
-        keyPage: keyPage);
+        payload: data, signer: signer, origin: sponsorPath, signature: "", sponsor: sponsorPath, keyPage: keyPage);
 
     TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
@@ -789,8 +685,8 @@ class ACMEApiV2 {
 
   ///
   /// "create-key-book":      m.ExecuteWith(func() PL { return new(protocol.CreateKeyBook) }),
-  Future<Tuple2<String?, String>> callKeyBookCreate(IdentityADI sponsorADI, KeyBook keybook, List<String> pages,
-      int timestamp,
+  Future<Tuple2<String?, String>> callKeyBookCreate(
+      IdentityADI sponsorADI, KeyBook keybook, List<String> pages, int timestamp,
       [String? keyPuk, String? keyPik, int? keyPageHeight, String? keybookPath]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
@@ -821,12 +717,7 @@ class ACMEApiV2 {
     ApiRequestKeyBook data = new ApiRequestKeyBook(keybook.path, pages);
 
     ApiRequestRawTx_KeyBook tx = ApiRequestRawTx_KeyBook(
-        payload: data,
-        signer: signer,
-        signature: "",
-        sponsor: sponsorPath,
-        origin: sponsorPath,
-        keyPage: keyPage);
+        payload: data, signer: signer, signature: "", sponsor: sponsorPath, origin: sponsorPath, keyPage: keyPage);
 
     TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
@@ -885,8 +776,8 @@ class ACMEApiV2 {
 
   ///
   /// "create-key-page":      m.ExecuteWith(func() PL { return new(protocol.CreateKeyPage) }),
-  Future<Tuple2<String?, String>> callKeyPageCreate(IdentityADI sponsorADI, KeyPage keypage, List<String> keys,
-      int timestamp,
+  Future<Tuple2<String?, String>> callKeyPageCreate(
+      IdentityADI sponsorADI, KeyPage keypage, List<String> keys, int timestamp,
       [String? keyPuk, String? keyPik, int? keyPageHeight, String? keybookPath]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
@@ -919,12 +810,7 @@ class ACMEApiV2 {
     ApiRequestKeyPage data = new ApiRequestKeyPage(keypage.path, keypageKeys);
 
     ApiRequestRawTx_KeyPage tx = ApiRequestRawTx_KeyPage(
-        payload: data,
-        signer: signer,
-        signature: "",
-        sponsor: sponsorPath,
-        origin: sponsorPath,
-        keyPage: keyPage);
+        payload: data, signer: signer, signature: "", sponsor: sponsorPath, origin: sponsorPath, keyPage: keyPage);
 
     TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
@@ -1016,12 +902,7 @@ class ACMEApiV2 {
     ApiRequestKeyPageUpdate data = ApiRequestKeyPageUpdate(operationName, keyPuk, newKeyPuk, keypage.path);
 
     ApiRequestRawTx_KeyPageUpdate tx = ApiRequestRawTx_KeyPageUpdate(
-        payload: data,
-        signer: signer,
-        signature: "",
-        sponsor: sponsorPath,
-        origin: sponsorPath,
-        keyPage: keyPage);
+        payload: data, signer: signer, signature: "", sponsor: sponsorPath, origin: sponsorPath, keyPage: keyPage);
 
     TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
@@ -1109,7 +990,7 @@ class ACMEApiV2 {
     int amountToDeposit = (double.parse(amount) * 100000000).round().toInt(); // assume 8 decimal places
     ApiRequestTxToDataTo to = ApiRequestTxToDataTo(url: addrTo.address, amount: amountToDeposit);
     ApiRequestTxToData data =
-    ApiRequestTxToData(to: [to], hash: "0000000000000000000000000000000000000000000000000000000000000000");
+        ApiRequestTxToData(to: [to], hash: "0000000000000000000000000000000000000000000000000000000000000000");
 
     Signer signer = Signer(publicKey: pukToUse, nonce: timestamp);
 

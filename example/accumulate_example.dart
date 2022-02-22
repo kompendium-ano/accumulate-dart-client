@@ -601,7 +601,7 @@ void main() {
       String? dtknName = "data-tkna-" + timestampForDataAccount.toString();
       try {
         final resp = await acmeAPI.callCreateDataAccount(liteAccount, newADI, dtknName, timestampForDataAccount,
-            newADI.path! + "/book0", false, keyPageHeight); // is scratch or not
+            newADI.path! + "/book0", false, keyPageHeight);
         txhash = resp;
       } catch (e) {
         e.toString();
