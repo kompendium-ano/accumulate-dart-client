@@ -7,5 +7,21 @@ class {{.Name}} {
   /** {{.Name}} {{.Description}}. */
   static const {{.Name}} = {{.Value}};
   {{- end}}
+
+  static int byName(String name) {
+    switch (name) {
+      {{- range .Values}}
+      {{- $value := .Name}}
+      case "{{lower .Name}}":
+        return {{$value}};
+      {{- range .Aliases}}
+      case "{{.}}":
+        return {{$value}};
+      {{- end}}
+      {{- end}}
+      default:
+        throw new ArgumentError("Unknown {{.Name}} '${name}'");
+    }
+  }
 }
 {{- end}}

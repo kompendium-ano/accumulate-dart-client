@@ -11,6 +11,23 @@ class KeyPageOperation {
   static const Add = 3;
   /** SetThreshold sets the signing threshold (the M of "M of N" signatures required). */
   static const SetThreshold = 4;
+
+  static int byName(String name) {
+    switch (name) {
+      case "unknown":
+        return Unknown;
+      case "update":
+        return Update;
+      case "remove":
+        return Remove;
+      case "add":
+        return Add;
+      case "setThreshold":
+        return SetThreshold;
+      default:
+        throw new ArgumentError("Unknown KeyPageOperation '${name}'");
+    }
+  }
 }
 
 class SignatureType {
@@ -20,6 +37,19 @@ class SignatureType {
   static const LegacyED25519 = 1;
   /** ED25519 represents an ED25519 signature. */
   static const ED25519 = 2;
+
+  static int byName(String name) {
+    switch (name) {
+      case "unknown":
+        return Unknown;
+      case "legacyED25519":
+        return LegacyED25519;
+      case "eD25519":
+        return ED25519;
+      default:
+        throw new ArgumentError("Unknown SignatureType '${name}'");
+    }
+  }
 }
 
 class TransactionType {
@@ -83,4 +113,71 @@ class TransactionType {
   static const InternalTransactionsSigned = 98;
   /** InternalTransactionsSent notifies the executor of synthetic transactions that have been sent. */
   static const InternalTransactionsSent = 99;
+
+  static int byName(String name) {
+    switch (name) {
+      case "unknown":
+        return Unknown;
+      case "createIdentity":
+        return CreateIdentity;
+      case "createTokenAccount":
+        return CreateTokenAccount;
+      case "sendTokens":
+        return SendTokens;
+      case "createDataAccount":
+        return CreateDataAccount;
+      case "writeData":
+        return WriteData;
+      case "writeDataTo":
+        return WriteDataTo;
+      case "acmeFaucet":
+        return AcmeFaucet;
+      case "createToken":
+        return CreateToken;
+      case "issueTokens":
+        return IssueTokens;
+      case "burnTokens":
+        return BurnTokens;
+      case "createKeyPage":
+        return CreateKeyPage;
+      case "createKeyBook":
+        return CreateKeyBook;
+      case "addCredits":
+        return AddCredits;
+      case "updateKeyPage":
+        return UpdateKeyPage;
+      case "updateManager":
+        return UpdateManager;
+      case "removeManager":
+        return RemoveManager;
+      case "signPending":
+        return SignPending;
+      case "syntheticCreateChain":
+        return SyntheticCreateChain;
+      case "syntheticWriteData":
+        return SyntheticWriteData;
+      case "syntheticDepositTokens":
+        return SyntheticDepositTokens;
+      case "syntheticAnchor":
+        return SyntheticAnchor;
+      case "syntheticDepositCredits":
+        return SyntheticDepositCredits;
+      case "syntheticBurnTokens":
+        return SyntheticBurnTokens;
+      case "syntheticMirror":
+        return SyntheticMirror;
+      case "segWitDataEntry":
+        return SegWitDataEntry;
+      case "internalGenesis":
+        return InternalGenesis;
+      case "internalSendTransactions":
+        return InternalSendTransactions;
+      case "internalTransactionsSigned":
+        return InternalTransactionsSigned;
+      case "internalTransactionsSent":
+        return InternalTransactionsSent;
+      default:
+        throw new ArgumentError("Unknown TransactionType '${name}'");
+    }
+  }
 }

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:accumulate_api/src/utils/marshaller.dart';
 import 'package:hex/hex.dart';
 
 abstract class Marshallable {
@@ -9,8 +8,27 @@ abstract class Marshallable {
 
 var BigIntFF = BigInt.from(0xFF);
 
+List<int> encodeUint(int value) {
+  List<int> bytes = [];
+  for (;;) {
+    var byte = value & 0x7F;
+    value = value >> 7;
+    if (value == 0) {
+      bytes.add(byte);
+      break;
+    } else {
+      bytes.add(byte | 0x80);
+    }
+  }
+  return bytes;
+}
+
 class ProtocolWriter {
   List<int> msg = [];
+
+  void addUvarint(int value) {
+    while (value > 0) {}
+  }
 
   void writeHash(int field, String? value) {
     if (value == null) return;
@@ -20,43 +38,57 @@ class ProtocolWriter {
       throw new ArgumentError(
           "Value is not the correct length for a SHA-256 hash");
 
-    this.msg.addAll(uint64ToBytesAlt(field));
+    // Skip if the hash is all zeros
+    if (raw.every((v) => v == 0)) return;
+
+    this.msg.addAll(encodeUint(field));
     this.msg.addAll(raw);
   }
 
   void writeUint(int field, int? value) {
-    if (value == null) return;
+    // Skip if the value is zero
+    if (value == null || value == 0) return;
 
-    this.msg.addAll(uint64ToBytesAlt(field));
-    this.msg.addAll(uint64ToBytesAlt(value));
+    this.msg.addAll(encodeUint(field));
+    this.msg.addAll(encodeUint(value));
   }
 
   void writeBool(int field, bool? value) {
     if (value == null) return;
 
-    this.msg.addAll(uint64ToBytesAlt(field));
-    this.msg.addAll(uint64ToBytesAlt(value ? 1 : 0));
+    this.msg.addAll(encodeUint(field));
+    this.msg.addAll(encodeUint(value ? 1 : 0));
   }
 
-  void writeBytes(int field, String? value) {
+  void writeHex(int field, String? value) {
     if (value == null) return;
 
     var raw = HEX.decode(value);
-    this.msg.addAll(uint64ToBytesAlt(field));
-    this.msg.addAll(uint64ToBytesAlt(raw.length));
+    this.msg.addAll(encodeUint(field));
+    this.msg.addAll(encodeUint(raw.length));
     this.msg.addAll(raw);
   }
 
-  void writeString(int field, String? value) {
+  void writeRawJson(int field, dynamic value) {
     if (value == null) return;
 
-    this.msg.addAll(uint64ToBytesAlt(field));
-    this.msg.addAll(uint64ToBytesAlt(value.length));
+    var json = jsonEncode(value);
+    this.msg.addAll(encodeUint(field));
+    this.msg.addAll(encodeUint(json.length));
+    this.msg.addAll(utf8.encode(json));
+  }
+
+  void writeUtf8(int field, String? value) {
+    if (value == null) return;
+
+    this.msg.addAll(encodeUint(field));
+    this.msg.addAll(encodeUint(value.length));
     this.msg.addAll(utf8.encode(value));
   }
 
   void writeBigInt(int field, BigInt? value) {
-    if (value == null) return;
+    // Skip if the value is zero
+    if (value == null || value == BigInt.zero) return;
 
     if (value < BigInt.zero) {
       throw new ArgumentError("Negative BigInts are unsupported");
@@ -68,8 +100,8 @@ class ProtocolWriter {
       value = value >> 8;
     }
 
-    this.msg.addAll(uint64ToBytesAlt(field));
-    this.msg.addAll(uint64ToBytesAlt(bytes.length));
+    this.msg.addAll(encodeUint(field));
+    this.msg.addAll(encodeUint(bytes.length));
     this.msg.addAll(bytes);
   }
 
@@ -77,8 +109,8 @@ class ProtocolWriter {
     if (value == null) return;
 
     var bytes = value.marshalBinary();
-    this.msg.addAll(uint64ToBytesAlt(field));
-    this.msg.addAll(uint64ToBytesAlt(bytes.length));
+    this.msg.addAll(encodeUint(field));
+    this.msg.addAll(encodeUint(bytes.length));
     this.msg.addAll(bytes);
   }
 }

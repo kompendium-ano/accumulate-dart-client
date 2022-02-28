@@ -2,3 +2,6 @@
 	path = tools/accumulate
 	url = https://gitlab.com/accumulatenetwork/accumulate.git
 	branch = develop
+[submodule "test/protocol-test-data"]
+	path = test/protocol-test-data
+	url = https://gitlab.com/accumulatenetwork/sdk/test-data.git

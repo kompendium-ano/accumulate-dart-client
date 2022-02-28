@@ -5,10 +5,38 @@ import 'package:accumulate_api/src/protocol/enums.dart';
 
 abstract class Signature extends Marshallable {
   int type();
+
+  static Signature fromJson(Map<String, dynamic> json) {
+    var type = json['type'] as String;
+    switch (SignatureType.byName(type)) {
+      {{- range .Types}}
+      {{- if .IsSignature}}
+      case SignatureType.{{.UnionValue}}:
+        return {{.Name}}.fromJson(json);
+      {{- end}}
+      {{- end}}
+      default:
+        throw new ArgumentError("Unknown SignatureType '${type}'");
+    }
+  }
 }
 
 abstract class TransactionPayload extends Marshallable {
   int type();
+
+  static TransactionPayload fromJson(Map<String, dynamic> json) {
+    var type = json['type'] as String;
+    switch (TransactionType.byName(type)) {
+      {{- range .Types}}
+      {{- if .IsTransaction}}
+      case TransactionType.{{.UnionValue}}:
+        return {{.Name}}.fromJson(json);
+      {{- end}}
+      {{- end}}
+      default:
+        throw new ArgumentError("Unknown TransactionType '${type}'");
+    }
+  }
 }
 
 {{- range .Types}}
@@ -20,14 +48,10 @@ class {{.Name}}
 {{- end}} {
   {{- if or .Embeddings .Fields}}
   {{.Name}}({
-  {{- range .Embeddings}}{{range .Fields}}{{if .IsMarshalled}}{{if not .IsOptional}}required {{end}}this.{{lcName .Name}}, {{end}}{{end}}{{end}}
+  {{- range .Embeddings}}required this.{{lcName .Name}}, {{end}}
   {{- range .Fields}}{{if .IsMarshalled}}{{if not .IsOptional}}required {{end}}this.{{lcName .Name}}, {{end}}{{end}}});
   {{range .Embeddings}}
-  {{- range .Fields}}
-  {{- if .IsMarshalled}}
-  {{template "varType" .}} {{lcName .Name}};
-  {{- end}}
-  {{- end}}
+  {{.Name}} {{lcName .Name}};
   {{- end}}
   {{- range .Fields}}
   {{- if .IsMarshalled}}
@@ -48,24 +72,41 @@ class {{.Name}}
     writer.writeUint(1, this.type());
     {{- end}}
     {{- range .Embeddings}}
-    {{- range .Fields}}
-    {{- if .IsMarshalled}}
-    {{template "marshalField" .}}
-    {{- end}}
-    {{- end}}
+    writer.writeValue({{.Number}}, this.{{lcName .Name}});
     {{- end}}
     {{- range .Fields}}
     {{- if .IsMarshalled}}
-    {{template "marshalField" .}}
+    {{template "binaryMarshalField" .}}
     {{- end}}
     {{- end}}
     return writer.msg;
   }
+
+  {{.Name}}.fromJson(Map<String, dynamic> json)
+    {{- $first := true}}
+    {{- range .Embeddings}}
+    {{- if $first}}
+    : {{$first = false}}{{else}},
+      {{end}}{{- lcName .Name}} = {{.Name}}.fromJson(json)
+    {{- end}}
+    {{- range .Fields}}
+    {{- if .IsMarshalled}}
+    {{- if $first}}
+    : {{$first = false}}{{else}},
+      {{end}}{{- lcName .Name}} = {{template "jsonUnmarshalField" .}}
+    {{- end}}
+    {{- end}};
 }
 {{- end}}
 
 {{- define "varType"}}
-{{- if .Repeatable}}List<{{end}}
+{{- if .Repeatable}}List<{{template "_varType" .}}>
+{{- else          }}{{template "_varType" .}}
+{{- end}}
+{{- if or .IsOptional .Repeatable}}?{{end}}
+{{- end}}
+
+{{- define "_varType"}}
 {{-      if eq .Type "url"     }}String
 {{- else if eq .Type "bytes"   }}String
 {{- else if eq .Type "chain"   }}String
@@ -76,37 +117,54 @@ class {{.Name}}
 {{- else if eq .Type "int"     }}int
 {{- else if eq .Type "uint"    }}int
 {{- else if eq .Type "bigint"  }}BigInt
-{{- else if eq .Type "rawJson" }}String
+{{- else if eq .Type "rawJson" }}dynamic
 {{- else if eq .Type "duration"}}double
 {{- else if .AsEnum            }}int
 {{- else                       }}{{.Type}}
 {{- end}}
-{{- if .Repeatable}}>{{end}}
-{{- if .IsOptional}}?{{end}}
 {{- end}}
 
-{{- define "marshalField"}}
-{{- if .Repeatable}}this.{{lcName .Name}}{{if .IsOptional}}?{{end}}.forEach((var value) => writer.{{template "marshaller" .}}({{.Number}}, value));
-{{- else          }}writer.{{template "marshaller" .}}({{.Number}}, this.{{lcName .Name}});
+{{- define "binaryMarshalField"}}
+{{- if .Repeatable}}this.{{lcName .Name}}?.forEach((var value) => writer.{{template "binaryMarshaller" .}}({{.Number}}, value));
+{{- else          }}writer.{{template "binaryMarshaller" .}}({{.Number}}, this.{{lcName .Name}});
 {{- end}}
 {{- end}}
 
-{{- define "marshaller"}}
-{{-      if eq .Type "url"     }}writeString
-{{- else if eq .Type "bytes"   }}writeBytes
+{{- define "binaryMarshaller"}}
+{{-      if eq .Type "url"     }}writeUtf8
+{{- else if eq .Type "bytes"   }}writeHex
 {{- else if eq .Type "chain"   }}writeHash
 {{- else if eq .Type "hash"    }}writeHash
-{{- else if eq .Type "string"  }}writeString
+{{- else if eq .Type "string"  }}writeUtf8
 {{- else if eq .Type "bool"    }}writeBool
 {{- else if eq .Type "varint"  }}writeInt
 {{- else if eq .Type "uvarint" }}writeUint
 {{- else if eq .Type "int"     }}writeInt
 {{- else if eq .Type "uint"    }}writeUint
 {{- else if eq .Type "bigint"  }}writeBigInt
-{{- else if eq .Type "rawJson" }}writeBytes
+{{- else if eq .Type "rawJson" }}writeRawJson
 {{- else if .AsReference       }}writeValue
 {{- else if .AsValue           }}writeValue
 {{- else if .AsEnum            }}writeUint
 {{- else                       }}UNKNOWNTYPE
+{{- end}}
+{{- end}}
+
+{{- define "jsonUnmarshalField"}}
+{{- if .Repeatable}}(json['{{lcName .Name}}'] as List<dynamic>? ?? []).map((v) => {{template "jsonUnmarshalValue" map "Field" . "Value" "v"}}).toList()
+{{- else          }}{{template "jsonUnmarshalValue" map "Field" . "Value" (print "json['" (lcName .Name) "']")}}
+{{- end}}
+{{- end}}
+
+{{- define "jsonUnmarshalValue"}}
+{{-      if eq .Field.Type "bigint"  }}BigInt.parse({{.Value}})
+{{- else if eq .Field.Type "varint"  }}{{.Value}} as int{{if not .Field.Repeatable}}?{{if not .IsOptional}} ?? 0{{end}}{{end}}
+{{- else if eq .Field.Type "uvarint" }}{{.Value}} as int{{if not .Field.Repeatable}}?{{if not .IsOptional}} ?? 0{{end}}{{end}}
+{{- else if eq .Field.Type "int"     }}{{.Value}} as int{{if not .Field.Repeatable}}?{{if not .IsOptional}} ?? 0{{end}}{{end}}
+{{- else if eq .Field.Type "uint"    }}{{.Value}} as int{{if not .Field.Repeatable}}?{{if not .IsOptional}} ?? 0{{end}}{{end}}
+{{- else if .Field.AsReference       }}{{.Field.Type}}.fromJson({{.Value}})
+{{- else if .Field.AsValue           }}{{.Field.Type}}.fromJson({{.Value}})
+{{- else if .Field.AsEnum            }}{{.Field.Type}}.byName({{.Value}})
+{{- else                             }}{{.Value}} as {{template "_varType" .Field}}{{if and .Field.IsOptional (not .Field.Repeatable)}}?{{end}}
 {{- end}}
 {{- end}}
