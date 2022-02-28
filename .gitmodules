@@ -1,0 +1,4 @@
+[submodule "tools/accumulate"]
+	path = tools/accumulate
+	url = https://gitlab.com/accumulatenetwork/accumulate.git
+	branch = develop
