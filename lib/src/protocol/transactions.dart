@@ -77,6 +77,11 @@ class AddCredits extends TransactionPayload {
     return writer.msg;
   }
 
+  Map<String, dynamic> toJson() => {
+    'recipient': this.recipient,
+    'amount': this.amount,
+  };
+
   AddCredits.fromJson(Map<String, dynamic> json)
     : recipient = json['recipient'] as String,
       amount = json['amount'] as int? ?? 0;
@@ -97,6 +102,10 @@ class BurnTokens extends TransactionPayload {
     writer.writeBigInt(2, this.amount);
     return writer.msg;
   }
+
+  Map<String, dynamic> toJson() => {
+    'amount': this.amount.toRadixString(10),
+  };
 
   BurnTokens.fromJson(Map<String, dynamic> json)
     : amount = BigInt.parse(json['amount']);
@@ -123,6 +132,13 @@ class CreateDataAccount extends TransactionPayload {
     writer.writeBool(5, this.scratch);
     return writer.msg;
   }
+
+  Map<String, dynamic> toJson() => {
+    'url': this.url,
+    'keyBookUrl': this.keyBookUrl,
+    'managerKeyBookUrl': this.managerKeyBookUrl,
+    'scratch': this.scratch,
+  };
 
   CreateDataAccount.fromJson(Map<String, dynamic> json)
     : url = json['url'] as String,
@@ -155,6 +171,14 @@ class CreateIdentity extends TransactionPayload {
     return writer.msg;
   }
 
+  Map<String, dynamic> toJson() => {
+    'url': this.url,
+    'publicKey': this.publicKey,
+    'keyBookName': this.keyBookName,
+    'keyPageName': this.keyPageName,
+    'manager': this.manager,
+  };
+
   CreateIdentity.fromJson(Map<String, dynamic> json)
     : url = json['url'] as String,
       publicKey = json['publicKey'] as String,
@@ -183,6 +207,12 @@ class CreateKeyBook extends TransactionPayload {
     return writer.msg;
   }
 
+  Map<String, dynamic> toJson() => {
+    'url': this.url,
+    'pages': this.pages?.map((v) => v).toList(),
+    'manager': this.manager,
+  };
+
   CreateKeyBook.fromJson(Map<String, dynamic> json)
     : url = json['url'] as String,
       pages = (json['pages'] as List<dynamic>? ?? []).map((v) => v as String).toList(),
@@ -208,6 +238,12 @@ class CreateKeyPage extends TransactionPayload {
     writer.writeUtf8(4, this.manager);
     return writer.msg;
   }
+
+  Map<String, dynamic> toJson() => {
+    'url': this.url,
+    'keys': this.keys?.map((v) => v.toJson()).toList(),
+    'manager': this.manager,
+  };
 
   CreateKeyPage.fromJson(Map<String, dynamic> json)
     : url = json['url'] as String,
@@ -245,6 +281,17 @@ class CreateToken extends TransactionPayload {
     return writer.msg;
   }
 
+  Map<String, dynamic> toJson() => {
+    'url': this.url,
+    'keyBookUrl': this.keyBookUrl,
+    'symbol': this.symbol,
+    'precision': this.precision,
+    'properties': this.properties,
+    'initialSupply': this.initialSupply?.toRadixString(10),
+    'hasSupplyLimit': this.hasSupplyLimit,
+    'manager': this.manager,
+  };
+
   CreateToken.fromJson(Map<String, dynamic> json)
     : url = json['url'] as String,
       keyBookUrl = json['keyBookUrl'] as String?,
@@ -280,6 +327,14 @@ class CreateTokenAccount extends TransactionPayload {
     return writer.msg;
   }
 
+  Map<String, dynamic> toJson() => {
+    'url': this.url,
+    'tokenUrl': this.tokenUrl,
+    'keyBookUrl': this.keyBookUrl,
+    'scratch': this.scratch,
+    'manager': this.manager,
+  };
+
   CreateTokenAccount.fromJson(Map<String, dynamic> json)
     : url = json['url'] as String,
       tokenUrl = json['tokenUrl'] as String,
@@ -300,6 +355,11 @@ class DataEntry extends Marshallable {
     writer.writeHex(2, this.data);
     return writer.msg;
   }
+
+  Map<String, dynamic> toJson() => {
+    'extIds': this.extIds?.map((v) => v).toList(),
+    'data': this.data,
+  };
 
   DataEntry.fromJson(Map<String, dynamic> json)
     : extIds = (json['extIds'] as List<dynamic>? ?? []).map((v) => v as String).toList(),
@@ -324,6 +384,11 @@ class ED25519Signature extends Signature {
     return writer.msg;
   }
 
+  Map<String, dynamic> toJson() => {
+    'publicKey': this.publicKey,
+    'signature': this.signature,
+  };
+
   ED25519Signature.fromJson(Map<String, dynamic> json)
     : publicKey = json['publicKey'] as String,
       signature = json['signature'] as String;
@@ -343,6 +408,12 @@ class Envelope extends Marshallable {
     writer.writeValue(3, this.transaction);
     return writer.msg;
   }
+
+  Map<String, dynamic> toJson() => {
+    'signatures': this.signatures?.map((v) => v.toJson()).toList(),
+    'txHash': this.txHash,
+    'transaction': this.transaction?.toJson(),
+  };
 
   Envelope.fromJson(Map<String, dynamic> json)
     : signatures = (json['signatures'] as List<dynamic>? ?? []).map((v) => Signature.fromJson(v)).toList(),
@@ -368,6 +439,11 @@ class IssueTokens extends TransactionPayload {
     return writer.msg;
   }
 
+  Map<String, dynamic> toJson() => {
+    'recipient': this.recipient,
+    'amount': this.amount.toRadixString(10),
+  };
+
   IssueTokens.fromJson(Map<String, dynamic> json)
     : recipient = json['recipient'] as String,
       amount = BigInt.parse(json['amount']);
@@ -383,6 +459,10 @@ class KeySpecParams extends Marshallable {
     writer.writeHex(1, this.publicKey);
     return writer.msg;
   }
+
+  Map<String, dynamic> toJson() => {
+    'publicKey': this.publicKey,
+  };
 
   KeySpecParams.fromJson(Map<String, dynamic> json)
     : publicKey = json['publicKey'] as String;
@@ -407,6 +487,12 @@ class LegacyED25519Signature extends Signature {
     writer.writeHex(4, this.signature);
     return writer.msg;
   }
+
+  Map<String, dynamic> toJson() => {
+    'nonce': this.nonce,
+    'publicKey': this.publicKey,
+    'signature': this.signature,
+  };
 
   LegacyED25519Signature.fromJson(Map<String, dynamic> json)
     : nonce = json['nonce'] as int? ?? 0,
@@ -434,6 +520,12 @@ class SendTokens extends TransactionPayload {
     return writer.msg;
   }
 
+  Map<String, dynamic> toJson() => {
+    'hash': this.hash,
+    'meta': this.meta,
+    'to': this.to?.map((v) => v.toJson()).toList(),
+  };
+
   SendTokens.fromJson(Map<String, dynamic> json)
     : hash = json['hash'] as String?,
       meta = json['meta'] as dynamic?,
@@ -451,6 +543,9 @@ class SignPending extends TransactionPayload {
     return writer.msg;
   }
 
+  Map<String, dynamic> toJson() => {
+  };
+
   SignPending.fromJson(Map<String, dynamic> json);
 }
 
@@ -466,6 +561,11 @@ class TokenRecipient extends Marshallable {
     writer.writeBigInt(2, this.amount);
     return writer.msg;
   }
+
+  Map<String, dynamic> toJson() => {
+    'url': this.url,
+    'amount': this.amount.toRadixString(10),
+  };
 
   TokenRecipient.fromJson(Map<String, dynamic> json)
     : url = json['url'] as String,
@@ -484,6 +584,14 @@ class Transaction extends Marshallable {
     writer.writeValue(2, this.body);
     return writer.msg;
   }
+
+  Map<String, dynamic> toJson() => {
+    'origin': this.transactionHeader.origin,
+    'keyPageHeight': this.transactionHeader.keyPageHeight,
+    'keyPageIndex': this.transactionHeader.keyPageIndex,
+    'nonce': this.transactionHeader.nonce,
+    'body': this.body.toJson(),
+  };
 
   Transaction.fromJson(Map<String, dynamic> json)
     : transactionHeader = TransactionHeader.fromJson(json),
@@ -506,6 +614,13 @@ class TransactionHeader extends Marshallable {
     writer.writeUint(4, this.nonce);
     return writer.msg;
   }
+
+  Map<String, dynamic> toJson() => {
+    'origin': this.origin,
+    'keyPageHeight': this.keyPageHeight,
+    'keyPageIndex': this.keyPageIndex,
+    'nonce': this.nonce,
+  };
 
   TransactionHeader.fromJson(Map<String, dynamic> json)
     : origin = json['origin'] as String,
@@ -538,6 +653,14 @@ class UpdateKeyPage extends TransactionPayload {
     return writer.msg;
   }
 
+  Map<String, dynamic> toJson() => {
+    'operation': KeyPageOperation.name(this.operation),
+    'key': this.key,
+    'newKey': this.newKey,
+    'owner': this.owner,
+    'threshold': this.threshold,
+  };
+
   UpdateKeyPage.fromJson(Map<String, dynamic> json)
     : operation = KeyPageOperation.byName(json['operation']),
       key = json['key'] as String?,
@@ -562,6 +685,10 @@ class WriteData extends TransactionPayload {
     return writer.msg;
   }
 
+  Map<String, dynamic> toJson() => {
+    'entry': this.entry.toJson(),
+  };
+
   WriteData.fromJson(Map<String, dynamic> json)
     : entry = DataEntry.fromJson(json['entry']);
 }
@@ -583,6 +710,11 @@ class WriteDataTo extends TransactionPayload {
     writer.writeValue(3, this.entry);
     return writer.msg;
   }
+
+  Map<String, dynamic> toJson() => {
+    'recipient': this.recipient,
+    'entry': this.entry.toJson(),
+  };
 
   WriteDataTo.fromJson(Map<String, dynamic> json)
     : recipient = json['recipient'] as String,

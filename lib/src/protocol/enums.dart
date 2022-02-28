@@ -12,6 +12,23 @@ class KeyPageOperation {
   /** SetThreshold sets the signing threshold (the M of "M of N" signatures required). */
   static const SetThreshold = 4;
 
+  static String name(int value) {
+    switch (value) {
+      case Unknown:
+        return "unknown";
+      case Update:
+        return "update";
+      case Remove:
+        return "remove";
+      case Add:
+        return "add";
+      case SetThreshold:
+        return "setThreshold";
+      default:
+        throw new ArgumentError("Unknown KeyPageOperation ${value}");
+    }
+  }
+
   static int byName(String name) {
     switch (name) {
       case "unknown":
@@ -37,6 +54,19 @@ class SignatureType {
   static const LegacyED25519 = 1;
   /** ED25519 represents an ED25519 signature. */
   static const ED25519 = 2;
+
+  static String name(int value) {
+    switch (value) {
+      case Unknown:
+        return "unknown";
+      case LegacyED25519:
+        return "legacyED25519";
+      case ED25519:
+        return "eD25519";
+      default:
+        throw new ArgumentError("Unknown SignatureType ${value}");
+    }
+  }
 
   static int byName(String name) {
     switch (name) {
@@ -113,6 +143,73 @@ class TransactionType {
   static const InternalTransactionsSigned = 98;
   /** InternalTransactionsSent notifies the executor of synthetic transactions that have been sent. */
   static const InternalTransactionsSent = 99;
+
+  static String name(int value) {
+    switch (value) {
+      case Unknown:
+        return "unknown";
+      case CreateIdentity:
+        return "createIdentity";
+      case CreateTokenAccount:
+        return "createTokenAccount";
+      case SendTokens:
+        return "sendTokens";
+      case CreateDataAccount:
+        return "createDataAccount";
+      case WriteData:
+        return "writeData";
+      case WriteDataTo:
+        return "writeDataTo";
+      case AcmeFaucet:
+        return "acmeFaucet";
+      case CreateToken:
+        return "createToken";
+      case IssueTokens:
+        return "issueTokens";
+      case BurnTokens:
+        return "burnTokens";
+      case CreateKeyPage:
+        return "createKeyPage";
+      case CreateKeyBook:
+        return "createKeyBook";
+      case AddCredits:
+        return "addCredits";
+      case UpdateKeyPage:
+        return "updateKeyPage";
+      case UpdateManager:
+        return "updateManager";
+      case RemoveManager:
+        return "removeManager";
+      case SignPending:
+        return "signPending";
+      case SyntheticCreateChain:
+        return "syntheticCreateChain";
+      case SyntheticWriteData:
+        return "syntheticWriteData";
+      case SyntheticDepositTokens:
+        return "syntheticDepositTokens";
+      case SyntheticAnchor:
+        return "syntheticAnchor";
+      case SyntheticDepositCredits:
+        return "syntheticDepositCredits";
+      case SyntheticBurnTokens:
+        return "syntheticBurnTokens";
+      case SyntheticMirror:
+        return "syntheticMirror";
+      case SegWitDataEntry:
+        return "segWitDataEntry";
+      case InternalGenesis:
+        return "internalGenesis";
+      case InternalSendTransactions:
+        return "internalSendTransactions";
+      case InternalTransactionsSigned:
+        return "internalTransactionsSigned";
+      case InternalTransactionsSent:
+        return "internalTransactionsSent";
+      default:
+        throw new ArgumentError("Unknown TransactionType ${value}");
+    }
+  }
 
   static int byName(String name) {
     switch (name) {

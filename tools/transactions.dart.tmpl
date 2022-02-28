@@ -82,6 +82,22 @@ class {{.Name}}
     return writer.msg;
   }
 
+  Map<String, dynamic> toJson() => {
+    {{- range .Embeddings}}
+    {{- $name := .Name}}
+    {{- range .Fields}}
+    {{- if .IsMarshalled}}
+    '{{- lcName .Name}}': {{template "jsonMarshalField" map "Field" . "Src" (print "this." (lcName $name))}},
+    {{- end}}
+    {{- end}}
+    {{- end}}
+    {{- range .Fields}}
+    {{- if .IsMarshalled}}
+    '{{- lcName .Name}}': {{template "jsonMarshalField" map "Field" . "Src" "this"}},
+    {{- end}}
+    {{- end}}
+  };
+
   {{.Name}}.fromJson(Map<String, dynamic> json)
     {{- $first := true}}
     {{- range .Embeddings}}
@@ -147,6 +163,21 @@ class {{.Name}}
 {{- else if .AsValue           }}writeValue
 {{- else if .AsEnum            }}writeUint
 {{- else                       }}UNKNOWNTYPE
+{{- end}}
+{{- end}}
+
+{{- define "jsonMarshalField"}}
+{{- if .Field.Repeatable}}{{.Src}}.{{lcName .Field.Name}}?.map((v) => {{template "jsonMarshalValue" map "Field" .Field "Value" "v"}}).toList()
+{{- else                }}{{template "jsonMarshalValue" map "Field" .Field "Value" (print .Src "." (lcName .Field.Name))}}
+{{- end}}
+{{- end}}
+
+{{- define "jsonMarshalValue"}}
+{{-      if eq .Field.Type "bigint"  }}{{.Value}}{{if and .Field.IsOptional (not .Field.Repeatable)}}?{{end}}.toRadixString(10)
+{{- else if .Field.AsReference       }}{{.Value}}{{if and .Field.IsOptional (not .Field.Repeatable)}}?{{end}}.toJson()
+{{- else if .Field.AsValue           }}{{.Value}}{{if and .Field.IsOptional (not .Field.Repeatable)}}?{{end}}.toJson()
+{{- else if .Field.AsEnum            }}{{.Field.Type}}{{if and .Field.IsOptional (not .Field.Repeatable)}}?{{end}}.name({{.Value}})
+{{- else                             }}{{.Value}}
 {{- end}}
 {{- end}}
 

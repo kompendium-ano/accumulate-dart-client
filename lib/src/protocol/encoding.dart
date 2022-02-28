@@ -4,6 +4,7 @@ import 'package:hex/hex.dart';
 
 abstract class Marshallable {
   List<int> marshalBinary();
+  Map<String, dynamic> toJson();
 }
 
 var BigIntFF = BigInt.from(0xFF);

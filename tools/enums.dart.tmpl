@@ -8,6 +8,17 @@ class {{.Name}} {
   static const {{.Name}} = {{.Value}};
   {{- end}}
 
+  static String name(int value) {
+    switch (value) {
+      {{- range .Values}}
+      case {{.Name}}:
+        return "{{lower .Name}}";
+      {{- end}}
+      default:
+        throw new ArgumentError("Unknown {{.Name}} ${value}");
+    }
+  }
+
   static int byName(String name) {
     switch (name) {
       {{- range .Values}}
