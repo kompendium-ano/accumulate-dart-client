@@ -54,6 +54,10 @@ class SignatureType {
   static const LegacyED25519 = 1;
   /** ED25519 represents an ED25519 signature. */
   static const ED25519 = 2;
+  /** RCD1 represents an RCD1 signature. */
+  static const RCD1 = 3;
+  /** Receipt represents a Merkle tree receipt. */
+  static const Receipt = 4;
 
   static String name(int value) {
     switch (value) {
@@ -63,6 +67,10 @@ class SignatureType {
         return "legacyED25519";
       case ED25519:
         return "eD25519";
+      case RCD1:
+        return "rCD1";
+      case Receipt:
+        return "receipt";
       default:
         throw new ArgumentError("Unknown SignatureType ${value}");
     }
@@ -76,6 +84,10 @@ class SignatureType {
         return LegacyED25519;
       case "eD25519":
         return ED25519;
+      case "rCD1":
+        return RCD1;
+      case "receipt":
+        return Receipt;
       default:
         throw new ArgumentError("Unknown SignatureType '${name}'");
     }
