@@ -1,31 +1,29 @@
 import 'dart:collection';
-import 'dart:typed_data';
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:accumulate_api/src/json_rpc.dart';
 import 'package:accumulate_api/src/model/address.dart';
 import 'package:accumulate_api/src/model/adi.dart';
+import 'package:accumulate_api/src/model/keys/key.dart' as acme;
 import 'package:accumulate_api/src/model/keys/keybook.dart';
 import 'package:accumulate_api/src/model/keys/keypage.dart';
-import 'package:accumulate_api/src/model/keys/key.dart' as acme;
 import 'package:accumulate_api/src/model/tx.dart';
 import 'package:accumulate_api/src/utils/marshaller.dart';
-import 'package:accumulate_api/src/v2/requests/api_request_data_account.dart';
-import 'package:accumulate_api/src/v2/requests/api_request_tx.dart';
-import 'package:accumulate_api/src/v2/requests/api_request_url_pagination.dart';
-import 'package:accumulate_api/src/v2/responses/data.dart';
-import 'package:accumulate_api/src/v2/responses/resp_token_get.dart';
-import 'package:accumulate_api/src/v2/requests/api_request_metrics.dart';
-import 'package:accumulate_api/src/v2/requests/api_request_url.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_adi.dart';
+import 'package:accumulate_api/src/v2/requests/api_request_credit.dart';
+import 'package:accumulate_api/src/v2/requests/api_request_data_account.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_keybook.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_keypage.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_keypage_update.dart';
+import 'package:accumulate_api/src/v2/requests/api_request_metrics.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_token_account.dart';
+import 'package:accumulate_api/src/v2/requests/api_request_tx.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_tx_gen.dart';
-import 'package:accumulate_api/src/v2/requests/api_request_credit.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_tx_to.dart';
-import 'package:accumulate_api/src/v2/requests/api_request_tx_gen.dart';
+import 'package:accumulate_api/src/v2/requests/api_request_url.dart';
+import 'package:accumulate_api/src/v2/requests/api_request_url_pagination.dart';
+import 'package:accumulate_api/src/v2/responses/data.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:hex/hex.dart';
 import 'package:http/http.dart';
@@ -101,7 +99,7 @@ class ACMEApiV2 {
       int? nonce = mrState["count"];
       urlData.nonce = nonce;
 
-      LinkedHashMap? dt = res.result["data"];
+      LinkedHashMap? dt = LinkedHashMap?.from(res.result["data"]); //res.result["data"];
       switch (accountType) {
         case "keyBook":
         case "tokenAccount":
@@ -379,7 +377,8 @@ class ACMEApiV2 {
               urlRecepient = to[0]["url"];
             }
 
-            Transaction txl = new Transaction("Outgoing", "transaction", txid, from, urlRecepient, int.parse(amount!), "acc://");
+            Transaction txl =
+                new Transaction("Outgoing", "transaction", txid, from, urlRecepient, int.parse(amount!), "acc://");
             txs.add(txl);
             break;
           case "syntheticCreateChain":
