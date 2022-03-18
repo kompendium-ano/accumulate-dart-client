@@ -21,10 +21,10 @@ abstract class Signature extends Marshallable {
   }
 }
 
-abstract class TransactionPayload extends Marshallable {
+abstract class TransactionBody extends Marshallable {
   int type();
 
-  static TransactionPayload fromJson(Map<String, dynamic> json) {
+  static TransactionBody fromJson(Map<String, dynamic> json) {
     var type = json['type'] as String;
     switch (TransactionType.byName(type)) {
       {{- range .Types}}
@@ -42,7 +42,7 @@ abstract class TransactionPayload extends Marshallable {
 {{- range .Types}}
 
 class {{.Name}}
-{{- if .IsTransaction}} extends TransactionPayload
+{{- if .IsTransaction}} extends TransactionBody
 {{- else if .IsSignature}} extends Signature
 {{- else}} extends Marshallable
 {{- end}} {

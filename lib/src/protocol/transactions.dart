@@ -13,16 +13,18 @@ abstract class Signature extends Marshallable {
         return ED25519Signature.fromJson(json);
       case SignatureType.LegacyED25519:
         return LegacyED25519Signature.fromJson(json);
+      case SignatureType.RCD1:
+        return RCD1Signature.fromJson(json);
       default:
         throw new ArgumentError("Unknown SignatureType '${type}'");
     }
   }
 }
 
-abstract class TransactionPayload extends Marshallable {
+abstract class TransactionBody extends Marshallable {
   int type();
 
-  static TransactionPayload fromJson(Map<String, dynamic> json) {
+  static TransactionBody fromJson(Map<String, dynamic> json) {
     var type = json['type'] as String;
     switch (TransactionType.byName(type)) {
       case TransactionType.AddCredits:
@@ -59,7 +61,7 @@ abstract class TransactionPayload extends Marshallable {
   }
 }
 
-class AddCredits extends TransactionPayload {
+class AddCredits extends TransactionBody {
   AddCredits({required this.recipient, required this.amount, });
   
   String recipient;
@@ -87,7 +89,7 @@ class AddCredits extends TransactionPayload {
       amount = json['amount'] as int? ?? 0;
 }
 
-class BurnTokens extends TransactionPayload {
+class BurnTokens extends TransactionBody {
   BurnTokens({required this.amount, });
   
   BigInt amount;
@@ -111,7 +113,7 @@ class BurnTokens extends TransactionPayload {
     : amount = BigInt.parse(json['amount']);
 }
 
-class CreateDataAccount extends TransactionPayload {
+class CreateDataAccount extends TransactionBody {
   CreateDataAccount({required this.url, this.keyBookUrl, this.managerKeyBookUrl, this.scratch, });
   
   String url;
@@ -147,13 +149,12 @@ class CreateDataAccount extends TransactionPayload {
       scratch = json['scratch'] as bool?;
 }
 
-class CreateIdentity extends TransactionPayload {
-  CreateIdentity({required this.url, required this.publicKey, this.keyBookName, this.keyPageName, this.manager, });
+class CreateIdentity extends TransactionBody {
+  CreateIdentity({required this.url, this.publicKey, this.keyBookUrl, this.manager, });
   
   String url;
-  String publicKey;
-  String? keyBookName;
-  String? keyPageName;
+  String? publicKey;
+  String? keyBookUrl;
   String? manager;
   
   int type() {
@@ -165,33 +166,30 @@ class CreateIdentity extends TransactionPayload {
     writer.writeUint(1, this.type());
     writer.writeUtf8(2, this.url);
     writer.writeHex(3, this.publicKey);
-    writer.writeUtf8(4, this.keyBookName);
-    writer.writeUtf8(5, this.keyPageName);
-    writer.writeUtf8(6, this.manager);
+    writer.writeUtf8(4, this.keyBookUrl);
+    writer.writeUtf8(5, this.manager);
     return writer.msg;
   }
 
   Map<String, dynamic> toJson() => {
     'url': this.url,
     'publicKey': this.publicKey,
-    'keyBookName': this.keyBookName,
-    'keyPageName': this.keyPageName,
+    'keyBookUrl': this.keyBookUrl,
     'manager': this.manager,
   };
 
   CreateIdentity.fromJson(Map<String, dynamic> json)
     : url = json['url'] as String,
-      publicKey = json['publicKey'] as String,
-      keyBookName = json['keyBookName'] as String?,
-      keyPageName = json['keyPageName'] as String?,
+      publicKey = json['publicKey'] as String?,
+      keyBookUrl = json['keyBookUrl'] as String?,
       manager = json['manager'] as String?;
 }
 
-class CreateKeyBook extends TransactionPayload {
-  CreateKeyBook({required this.url, required this.pages, this.manager, });
+class CreateKeyBook extends TransactionBody {
+  CreateKeyBook({required this.url, required this.publicKeyHash, this.manager, });
   
   String url;
-  List<String>? pages;
+  String publicKeyHash;
   String? manager;
   
   int type() {
@@ -202,27 +200,26 @@ class CreateKeyBook extends TransactionPayload {
     var writer = ProtocolWriter();
     writer.writeUint(1, this.type());
     writer.writeUtf8(2, this.url);
-    this.pages?.forEach((var value) => writer.writeUtf8(3, value));
+    writer.writeHex(3, this.publicKeyHash);
     writer.writeUtf8(4, this.manager);
     return writer.msg;
   }
 
   Map<String, dynamic> toJson() => {
     'url': this.url,
-    'pages': this.pages?.map((v) => v).toList(),
+    'publicKeyHash': this.publicKeyHash,
     'manager': this.manager,
   };
 
   CreateKeyBook.fromJson(Map<String, dynamic> json)
     : url = json['url'] as String,
-      pages = (json['pages'] as List<dynamic>? ?? []).map((v) => v as String).toList(),
+      publicKeyHash = json['publicKeyHash'] as String,
       manager = json['manager'] as String?;
 }
 
-class CreateKeyPage extends TransactionPayload {
-  CreateKeyPage({required this.url, required this.keys, this.manager, });
+class CreateKeyPage extends TransactionBody {
+  CreateKeyPage({required this.keys, this.manager, });
   
-  String url;
   List<KeySpecParams>? keys;
   String? manager;
   
@@ -233,25 +230,22 @@ class CreateKeyPage extends TransactionPayload {
   List<int> marshalBinary() {
     var writer = ProtocolWriter();
     writer.writeUint(1, this.type());
-    writer.writeUtf8(2, this.url);
-    this.keys?.forEach((var value) => writer.writeValue(3, value));
-    writer.writeUtf8(4, this.manager);
+    this.keys?.forEach((var value) => writer.writeValue(2, value));
+    writer.writeUtf8(3, this.manager);
     return writer.msg;
   }
 
   Map<String, dynamic> toJson() => {
-    'url': this.url,
     'keys': this.keys?.map((v) => v.toJson()).toList(),
     'manager': this.manager,
   };
 
   CreateKeyPage.fromJson(Map<String, dynamic> json)
-    : url = json['url'] as String,
-      keys = (json['keys'] as List<dynamic>? ?? []).map((v) => KeySpecParams.fromJson(v)).toList(),
+    : keys = (json['keys'] as List<dynamic>? ?? []).map((v) => KeySpecParams.fromJson(v)).toList(),
       manager = json['manager'] as String?;
 }
 
-class CreateToken extends TransactionPayload {
+class CreateToken extends TransactionBody {
   CreateToken({required this.url, this.keyBookUrl, required this.symbol, required this.precision, this.properties, this.initialSupply, this.hasSupplyLimit, this.manager, });
   
   String url;
@@ -303,7 +297,7 @@ class CreateToken extends TransactionPayload {
       manager = json['manager'] as String?;
 }
 
-class CreateTokenAccount extends TransactionPayload {
+class CreateTokenAccount extends TransactionBody {
   CreateTokenAccount({required this.url, required this.tokenUrl, this.keyBookUrl, this.scratch, this.manager, });
   
   String url;
@@ -367,10 +361,13 @@ class DataEntry extends Marshallable {
 }
 
 class ED25519Signature extends Signature {
-  ED25519Signature({required this.publicKey, required this.signature, });
+  ED25519Signature({required this.publicKey, required this.signature, required this.signer, required this.signerHeight, this.timestamp, });
   
   String publicKey;
   String signature;
+  String signer;
+  int signerHeight;
+  int? timestamp;
   
   int type() {
     return SignatureType.ED25519;
@@ -381,17 +378,26 @@ class ED25519Signature extends Signature {
     writer.writeUint(1, this.type());
     writer.writeHex(2, this.publicKey);
     writer.writeHex(3, this.signature);
+    writer.writeUtf8(4, this.signer);
+    writer.writeUint(5, this.signerHeight);
+    writer.writeUint(6, this.timestamp);
     return writer.msg;
   }
 
   Map<String, dynamic> toJson() => {
     'publicKey': this.publicKey,
     'signature': this.signature,
+    'signer': this.signer,
+    'signerHeight': this.signerHeight,
+    'timestamp': this.timestamp,
   };
 
   ED25519Signature.fromJson(Map<String, dynamic> json)
     : publicKey = json['publicKey'] as String,
-      signature = json['signature'] as String;
+      signature = json['signature'] as String,
+      signer = json['signer'] as String,
+      signerHeight = json['signerHeight'] as int? ?? 0,
+      timestamp = json['timestamp'] as int? ?? 0;
 }
 
 class Envelope extends Marshallable {
@@ -421,7 +427,7 @@ class Envelope extends Marshallable {
       transaction = Transaction.fromJson(json['transaction']);
 }
 
-class IssueTokens extends TransactionPayload {
+class IssueTokens extends TransactionBody {
   IssueTokens({required this.recipient, required this.amount, });
   
   String recipient;
@@ -469,11 +475,13 @@ class KeySpecParams extends Marshallable {
 }
 
 class LegacyED25519Signature extends Signature {
-  LegacyED25519Signature({required this.nonce, required this.publicKey, required this.signature, });
+  LegacyED25519Signature({required this.timestamp, required this.publicKey, required this.signature, required this.signer, required this.signerHeight, });
   
-  int nonce;
+  int timestamp;
   String publicKey;
   String signature;
+  String signer;
+  int signerHeight;
   
   int type() {
     return SignatureType.LegacyED25519;
@@ -482,25 +490,71 @@ class LegacyED25519Signature extends Signature {
   List<int> marshalBinary() {
     var writer = ProtocolWriter();
     writer.writeUint(1, this.type());
-    writer.writeUint(2, this.nonce);
+    writer.writeUint(2, this.timestamp);
     writer.writeHex(3, this.publicKey);
     writer.writeHex(4, this.signature);
+    writer.writeUtf8(5, this.signer);
+    writer.writeUint(6, this.signerHeight);
     return writer.msg;
   }
 
   Map<String, dynamic> toJson() => {
-    'nonce': this.nonce,
+    'timestamp': this.timestamp,
     'publicKey': this.publicKey,
     'signature': this.signature,
+    'signer': this.signer,
+    'signerHeight': this.signerHeight,
   };
 
   LegacyED25519Signature.fromJson(Map<String, dynamic> json)
-    : nonce = json['nonce'] as int? ?? 0,
+    : timestamp = json['timestamp'] as int? ?? 0,
       publicKey = json['publicKey'] as String,
-      signature = json['signature'] as String;
+      signature = json['signature'] as String,
+      signer = json['signer'] as String,
+      signerHeight = json['signerHeight'] as int? ?? 0;
 }
 
-class SendTokens extends TransactionPayload {
+class RCD1Signature extends Signature {
+  RCD1Signature({required this.publicKey, required this.signature, required this.signer, required this.signerHeight, this.timestamp, });
+  
+  String publicKey;
+  String signature;
+  String signer;
+  int signerHeight;
+  int? timestamp;
+  
+  int type() {
+    return SignatureType.RCD1;
+  }
+  
+  List<int> marshalBinary() {
+    var writer = ProtocolWriter();
+    writer.writeUint(1, this.type());
+    writer.writeHex(2, this.publicKey);
+    writer.writeHex(3, this.signature);
+    writer.writeUtf8(4, this.signer);
+    writer.writeUint(5, this.signerHeight);
+    writer.writeUint(6, this.timestamp);
+    return writer.msg;
+  }
+
+  Map<String, dynamic> toJson() => {
+    'publicKey': this.publicKey,
+    'signature': this.signature,
+    'signer': this.signer,
+    'signerHeight': this.signerHeight,
+    'timestamp': this.timestamp,
+  };
+
+  RCD1Signature.fromJson(Map<String, dynamic> json)
+    : publicKey = json['publicKey'] as String,
+      signature = json['signature'] as String,
+      signer = json['signer'] as String,
+      signerHeight = json['signerHeight'] as int? ?? 0,
+      timestamp = json['timestamp'] as int? ?? 0;
+}
+
+class SendTokens extends TransactionBody {
   SendTokens({this.hash, this.meta, required this.to, });
   
   String? hash;
@@ -532,7 +586,7 @@ class SendTokens extends TransactionPayload {
       to = (json['to'] as List<dynamic>? ?? []).map((v) => TokenRecipient.fromJson(v)).toList();
 }
 
-class SignPending extends TransactionPayload {
+class SignPending extends TransactionBody {
   int type() {
     return TransactionType.SignPending;
   }
@@ -573,63 +627,60 @@ class TokenRecipient extends Marshallable {
 }
 
 class Transaction extends Marshallable {
-  Transaction({required this.transactionHeader, required this.body, });
+  Transaction({required this.header, required this.body, });
   
-  TransactionHeader transactionHeader;
-  TransactionPayload body;
+  TransactionHeader header;
+  TransactionBody body;
   
   List<int> marshalBinary() {
     var writer = ProtocolWriter();
-    writer.writeValue(1, this.transactionHeader);
+    writer.writeValue(1, this.header);
     writer.writeValue(2, this.body);
     return writer.msg;
   }
 
   Map<String, dynamic> toJson() => {
-    'origin': this.transactionHeader.origin,
-    'keyPageHeight': this.transactionHeader.keyPageHeight,
-    'keyPageIndex': this.transactionHeader.keyPageIndex,
-    'nonce': this.transactionHeader.nonce,
+    'header': this.header.toJson(),
     'body': this.body.toJson(),
   };
 
   Transaction.fromJson(Map<String, dynamic> json)
-    : transactionHeader = TransactionHeader.fromJson(json),
-      body = TransactionPayload.fromJson(json['body']);
+    : header = TransactionHeader.fromJson(json['header']),
+      body = TransactionBody.fromJson(json['body']);
 }
 
 class TransactionHeader extends Marshallable {
-  TransactionHeader({required this.origin, required this.keyPageHeight, required this.keyPageIndex, required this.nonce, });
+  TransactionHeader({required this.principal, required this.initiator, this.memo, this.metadata, });
   
-  String origin;
-  int keyPageHeight;
-  int keyPageIndex;
-  int nonce;
+  String principal;
+  String initiator;
+  String? memo;
+  String? metadata;
   
   List<int> marshalBinary() {
     var writer = ProtocolWriter();
-    writer.writeUtf8(1, this.origin);
-    writer.writeUint(2, this.keyPageHeight);
-    writer.writeUint(3, this.keyPageIndex);
-    writer.writeUint(4, this.nonce);
+    writer.writeUtf8(1, this.principal);
+    writer.writeHash(2, this.initiator);
+    writer.writeUtf8(3, this.memo);
+    writer.writeHex(4, this.metadata);
     return writer.msg;
   }
 
   Map<String, dynamic> toJson() => {
-    'origin': this.origin,
-    'keyPageHeight': this.keyPageHeight,
-    'keyPageIndex': this.keyPageIndex,
-    'nonce': this.nonce,
+    'principal': this.principal,
+    'initiator': this.initiator,
+    'memo': this.memo,
+    'metadata': this.metadata,
   };
 
   TransactionHeader.fromJson(Map<String, dynamic> json)
-    : origin = json['origin'] as String,
-      keyPageHeight = json['keyPageHeight'] as int? ?? 0,
-      keyPageIndex = json['keyPageIndex'] as int? ?? 0,
-      nonce = json['nonce'] as int? ?? 0;
+    : principal = json['principal'] as String,
+      initiator = json['initiator'] as String,
+      memo = json['memo'] as String?,
+      metadata = json['metadata'] as String?;
 }
 
-class UpdateKeyPage extends TransactionPayload {
+class UpdateKeyPage extends TransactionBody {
   UpdateKeyPage({required this.operation, this.key, this.newKey, this.owner, this.threshold, });
   
   int operation;
@@ -669,7 +720,7 @@ class UpdateKeyPage extends TransactionPayload {
       threshold = json['threshold'] as int? ?? 0;
 }
 
-class WriteData extends TransactionPayload {
+class WriteData extends TransactionBody {
   WriteData({required this.entry, });
   
   DataEntry entry;
@@ -693,7 +744,7 @@ class WriteData extends TransactionPayload {
     : entry = DataEntry.fromJson(json['entry']);
 }
 
-class WriteDataTo extends TransactionPayload {
+class WriteDataTo extends TransactionBody {
   WriteDataTo({required this.recipient, required this.entry, });
   
   String recipient;

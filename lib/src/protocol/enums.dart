@@ -54,6 +54,14 @@ class SignatureType {
   static const LegacyED25519 = 1;
   /** ED25519 represents an ED25519 signature. */
   static const ED25519 = 2;
+  /** RCD1 represents an RCD1 signature. */
+  static const RCD1 = 3;
+  /** Receipt represents a Merkle tree receipt. */
+  static const Receipt = 4;
+  /** Synthetic is used when sending synthetic transactions. */
+  static const Synthetic = 5;
+  /** Internal is used when executing transactions internally. */
+  static const Internal = 6;
 
   static String name(int value) {
     switch (value) {
@@ -63,6 +71,14 @@ class SignatureType {
         return "legacyED25519";
       case ED25519:
         return "eD25519";
+      case RCD1:
+        return "rCD1";
+      case Receipt:
+        return "receipt";
+      case Synthetic:
+        return "synthetic";
+      case Internal:
+        return "internal";
       default:
         throw new ArgumentError("Unknown SignatureType ${value}");
     }
@@ -76,6 +92,14 @@ class SignatureType {
         return LegacyED25519;
       case "eD25519":
         return ED25519;
+      case "rCD1":
+        return RCD1;
+      case "receipt":
+        return Receipt;
+      case "synthetic":
+        return Synthetic;
+      case "internal":
+        return Internal;
       default:
         throw new ArgumentError("Unknown SignatureType '${name}'");
     }
@@ -117,6 +141,12 @@ class TransactionType {
   static const UpdateManager = 16;
   /** RemoveManager remove manager from existing chain. */
   static const RemoveManager = 17;
+  /** AddValidator add a validator. */
+  static const AddValidator = 18;
+  /** RemoveValidator remove a validator. */
+  static const RemoveValidator = 19;
+  /** UpdateValidatorKey update a validator key. */
+  static const UpdateValidatorKey = 20;
   /** SignPending is used to sign a pending transaction. */
   static const SignPending = 48;
   /** SyntheticCreateChain creates or updates chains. */
@@ -180,6 +210,12 @@ class TransactionType {
         return "updateManager";
       case RemoveManager:
         return "removeManager";
+      case AddValidator:
+        return "addValidator";
+      case RemoveValidator:
+        return "removeValidator";
+      case UpdateValidatorKey:
+        return "updateValidatorKey";
       case SignPending:
         return "signPending";
       case SyntheticCreateChain:
@@ -247,6 +283,12 @@ class TransactionType {
         return UpdateManager;
       case "removeManager":
         return RemoveManager;
+      case "addValidator":
+        return AddValidator;
+      case "removeValidator":
+        return RemoveValidator;
+      case "updateValidatorKey":
+        return UpdateValidatorKey;
       case "signPending":
         return SignPending;
       case "syntheticCreateChain":

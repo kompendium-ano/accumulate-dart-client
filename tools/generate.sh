@@ -11,7 +11,7 @@ go run ./tools/cmd/gen-enum -l ../enums.dart.tmpl -o ../../lib/src/protocol/enum
 
 # Transactions
 go run ./tools/cmd/gen-types -l ../transactions.dart.tmpl -o ../../lib/src/protocol/transactions.dart \
-    -i Envelope,Transaction,TransactionHeader,LegacyED25519Signature,ED25519Signature \
+    -i Envelope,Transaction,TransactionHeader,LegacyED25519Signature,ED25519Signature,RCD1Signature \
     -i CreateIdentity,CreateTokenAccount,SendTokens,CreateDataAccount,WriteData,WriteDataTo,CreateToken,IssueTokens,BurnTokens,CreateKeyPage,CreateKeyBook,AddCredits,UpdateKeyPage,SignPending \
     -i KeySpecParams,TokenRecipient,DataEntry \
     protocol/transactions.yml protocol/general.yml
