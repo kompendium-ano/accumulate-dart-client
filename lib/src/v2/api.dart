@@ -18,6 +18,7 @@ import 'package:accumulate_api/src/v2/requests/api_request_keypage.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_keypage_update.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_metrics.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_token_account.dart';
+import 'package:accumulate_api/src/v2/requests/api_request_token_create.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_tx.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_tx_gen.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_tx_to.dart';
@@ -1157,6 +1158,83 @@ class ACMEApiV2 {
 
       print('Response: $message');
     }
+    return txid;
+  }
+
+  Future<String?> callCreateNewToken(IdentityADI sponsorADI, int timestamp, int keyPageHeight, String tokenName,
+      String tokenSymbol, int tokenPrecision, int tokenInitialSupply) async {
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
+
+    int keyPageIndexInsideKeyBook = 0;
+
+    print("${sponsorADI.puk}");
+    print("${sponsorADI.pikHex}");
+
+    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(sponsorADI.puk!));
+    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(sponsorADI.pikHex!));
+    var keyPair = ed.KeyPair(privateKey, publicKey);
+
+    Signer signer = Signer(publicKey: sponsorADI.puk, nonce: timestamp);
+    ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(height: keyPageHeight); //, index: 0);
+
+    String tokenUrl = sponsorADI.path! + tokenName;
+    String sponsorPath = sponsorADI.path!;
+
+    // prepare data
+    ApiRequestToken data = ApiRequestToken(tokenUrl, tokenSymbol, tokenPrecision, tokenInitialSupply.toString());
+
+    ApiRequestRawTx_Token tx = ApiRequestRawTx_Token(
+        origin: sponsorPath, sponsor: sponsorPath, payload: data, signer: signer, signature: "", keyPage: keyPage);
+
+    TokenTx tokenTx = TokenTx();
+    TransactionHeader header = TransactionHeader(
+        origin: sponsorPath, nonce: timestamp, keyPageHeight: keyPageHeight, keyPageIndex: keyPageIndexInsideKeyBook);
+    List<int> dataBinary = tokenTx.marshalBinaryCreateToken(tx);
+
+    //log('Header:\n ${header.marshal()}');
+    //log('Body: ${dataBinary}');
+
+    // Generalized version of GenTransaction in Go
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
+    txGen.hash = txGen.generateTransactionHash();
+
+    List<int> msg = [];
+    msg.addAll(uint64ToBytesNonce(timestamp)); // VLQ converted timestamp
+    msg.addAll(txGen.hash);
+    Uint8List msgToSign = Uint8List.fromList(msg);
+
+    // sign message which is (timestamp/nonce) + txHash
+    Uint8List signature = ed.sign(privateKey, msgToSign);
+
+    // NB: sig is 64 bytes string created from hexing generated signature
+    // var bytes = utf8.encode("60aa13125cbe0dd496a2f0248e6a46c04b799c160734b248e83eb4573ca4d560");
+    // sig = HEX.encode(bytes);
+    String sig = "";
+    sig = HEX.encode(signature);
+    tx.signature = sig; // update underlying structure
+    print(sig);
+
+    JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
+    var res = await acmeApi.call("create-token", [tx]);
+    res.result;
+
+    String? txid = "";
+    if (res != null) {
+      String? type = res.result["type"];
+
+      // TODO: combine into single response type
+      txid = res.result["txid"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+      String? message = res.result["message"];
+
+      print("Success create-token");
+      print("API RESULT: ${res.result}");
+    }
+
     return txid;
   }
 }

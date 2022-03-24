@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:accumulate_api/src/utils/general.dart';
 import 'package:accumulate_api/src/utils/marshaller.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_adi.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_credit.dart';
@@ -305,13 +304,13 @@ class ApiRequestRawTx_KeyPage {
       keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
 
   Map<String, dynamic> toJson() => {
-    "origin": origin,
-    "sponsor": sponsor,
-    "signer": signer!.toJson(),
-    "signature": signature,
-    "keyPage": keyPage!.toJson(),
-    "payload": payload!.toJson(),
-  };
+        "origin": origin,
+        "sponsor": sponsor,
+        "signer": signer!.toJson(),
+        "signature": signature,
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
+      };
 }
 
 class ApiRequestRawTx_KeyPageUpdate {
@@ -325,7 +324,8 @@ class ApiRequestRawTx_KeyPageUpdate {
   String? signature;
   ApiRequestRawTxKeyPage? keyPage;
 
-  factory ApiRequestRawTx_KeyPageUpdate.fromRawJson(String str) => ApiRequestRawTx_KeyPageUpdate.fromJson(json.decode(str));
+  factory ApiRequestRawTx_KeyPageUpdate.fromRawJson(String str) =>
+      ApiRequestRawTx_KeyPageUpdate.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
@@ -337,13 +337,13 @@ class ApiRequestRawTx_KeyPageUpdate {
       keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
 
   Map<String, dynamic> toJson() => {
-    "origin": origin,
-    "sponsor": sponsor,
-    "signer": signer!.toJson(),
-    "signature": signature,
-    "keyPage": keyPage!.toJson(),
-    "payload": payload!.toJson(),
-  };
+        "origin": origin,
+        "sponsor": sponsor,
+        "signer": signer!.toJson(),
+        "signature": signature,
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
+      };
 }
 
 class ApiRequestRawTx_Token {
@@ -525,6 +525,7 @@ class TokenTx {
     return msg;
   }
 
+  /*
   List<int> marshalBinaryCreateToken(ApiRequestRawTx_Token tx) {
     List<int> msg = [];
 
@@ -559,6 +560,34 @@ class TokenTx {
 
     ///
     msg.addAll(uint64ToBytes(boolToInt(tx.payload!.hasSupplyLimit!)));
+
+    return msg;
+  }
+  */
+
+  List<int> marshalBinaryCreateToken(ApiRequestRawTx_Token tx) {
+    List<int> msg = [];
+
+    /// VLQ converted transaction type
+    msg.addAll(uint64ToBytes(TransactionType.CreateToken));
+
+    ///
+    List<int> encodedUrl = utf8.encode(tx.payload!.url!);
+    msg.addAll(uint64ToBytes(encodedUrl.length));
+    msg.addAll(encodedUrl);
+
+    ///
+    List<int> encodedSymbol = utf8.encode(tx.payload!.tokenSymbol!);
+    msg.addAll(uint64ToBytes(encodedSymbol.length));
+    msg.addAll(encodedSymbol);
+
+    ///
+    msg.addAll(uint64ToBytes(tx.payload!.precision!));
+
+    ///
+    List<int> encodedInitialSupply = utf8.encode(tx.payload!.initialSupply!);
+    msg.addAll(uint64ToBytes(encodedInitialSupply.length));
+    msg.addAll(encodedInitialSupply);
 
     return msg;
   }
@@ -644,10 +673,10 @@ class TokenTx {
     msg.addAll(encodedKeybook);
 
     ///
-    if(tx.payload!.isScratch!){
-     msg.add(1);
+    if (tx.payload!.isScratch!) {
+      msg.add(1);
     } else {
-     msg.add(0);
+      msg.add(0);
     }
 
     ///
@@ -667,7 +696,7 @@ class TokenTx {
 
     ///
     List<int> encodedKeybook = utf8.encode(tx.payload!.keyBookUrl!);
-    if(encodedKeybook.length > 0) {
+    if (encodedKeybook.length > 0) {
       msg.addAll(uint64ToBytesAlt(encodedKeybook.length));
       msg.addAll(encodedKeybook);
     } else {
@@ -676,7 +705,7 @@ class TokenTx {
 
     ///
     List<int> encodedManagerKeybook = utf8.encode(tx.payload!.managerKeyBookUrl!);
-    if(encodedManagerKeybook.length > 0) {
+    if (encodedManagerKeybook.length > 0) {
       msg.addAll(uint64ToBytesAlt(encodedManagerKeybook.length));
       msg.addAll(encodedManagerKeybook);
     } else {
@@ -684,7 +713,7 @@ class TokenTx {
     }
 
     ///
-    if(tx.payload!.isScratch!){
+    if (tx.payload!.isScratch!) {
       msg.add(1);
     } else {
       msg.add(0);
