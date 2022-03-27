@@ -1394,4 +1394,101 @@ class ACMEApiV2 {
 
     return txid;
   }
+
+  Future<String?> callAddCreditsWithSponsor(Address toAddr, Address fromAddr, int amount, int timestamp,
+      [KeyPage? currKeyPage, acme.Key? currKey]) async {
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
+
+    int keypageHeightToUse = 1;
+    String? origin;
+    String? sponsor;
+
+    ed.PublicKey publicKey;
+    ed.PrivateKey privateKey;
+    String? puk = fromAddr.puk;
+    // if (currKeyPage != null) {
+    //   if (currKey != null) {
+    //     puk = currKey.puk;
+    //     publicKey = ed.PublicKey(HEX.decode(currKey.puk));
+    //     privateKey = ed.PrivateKey(HEX.decode(currKey.pikHex));
+    //   }
+    // } else {
+    //   puk = currAddr.puk;
+    //   publicKey = ed.PublicKey(HEX.decode(currAddr.puk));
+    //   privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex));
+    //   var keyPair = ed.KeyPair(privateKey, publicKey);
+    // }
+
+    //////////////////
+    // NB: temp, only lite to lite, lite to kp supported, override key
+    //     as origin and sponsor always Lite Account for now
+    puk = fromAddr.puk;
+    publicKey = ed.PublicKey(HEX.decode(fromAddr.puk!));
+    privateKey = ed.PrivateKey(HEX.decode(fromAddr.pikHex!));
+    ///////////////
+
+    // Because we can send to accounts and keybooks ath the same time
+    ApiRequestCredits data;
+    if (currKeyPage != null) {
+      data = ApiRequestCredits(currKeyPage.path, amount);
+      origin = toAddr.address;
+      sponsor = toAddr.address;
+    } else {
+      data = ApiRequestCredits(fromAddr.address!.toLowerCase(), amount);
+      origin = toAddr.address;
+      sponsor = fromAddr.address;
+    }
+
+    Signer signer = Signer(publicKey: puk, nonce: timestamp);
+    ApiRequestRawTxKeyPage keyPageInfo = ApiRequestRawTxKeyPage(height: 1, index: 0);
+
+    ApiRequestRawTx_Credits tx = ApiRequestRawTx_Credits(
+        payload: data, signer: signer, signature: "", origin: origin, sponsor: sponsor, keyPage: keyPageInfo);
+
+    TokenTx tokenTx = TokenTx();
+    TransactionHeader header =
+        TransactionHeader(origin: origin, nonce: timestamp, keyPageHeight: keypageHeightToUse, keyPageIndex: 0);
+    List<int> dataBinary = tokenTx.marshalBinaryAddCredits(tx);
+
+    // Generalized version of GenTransaction in Go
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
+    txGen.hash = txGen.generateTransactionHash();
+
+    // message is (timestamp/nonce) + hash
+    List<int> msg = [];
+    msg.addAll(uint64ToBytesNonce(timestamp)); // VLQ converted timestamp
+    msg.addAll(txGen.hash);
+    Uint8List msgToSign = Uint8List.fromList(msg);
+
+    // sign message which is (timestamp/nonce) + txHash
+    Uint8List signature = ed.sign(privateKey, msgToSign); // should be nonce + transaction hash generated
+
+    // NB: sig is 64 bytes string created from hexing generated signature
+    // var bytes = utf8.encode("60aa13125cbe0dd496a2f0248e6a46c04b799c160734b248e83eb4573ca4d560");
+    // sig = HEX.encode(bytes);
+    String sig = "";
+    sig = HEX.encode(signature);
+    tx.signature = sig; // update underlying structure
+
+    JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
+    var res = await acmeApi.call("add-credits", [tx]);
+    res.result;
+
+    String? txid = "";
+    if (res != null) {
+      String? type = res.result["type"];
+
+      // TODO: combine into single response type
+      txid = res.result["txid"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+      String? message = res.result["message"];
+
+      print('Response: $message');
+    }
+    return txid;
+  }
 }
