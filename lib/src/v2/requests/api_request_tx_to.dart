@@ -14,6 +14,8 @@ import 'package:accumulate_api/src/v2/requests/api_request_token_issue.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_tx_gen.dart';
 import 'package:hex/hex.dart';
 
+import 'api_request_burn_token.dart';
+
 class ApiRequestTxToData {
   ApiRequestTxToData({
     this.to,
@@ -410,6 +412,38 @@ class ApiRequestRawTx_TokenIssue {
       };
 }
 
+class ApiRequestRawTx_TokenBurn {
+  ApiRequestRawTx_TokenBurn({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
+
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestBurnToken? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
+
+  factory ApiRequestRawTx_TokenBurn.fromRawJson(String str) => ApiRequestRawTx_TokenBurn.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory ApiRequestRawTx_TokenBurn.fromJson(Map<String, dynamic> json) => ApiRequestRawTx_TokenBurn(
+      sponsor: json["sponsor"],
+      payload: ApiRequestBurnToken.fromJson(json["payload"]),
+      signer: Signer.fromJson(json["signer"]),
+      signature: json["sig"],
+      keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
+
+  Map<String, dynamic> toJson() => {
+        "origin": origin,
+        "sponsor": sponsor,
+        "signer": signer!.toJson(),
+        "signature": signature,
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
+      };
+}
+
 class ApiRequestRawTx_WriteData {
   ApiRequestRawTx_WriteData({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
@@ -604,20 +638,27 @@ class TokenTx {
     msg.addAll(encodedRecipient); // actual converted string
 
     ///
-    msg.addAll(uint64ToBytes(tx.payload!.amount!));
+    ///
+    List<int> encodedAmount = utf8.encode(tx.payload!.amount!);
+    msg.addAll(uint64ToBytes(encodedAmount.length)); // converted string length
+    msg.addAll(encodedAmount); // actual converted string
+    //msg.addAll(uint64ToBytes(tx.payload!.amount!));
 
     return msg;
   }
 
-  List<int> marshalBinaryBurnTokens(ApiRequestRawTx_Credits tx) {
+  List<int> marshalBinaryBurnTokens(ApiRequestRawTx_TokenBurn tx) {
     List<int> msg = [];
 
     /// VLQ converted transaction type
     msg.addAll(uint64ToBytes(TransactionType.BurnTokens));
 
     ///
-    msg.addAll(uint64ToBytes(tx.payload!.amount!));
-
+    ///
+    //msg.addAll(uint64ToBytes(tx.payload!.amount!));
+    List<int> encodedAmount = utf8.encode(tx.payload!.amount!);
+    msg.addAll(uint64ToBytes(encodedAmount.length)); // converted string length
+    msg.addAll(encodedAmount); // actual converted string
     return msg;
   }
 

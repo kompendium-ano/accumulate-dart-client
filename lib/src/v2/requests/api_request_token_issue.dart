@@ -1,6 +1,6 @@
 class ApiRequestTokenIssue {
   final String? url;
-  final int? amount;
+  final String? amount;
 
   ApiRequestTokenIssue(this.url, this.amount);
 
@@ -8,5 +8,5 @@ class ApiRequestTokenIssue {
       : url = json['url'],
         amount = json['amount'];
 
-  Map<String, dynamic> toJson() => {'url': url,  'amount': amount};
+  Map<String, dynamic> toJson() => {'url': url, 'amount': amount};
 }

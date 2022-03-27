@@ -11,6 +11,7 @@ import 'package:accumulate_api/src/model/keys/keypage.dart';
 import 'package:accumulate_api/src/model/tx.dart';
 import 'package:accumulate_api/src/utils/marshaller.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_adi.dart';
+import 'package:accumulate_api/src/v2/requests/api_request_burn_token.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_credit.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_data_account.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_keybook.dart';
@@ -19,6 +20,7 @@ import 'package:accumulate_api/src/v2/requests/api_request_keypage_update.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_metrics.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_token_account.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_token_create.dart';
+import 'package:accumulate_api/src/v2/requests/api_request_token_issue.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_tx.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_tx_gen.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_tx_to.dart';
@@ -596,7 +598,7 @@ class ACMEApiV2 {
   /// RPC: "token-account" - Create token account
   Future<String?> callCreateTokenAccount(
       Address currAddr, IdentityADI sponsorADI, String tokenAccountName, String keybookPath, int timestamp,
-      [String? keyPuk, String? keyPik, int? keyPageHeight]) async {
+      [String? keyPuk, String? keyPik, int? keyPageHeight, String tokenUrl = "acc://acme"]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currAddr.puk!));
@@ -623,7 +625,7 @@ class ACMEApiV2 {
 
     // prepare payload
     ApiRequestTokenAccount data =
-        ApiRequestTokenAccount(sponsorADI.path! + "/" + tokenAccountName, "acc://acme", keybookPath, false);
+        ApiRequestTokenAccount(sponsorADI.path! + "/" + tokenAccountName, tokenUrl, keybookPath, false);
 
     ApiRequestRawTx_TokenAccount tx = ApiRequestRawTx_TokenAccount(
         payload: data, signer: signer, origin: sponsorPath, signature: "", sponsor: sponsorPath, keyPage: keyPage);
@@ -1232,6 +1234,161 @@ class ACMEApiV2 {
       String? message = res.result["message"];
 
       print("Success create-token");
+      print("API RESULT: ${res.result}");
+    }
+
+    return txid;
+  }
+
+  Future<String?> callIssueNewToken(IdentityADI sponsorADI, int timestamp, int keyPageHeight, String tokenUrl) async {
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
+
+    int keyPageIndexInsideKeyBook = 0;
+
+    print("${sponsorADI.puk}");
+    print("${sponsorADI.pikHex}");
+    print(tokenUrl);
+
+    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(sponsorADI.puk!));
+    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(sponsorADI.pikHex!));
+    var keyPair = ed.KeyPair(privateKey, publicKey);
+
+    Signer signer = Signer(publicKey: sponsorADI.puk, nonce: timestamp);
+    ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(height: keyPageHeight); //, index: 0);
+
+    String sponsorPath = sponsorADI.path! + "/book0";
+
+    // prepare data
+
+    ApiRequestTokenIssue data = ApiRequestTokenIssue(tokenUrl, 10.toString());
+
+    ApiRequestRawTx_TokenIssue tx = ApiRequestRawTx_TokenIssue(
+        origin: sponsorPath, sponsor: sponsorPath, payload: data, signer: signer, signature: "", keyPage: keyPage);
+
+    TokenTx tokenTx = TokenTx();
+    TransactionHeader header = TransactionHeader(
+        origin: sponsorPath, nonce: timestamp, keyPageHeight: keyPageHeight, keyPageIndex: keyPageIndexInsideKeyBook);
+    List<int> dataBinary = tokenTx.marshalBinaryIssueTokens(tx);
+
+    //log('Header:\n ${header.marshal()}');
+    //log('Body: ${dataBinary}');
+
+    // Generalized version of GenTransaction in Go
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
+    txGen.hash = txGen.generateTransactionHash();
+
+    List<int> msg = [];
+    msg.addAll(uint64ToBytesNonce(timestamp)); // VLQ converted timestamp
+    msg.addAll(txGen.hash);
+    Uint8List msgToSign = Uint8List.fromList(msg);
+
+    // sign message which is (timestamp/nonce) + txHash
+    Uint8List signature = ed.sign(privateKey, msgToSign);
+
+    // NB: sig is 64 bytes string created from hexing generated signature
+    // var bytes = utf8.encode("60aa13125cbe0dd496a2f0248e6a46c04b799c160734b248e83eb4573ca4d560");
+    // sig = HEX.encode(bytes);
+    String sig = "";
+    sig = HEX.encode(signature);
+    tx.signature = sig; // update underlying structure
+    print(sig);
+
+    JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
+    var res = await acmeApi.call("issue-tokens", [tx]);
+    res.result;
+
+    String? txid = "";
+    if (res != null) {
+      String? type = res.result["type"];
+
+      // TODO: combine into single response type
+      txid = res.result["txid"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+      String? message = res.result["message"];
+
+      print("Success issue-token");
+      print("API RESULT: ${res.result}");
+    }
+
+    return txid;
+  }
+
+  Future<String?> callBurnToken(
+      IdentityADI sponsorADI, int timestamp, int keyPageHeight, String tokenUrl, int amount) async {
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
+
+    int keyPageIndexInsideKeyBook = 0;
+
+    print("${sponsorADI.puk}");
+    print("${sponsorADI.pikHex}");
+    print(tokenUrl);
+
+    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(sponsorADI.puk!));
+    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(sponsorADI.pikHex!));
+    var keyPair = ed.KeyPair(privateKey, publicKey);
+
+    Signer signer = Signer(publicKey: sponsorADI.puk, nonce: timestamp);
+    ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(height: keyPageHeight); //, index: 0);
+
+    String sponsorPath = sponsorADI.path! + "/book0";
+
+    // prepare data
+
+    ApiRequestBurnToken data = ApiRequestBurnToken(amount.toString());
+
+    ApiRequestRawTx_TokenBurn tx = ApiRequestRawTx_TokenBurn(
+        origin: sponsorPath, sponsor: sponsorPath, payload: data, signer: signer, signature: "", keyPage: keyPage);
+
+    TokenTx tokenTx = TokenTx();
+    TransactionHeader header = TransactionHeader(
+        origin: sponsorPath, nonce: timestamp, keyPageHeight: keyPageHeight, keyPageIndex: keyPageIndexInsideKeyBook);
+    List<int> dataBinary = tokenTx.marshalBinaryBurnTokens(tx);
+
+    //log('Header:\n ${header.marshal()}');
+    //log('Body: ${dataBinary}');
+
+    // Generalized version of GenTransaction in Go
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
+    txGen.hash = txGen.generateTransactionHash();
+
+    List<int> msg = [];
+    msg.addAll(uint64ToBytesNonce(timestamp)); // VLQ converted timestamp
+    msg.addAll(txGen.hash);
+    Uint8List msgToSign = Uint8List.fromList(msg);
+
+    // sign message which is (timestamp/nonce) + txHash
+    Uint8List signature = ed.sign(privateKey, msgToSign);
+
+    // NB: sig is 64 bytes string created from hexing generated signature
+    // var bytes = utf8.encode("60aa13125cbe0dd496a2f0248e6a46c04b799c160734b248e83eb4573ca4d560");
+    // sig = HEX.encode(bytes);
+    String sig = "";
+    sig = HEX.encode(signature);
+    tx.signature = sig; // update underlying structure
+    print(sig);
+
+    JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
+    var res = await acmeApi.call("burn-tokens", [tx]);
+    res.result;
+
+    String? txid = "";
+    if (res != null) {
+      String? type = res.result["type"];
+
+      // TODO: combine into single response type
+      txid = res.result["txid"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+      String? message = res.result["message"];
+
+      print("Success burn-token");
       print("API RESULT: ${res.result}");
     }
 
