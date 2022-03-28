@@ -598,7 +598,11 @@ class ACMEApiV2 {
   /// RPC: "token-account" - Create token account
   Future<String?> callCreateTokenAccount(
       Address currAddr, IdentityADI sponsorADI, String tokenAccountName, String keybookPath, int timestamp,
-      [String? keyPuk, String? keyPik, int? keyPageHeight, String tokenUrl = "acc://acme"]) async {
+      [String? keyPuk,
+      String? keyPik,
+      int? keyPageHeight,
+      String tokenUrl = "acc://acme",
+      bool isScratch = false]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currAddr.puk!));
@@ -625,7 +629,7 @@ class ACMEApiV2 {
 
     // prepare payload
     ApiRequestTokenAccount data =
-        ApiRequestTokenAccount(sponsorADI.path! + "/" + tokenAccountName, tokenUrl, keybookPath, false);
+        ApiRequestTokenAccount(sponsorADI.path! + "/" + tokenAccountName, tokenUrl, keybookPath, isScratch);
 
     ApiRequestRawTx_TokenAccount tx = ApiRequestRawTx_TokenAccount(
         payload: data, signer: signer, origin: sponsorPath, signature: "", sponsor: sponsorPath, keyPage: keyPage);

@@ -9,9 +9,8 @@ class ApiRequestTokenAccount {
   ApiRequestTokenAccount.fromJson(Map<String, dynamic> json)
       : url = json['url'],
         tokenUrl = json['tokenUrl'],
-        keyBookUrl = json['keyBookUrl'];
+        keyBookUrl = json['keyBookUrl'],
+        isScratch = json['scratch'];
 
-  Map<String, dynamic> toJson() => {
-        'url': url, 'tokenUrl': tokenUrl, 'keyBookUrl': keyBookUrl
-      };
+  Map<String, dynamic> toJson() => {'url': url, 'tokenUrl': tokenUrl, 'keyBookUrl': keyBookUrl, 'scratch': isScratch};
 }
