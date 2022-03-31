@@ -7,7 +7,6 @@ import 'package:accumulate_api/src/v2/requests/api_request_data_account.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_keybook.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_keypage.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_keypage_update.dart';
-import 'package:accumulate_api/src/v2/requests/api_request_raw_data.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_token_account.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_token_create.dart';
 import 'package:accumulate_api/src/v2/requests/api_request_token_issue.dart';
@@ -15,6 +14,8 @@ import 'package:accumulate_api/src/v2/requests/api_request_tx_gen.dart';
 import 'package:hex/hex.dart';
 
 import 'api_request_burn_token.dart';
+import 'api_request_write_data.dart';
+import 'api_request_write_data_to.dart';
 
 class ApiRequestTxToData {
   ApiRequestTxToData({
@@ -251,6 +252,70 @@ class ApiRequestRawTx_DataAccount {
       };
 }
 
+class ApiRequestRawTx_WriteData {
+  ApiRequestRawTx_WriteData({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
+
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestWriteData? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
+
+  factory ApiRequestRawTx_WriteData.fromRawJson(String str) => ApiRequestRawTx_WriteData.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory ApiRequestRawTx_WriteData.fromJson(Map<String, dynamic> json) => ApiRequestRawTx_WriteData(
+      sponsor: json["sponsor"],
+      payload: ApiRequestWriteData.fromJson(json["payload"]),
+      signer: Signer.fromJson(json["signer"]),
+      signature: json["sig"],
+      keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
+
+  Map<String, dynamic> toJson() => {
+        "origin": origin,
+        "sponsor": sponsor,
+        "signer": signer!.toJson(),
+        "signature": signature,
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
+      };
+}
+
+class ApiRequestRawTx_WriteDataTo {
+  ApiRequestRawTx_WriteDataTo({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
+
+  bool? checkOnly;
+  String? sponsor;
+  String? origin;
+  ApiRequestWriteDataTo? payload;
+  Signer? signer;
+  String? signature;
+  ApiRequestRawTxKeyPage? keyPage;
+
+  factory ApiRequestRawTx_WriteDataTo.fromRawJson(String str) => ApiRequestRawTx_WriteDataTo.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory ApiRequestRawTx_WriteDataTo.fromJson(Map<String, dynamic> json) => ApiRequestRawTx_WriteDataTo(
+      sponsor: json["sponsor"],
+      payload: ApiRequestWriteDataTo.fromJson(json["payload"]),
+      signer: Signer.fromJson(json["signer"]),
+      signature: json["sig"],
+      keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
+
+  Map<String, dynamic> toJson() => {
+        "origin": origin,
+        "sponsor": sponsor,
+        "signer": signer!.toJson(),
+        "signature": signature,
+        "keyPage": keyPage!.toJson(),
+        "payload": payload!.toJson(),
+      };
+}
+
 class ApiRequestRawTx_KeyBook {
   ApiRequestRawTx_KeyBook({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
 
@@ -430,38 +495,6 @@ class ApiRequestRawTx_TokenBurn {
   factory ApiRequestRawTx_TokenBurn.fromJson(Map<String, dynamic> json) => ApiRequestRawTx_TokenBurn(
       sponsor: json["sponsor"],
       payload: ApiRequestBurnToken.fromJson(json["payload"]),
-      signer: Signer.fromJson(json["signer"]),
-      signature: json["sig"],
-      keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
-
-  Map<String, dynamic> toJson() => {
-        "origin": origin,
-        "sponsor": sponsor,
-        "signer": signer!.toJson(),
-        "signature": signature,
-        "keyPage": keyPage!.toJson(),
-        "payload": payload!.toJson(),
-      };
-}
-
-class ApiRequestRawTx_WriteData {
-  ApiRequestRawTx_WriteData({this.origin, this.sponsor, this.payload, this.signer, this.signature, this.keyPage});
-
-  bool? checkOnly;
-  String? sponsor;
-  String? origin;
-  ApiRequestData? payload;
-  Signer? signer;
-  String? signature;
-  ApiRequestRawTxKeyPage? keyPage;
-
-  factory ApiRequestRawTx_WriteData.fromRawJson(String str) => ApiRequestRawTx_WriteData.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory ApiRequestRawTx_WriteData.fromJson(Map<String, dynamic> json) => ApiRequestRawTx_WriteData(
-      sponsor: json["sponsor"],
-      payload: ApiRequestData.fromJson(json["payload"]),
       signer: Signer.fromJson(json["signer"]),
       signature: json["sig"],
       keyPage: ApiRequestRawTxKeyPage.fromJson(json["keyPage"]));
@@ -860,17 +893,23 @@ class TokenTx {
     /// VLQ converted transaction type
     msg.addAll(uint64ToBytes(TransactionType.WriteData));
 
-    /// number of "extIDs" values
-    msg.addAll(uint64ToBytes(tx.payload!.extIds!.length));
+    List<int> encodedData = utf8.encode(tx.payload!.data!);
+    msg.addAll(uint64ToBytes(encodedData.length));
+    msg.addAll(encodedData);
 
-    // in loop pages values
-    for (var i = 0; i < tx.payload!.extIds!.length; i++) {
-      List<int> encodedExtId = utf8.encode(tx.payload!.extIds![i]);
-      msg.addAll(uint64ToBytes(encodedExtId.length));
-      msg.addAll(encodedExtId);
-    }
+    return msg;
+  }
 
-    ///
+  List<int> marshalBinaryWriteDataTo(ApiRequestRawTx_WriteDataTo tx) {
+    List<int> msg = [];
+
+    /// VLQ converted transaction type
+    msg.addAll(uint64ToBytes(TransactionType.WriteDataTo));
+
+    List<int> encodedAddress = utf8.encode(tx.payload!.recipient!);
+    msg.addAll(uint64ToBytesAlt(encodedAddress.length));
+    msg.addAll(encodedAddress);
+
     List<int> encodedData = utf8.encode(tx.payload!.data!);
     msg.addAll(uint64ToBytes(encodedData.length));
     msg.addAll(encodedData);
