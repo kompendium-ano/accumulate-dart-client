@@ -1552,7 +1552,7 @@ class ACMEApiV2 {
     tx.signature = sig; // update underlying structure
 
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
-    var res = await acmeApi.call("create-data-account", [tx]);
+    var res = await acmeApi.call("write-data", [tx]);
     res.result;
 
     String? txid = "";
@@ -1633,7 +1633,7 @@ class ACMEApiV2 {
     tx.signature = sig; // update underlying structure
 
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
-    var res = await acmeApi.call("create-data-account", [tx]);
+    var res = await acmeApi.call("write-data-to", [tx]);
     res.result;
 
     String? txid = "";
