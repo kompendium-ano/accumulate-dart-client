@@ -20,6 +20,6 @@ class ApiRequestWriteData {
 
   Map<String, dynamic> toJson() => {
         'entry': {'data': data},
-        'extIDs': extIds
+        'extIds': extIds
       };
 }
