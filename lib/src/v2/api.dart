@@ -1493,7 +1493,7 @@ class ACMEApiV2 {
   }
 
   Future<String?> callWriteData(String dataAccountPath, IdentityADI parentAdi, String dataToWrite, int timestamp,
-      [int? keyPageHeight]) async {
+      [int? keyPageHeight, List<String>? tags]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
     int keypageHeightToUse = keyPageHeight ?? 1;
@@ -1511,7 +1511,7 @@ class ACMEApiV2 {
 
     // prepare payload
 
-    ApiRequestWriteData data = ApiRequestWriteData(dataToWrite);
+    ApiRequestWriteData data = ApiRequestWriteData(dataToWrite, tags ?? []);
 
     ApiRequestRawTx_WriteData tx = ApiRequestRawTx_WriteData(
         payload: data,
