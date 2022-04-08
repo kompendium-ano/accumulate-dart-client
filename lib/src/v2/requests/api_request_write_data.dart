@@ -18,5 +18,5 @@ class ApiRequestWriteData {
       : data = json['url'],
         extIds = json['extIDs'];
 
-  Map<String, dynamic> toJson() => {'url': data, 'extIDs': extIds};
+  Map<String, dynamic> toJson() => {'data': data, 'extIDs': extIds};
 }
