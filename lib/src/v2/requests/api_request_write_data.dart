@@ -18,8 +18,14 @@ class ApiRequestWriteData {
       : data = json['entry']['data'],
         extIds = json['extIDs'];
 
+  /*
   Map<String, dynamic> toJson() => {
         'entry': {'data': data},
         'extIds': extIds
+      };
+*/
+  Map<String, dynamic> toJson() => {
+        'entry': {'data': data},
+        'extIds': {'extIds': extIds}
       };
 }
