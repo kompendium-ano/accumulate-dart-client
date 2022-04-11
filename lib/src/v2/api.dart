@@ -69,12 +69,12 @@ class ACMEApiV2 {
 
   ///
   /// "faucet":  m.Faucet,
-  Future<String?> callFaucet(Address currAddr) async {
+  Future<dynamic> callFaucet(Address currAddr) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(currAddr.address!.toLowerCase());
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("faucet", [apiRequestUrl]);
-    res.result;
+    return res.result;
 
     String? txid = "";
     if (res != null) {
