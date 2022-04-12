@@ -420,7 +420,7 @@ class ACMEApiV2 {
 
   ///
   // "create-data-account":  m.ExecuteWith(func() PL { return new(protocol.CreateDataAccount) }),
-  Future<String?> callCreateDataAccount(
+  Future<dynamic> callCreateDataAccount(
       Address currAddr, IdentityADI parentAdi, String accountName, int timestamp, String? keybookName, bool? isScratch,
       [int? keyPageHeight]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
@@ -460,8 +460,8 @@ class ACMEApiV2 {
         keyPageIndex: keyPageIndexInsideKeyBook);
     List<int> dataBinary = tokenTx.marshalBinaryCreateDataAccount(tx);
 
-    print('Header:\n ${header.marshal()}');
-    print('Body: ${dataBinary}');
+    //print('Header:\n ${header.marshal()}');
+    //print('Body: ${dataBinary}');
 
     // Generalized version of GenTransaction in Go
     ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
@@ -484,8 +484,9 @@ class ACMEApiV2 {
 
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("create-data-account", [tx]);
-    res.result;
+    return res.result;
 
+    /*
     String? txid = "";
     if (res != null) {
       String? type = res.result["type"];
@@ -503,7 +504,7 @@ class ACMEApiV2 {
       if (code == 12) {}
     }
 
-    return txid;
+    return txid;*/
   }
 
   ///
