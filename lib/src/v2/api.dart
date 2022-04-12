@@ -85,7 +85,8 @@ class ACMEApiV2 {
     ApiRequestUrl apiRequestUrl = new ApiRequestUrl(path);
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("query", [apiRequestUrl]);
-    res.result;
+
+    print("response ${res.result}");
 
     Data urlData = new Data();
     if (res != null) {
