@@ -75,16 +75,6 @@ class ACMEApiV2 {
     JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
     var res = await acmeApi.call("faucet", [apiRequestUrl]);
     return res.result;
-
-    String? txid = "";
-    if (res != null) {
-      txid = res.result["txid"];
-      String? envelopeHash = res.result["envelopeHash"];
-      String? message = res.result["message"];
-      print("Faucet: ${message}");
-    }
-
-    return txid;
   }
 
   ///
@@ -577,15 +567,6 @@ class ACMEApiV2 {
 
       // TODO: combine into single response type
       txid = res.result["txid"];
-      String? simpleHash = res.result["simpleHash"];
-      String? transactionHash = res.result["transactionHash"];
-      String? envelopeHash = res.result["envelopeHash"];
-      String? hash = res.result["hash"];
-      int? code = res.result["code"];
-      String? message = res.result["message"];
-
-      print('Response: $message');
-      if (code == 12) {}
     }
 
     return txid;
@@ -671,16 +652,6 @@ class ACMEApiV2 {
 
       // TODO: combine into single response type
       txid = res.result["txid"];
-      String? simpleHash = res.result["simpleHash"];
-      String? transactionHash = res.result["transactionHash"];
-      String? envelopeHash = res.result["envelopeHash"];
-      String? hash = res.result["hash"];
-      int? code = res.result["code"];
-      String? message = res.result["message"];
-
-      print("API RESULT: ${txid}");
-      print("API RESULT: ${message}");
-      if (code == 12) {}
     }
 
     return txid;
@@ -763,15 +734,9 @@ class ACMEApiV2 {
 
       // TODO: combine into single response type
       txid = res.result["txid"];
-      String? simpleHash = res.result["simpleHash"];
-      String? transactionHash = res.result["transactionHash"];
-      String? envelopeHash = res.result["envelopeHash"];
-      String? hash = res.result["hash"];
-      int? code = res.result["code"];
-      String? message = res.result["message"];
 
-      log('Response: $message');
-      if (code == 12) {}
+      //hash = res.result["hash"];
+
     }
 
     return Tuple2(txid, hash);
@@ -853,19 +818,7 @@ class ACMEApiV2 {
     String? txid = "";
     String hash = "";
     if (res != null) {
-      String? type = res.result["type"];
-
-      // TODO: combine into single response type
       txid = res.result["txid"];
-      String? simpleHash = res.result["simpleHash"];
-      String? transactionHash = res.result["transactionHash"];
-      String? envelopeHash = res.result["envelopeHash"];
-      String? hash = res.result["hash"];
-      int? code = res.result["code"];
-      String? message = res.result["message"];
-
-      log('Response: $message');
-      if (code == 12) {}
     }
 
     return Tuple2(txid, hash);
@@ -944,19 +897,7 @@ class ACMEApiV2 {
     String? txid = "";
     String hash = "";
     if (res != null) {
-      String? type = res.result["type"];
-
-      // TODO: combine into single response type
       txid = res.result["txid"];
-      String? simpleHash = res.result["simpleHash"];
-      String? transactionHash = res.result["transactionHash"];
-      String? envelopeHash = res.result["envelopeHash"];
-      String? hash = res.result["hash"];
-      int? code = res.result["code"];
-      String? message = res.result["message"];
-
-      log('Response: $message');
-      if (code == 12) {}
     }
 
     return Tuple2(txid, hash);
@@ -1045,19 +986,7 @@ class ACMEApiV2 {
 
     String? txid = "";
     if (res != null) {
-      String? type = res.result["type"];
-
-      // TODO: combine into single response type
       txid = res.result["txid"];
-      String? simpleHash = res.result["simpleHash"];
-      String? transactionHash = res.result["transactionHash"];
-      String? envelopeHash = res.result["envelopeHash"];
-      String? hash = res.result["hash"];
-      int? code = res.result["code"];
-      String? message = res.result["message"];
-
-      log('Response: $message');
-      if (code == 12) {}
     }
 
     return txid;
@@ -1148,18 +1077,7 @@ class ACMEApiV2 {
 
     String? txid = "";
     if (res != null) {
-      String? type = res.result["type"];
-
-      // TODO: combine into single response type
       txid = res.result["txid"];
-      String? simpleHash = res.result["simpleHash"];
-      String? transactionHash = res.result["transactionHash"];
-      String? envelopeHash = res.result["envelopeHash"];
-      String? hash = res.result["hash"];
-      int? code = res.result["code"];
-      String? message = res.result["message"];
-
-      print('Response: $message');
     }
     return txid;
   }
@@ -1223,16 +1141,7 @@ class ACMEApiV2 {
 
     String? txid = "";
     if (res != null) {
-      String? type = res.result["type"];
-
-      // TODO: combine into single response type
       txid = res.result["txid"];
-      String? simpleHash = res.result["simpleHash"];
-      String? transactionHash = res.result["transactionHash"];
-      String? envelopeHash = res.result["envelopeHash"];
-      String? hash = res.result["hash"];
-      int? code = res.result["code"];
-      String? message = res.result["message"];
 
       print("Success create-token");
       print("API RESULT: ${res.result}");
@@ -1300,16 +1209,7 @@ class ACMEApiV2 {
 
     String? txid = "";
     if (res != null) {
-      String? type = res.result["type"];
-
-      // TODO: combine into single response type
       txid = res.result["txid"];
-      String? simpleHash = res.result["simpleHash"];
-      String? transactionHash = res.result["transactionHash"];
-      String? envelopeHash = res.result["envelopeHash"];
-      String? hash = res.result["hash"];
-      int? code = res.result["code"];
-      String? message = res.result["message"];
 
       print("Success issue-token");
       print("API RESULT: ${res.result}");
@@ -1378,16 +1278,7 @@ class ACMEApiV2 {
 
     String? txid = "";
     if (res != null) {
-      String? type = res.result["type"];
-
-      // TODO: combine into single response type
       txid = res.result["txid"];
-      String? simpleHash = res.result["simpleHash"];
-      String? transactionHash = res.result["transactionHash"];
-      String? envelopeHash = res.result["envelopeHash"];
-      String? hash = res.result["hash"];
-      int? code = res.result["code"];
-      String? message = res.result["message"];
 
       print("Success burn-token");
       print("API RESULT: ${res.result}");
@@ -1477,18 +1368,7 @@ class ACMEApiV2 {
 
     String? txid = "";
     if (res != null) {
-      String? type = res.result["type"];
-
-      // TODO: combine into single response type
       txid = res.result["txid"];
-      String? simpleHash = res.result["simpleHash"];
-      String? transactionHash = res.result["transactionHash"];
-      String? envelopeHash = res.result["envelopeHash"];
-      String? hash = res.result["hash"];
-      int? code = res.result["code"];
-      String? message = res.result["message"];
-
-      print('Response: $message');
     }
     return txid;
   }
