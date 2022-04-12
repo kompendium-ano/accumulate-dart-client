@@ -1393,7 +1393,25 @@ class ACMEApiV2 {
 
     // prepare payload
 
-    ApiRequestWriteData data = ApiRequestWriteData(dataToWrite, tags ?? []);
+    List<String> hexExtIds = [];
+    if (tags != null) {
+      for (var i = 0; i < tags.length; i++) {
+        String hexExtId = "";
+        for (int j = 0; j < tags[i].length; j++) {
+          hexExtId += tags[i].codeUnitAt(j).toRadixString(16);
+        }
+        print("hexExtId $hexExtId");
+
+        hexExtIds.add(hexExtId);
+      }
+    }
+
+    String hexData = "";
+    for (int i = 0; i < dataToWrite.length; i++) {
+      hexData += dataToWrite.codeUnitAt(i).toRadixString(16);
+    }
+
+    ApiRequestWriteData data = ApiRequestWriteData(hexData, hexExtIds);
 
     ApiRequestRawTx_WriteData tx = ApiRequestRawTx_WriteData(
         payload: data,
