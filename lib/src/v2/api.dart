@@ -1400,7 +1400,6 @@ class ACMEApiV2 {
         for (int j = 0; j < tags[i].length; j++) {
           hexExtId += tags[i].codeUnitAt(j).toRadixString(16);
         }
-        print("hexExtId $hexExtId");
 
         hexExtIds.add(hexExtId);
       }
