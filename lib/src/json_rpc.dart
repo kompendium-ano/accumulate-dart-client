@@ -2,6 +2,7 @@ library json_rpc;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:http/http.dart';
 
@@ -23,7 +24,7 @@ class JsonRPC extends RpcService {
   final String url;
   final Client client;
 
-  int _currentRequestId = 2527;
+  int _currentRequestId = Random().nextInt(5000); //2527;
 
   /// Performs an RPC request, asking the server to execute the function with
   /// the given name and the associated parameters, which need to be encodable
@@ -62,7 +63,8 @@ class JsonRPC extends RpcService {
         'params': params,
         'id': _currentRequestId++,
       };
-    };
+    }
+    ;
 
     final response = await client.post(
       Uri.parse(url),
