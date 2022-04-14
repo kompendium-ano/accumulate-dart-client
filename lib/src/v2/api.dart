@@ -1324,11 +1324,11 @@ class ACMEApiV2 {
     ApiRequestCredits data;
     if (currKeyPage != null) {
       data = ApiRequestCredits(currKeyPage.path, amount);
-      origin = toAddr.address;
-      sponsor = toAddr.address;
+      origin = fromAddr.address;
+      sponsor = fromAddr.address;
     } else {
-      data = ApiRequestCredits(fromAddr.address!.toLowerCase(), amount);
-      origin = toAddr.address;
+      data = ApiRequestCredits(toAddr.address!.toLowerCase(), amount);
+      origin = fromAddr.address;
       sponsor = fromAddr.address;
     }
 
