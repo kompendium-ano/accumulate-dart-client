@@ -920,6 +920,16 @@ class TokenTx {
     msg.addAll(uint64ToBytesAlt(encodedAddress.length));
     msg.addAll(encodedAddress);
 
+    /// number of "extIDs" values
+    msg.addAll(uint64ToBytes(tx.payload!.extIds!.length));
+
+    // in loop pages values
+    for (var i = 0; i < tx.payload!.extIds!.length; i++) {
+      List<int> encodedExtId = utf8.encode(tx.payload!.extIds![i]);
+      msg.addAll(uint64ToBytes(encodedExtId.length));
+      msg.addAll(encodedExtId);
+    }
+
     List<int> encodedData = utf8.encode(tx.payload!.data!);
     msg.addAll(uint64ToBytes(encodedData.length));
     msg.addAll(encodedData);

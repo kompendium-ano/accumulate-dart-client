@@ -99,7 +99,7 @@ class ACMEApiV2 {
       switch (accountType) {
         case "keyBook":
         case "tokenAccount":
-          if (dt!.length > 2) {
+          if (dt.length > 2) {
             // process keypage
             String? url = res.result["data"]["url"];
             String? tokenUrl = res.result["data"]["tokenUrl"];
@@ -117,7 +117,7 @@ class ACMEApiV2 {
           }
           break;
         case "keyPage":
-          if (dt!.length > 2) {
+          if (dt.length > 2) {
             String? url = res.result["data"]["url"];
             String creditBalance = res.result["data"]["creditBalance"] ?? "0";
 
@@ -127,7 +127,7 @@ class ACMEApiV2 {
           }
           break;
         case "liteTokenAccount":
-          if (dt!.length > 2) {
+          if (dt.length > 2) {
             String? url = res.result["data"]["url"];
             String? tokenUrl = res.result["data"]["tokenUrl"];
             String balance = res.result["data"]["balance"];
@@ -144,7 +144,7 @@ class ACMEApiV2 {
           }
           break;
         default:
-          if (dt!.length > 2) {
+          if (dt.length > 2) {
             String? url = res.result["data"]["url"];
             urlData.url = url;
           }
@@ -1588,7 +1588,7 @@ class ACMEApiV2 {
 
     // prepare payload
 
-    ApiRequestWriteDataTo data = ApiRequestWriteDataTo(dataToWrite, dataAccountPath);
+    ApiRequestWriteDataTo data = ApiRequestWriteDataTo(dataToWrite, [], dataAccountPath);
 
     ApiRequestRawTx_WriteDataTo tx = ApiRequestRawTx_WriteDataTo(
         payload: data,
@@ -1668,7 +1668,24 @@ class ACMEApiV2 {
 
     // prepare payload
 
-    ApiRequestWriteDataTo data = ApiRequestWriteDataTo(dataToWrite, dataAccountPath);
+    List<String> hexExtIds = [];
+    if (tags != null) {
+      for (var i = 0; i < tags.length; i++) {
+        String hexExtId = "";
+        for (int j = 0; j < tags[i].length; j++) {
+          hexExtId += tags[i].codeUnitAt(j).toRadixString(16);
+        }
+
+        hexExtIds.add(hexExtId);
+      }
+    }
+
+    String hexData = "";
+    for (int i = 0; i < dataToWrite.length; i++) {
+      hexData += dataToWrite.codeUnitAt(i).toRadixString(16);
+    }
+
+    ApiRequestWriteDataTo data = ApiRequestWriteDataTo(hexData, hexExtIds, dataAccountPath);
 
     ApiRequestRawTx_WriteDataTo tx = ApiRequestRawTx_WriteDataTo(
         payload: data,
