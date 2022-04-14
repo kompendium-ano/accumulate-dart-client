@@ -1480,9 +1480,6 @@ class ACMEApiV2 {
     int keypageHeightToUse = keyPageHeight ?? 1;
     int keyPageIndexInsideKeyBook = 0;
 
-    // TODO: check if keybook name available
-    // TODO: allow newly generated keypair
-
     ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currKey.puk!));
     ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currKey.pikHex!));
     var keyPair = ed.KeyPair(privateKey, publicKey);
@@ -1572,7 +1569,7 @@ class ACMEApiV2 {
     return txid;
   }
 
-  Future<String?> callWriteDataTo(String dataAccountPath, IdentityADI parentAdi, String dataToWrite, int timestamp,
+  Future<String?> callWriteDataTo1(String dataAccountPath, IdentityADI parentAdi, String dataToWrite, int timestamp,
       [int? keyPageHeight]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
@@ -1604,6 +1601,86 @@ class ACMEApiV2 {
     TokenTx tokenTx = TokenTx();
     TransactionHeader header = TransactionHeader(
         origin: parentAdi.path,
+        nonce: timestamp,
+        keyPageHeight: keypageHeightToUse,
+        keyPageIndex: keyPageIndexInsideKeyBook);
+    List<int> dataBinary = tokenTx.marshalBinaryWriteDataTo(tx);
+
+    print('Header:\n ${header.marshal()}');
+    print('Body: ${dataBinary}');
+
+    // Generalized version of GenTransaction in Go
+    ApiRequestTxGen txGen = ApiRequestTxGen([], header, dataBinary);
+    txGen.hash = txGen.generateTransactionHash();
+
+    List<int> msg = [];
+    msg.addAll(uint64ToBytesNonce(timestamp)); // VLQ converted timestamp
+    msg.addAll(txGen.hash);
+    Uint8List msgToSign = Uint8List.fromList(msg);
+
+    // sign message which is (timestamp/nonce) + txHash
+    Uint8List signature = ed.sign(privateKey, msgToSign);
+
+    // NB: sig is 64 bytes string created from hexing generated signature
+    // var bytes = utf8.encode("60aa13125cbe0dd496a2f0248e6a46c04b799c160734b248e83eb4573ca4d560");
+    // sig = HEX.encode(bytes);
+    String sig = "";
+    sig = HEX.encode(signature);
+    tx.signature = sig; // update underlying structure
+
+    JsonRPC acmeApi = JsonRPC(ACMEApiUrl, Client());
+    var res = await acmeApi.call("write-data-to", [tx]);
+    res.result;
+
+    String? txid = "";
+    if (res != null) {
+      String? type = res.result["type"];
+
+      // TODO: combine into single response type
+      txid = res.result["txid"];
+      String? simpleHash = res.result["simpleHash"];
+      String? transactionHash = res.result["transactionHash"];
+      String? envelopeHash = res.result["envelopeHash"];
+      String? hash = res.result["hash"];
+      int? code = res.result["code"];
+
+      print('Response: ${res.result}');
+    }
+
+    return txid;
+  }
+
+  Future<String?> callWriteDataTo(
+      String dataAccountPath, String dataToWrite, int timestamp, KeyPage currKeyPage, acme.Key currKey,
+      [int? keyPageHeight, List<String>? tags]) async {
+    String ACMEApiUrl = apiRPCUrl + apiPrefix;
+
+    int keypageHeightToUse = keyPageHeight ?? 1;
+    int keyPageIndexInsideKeyBook = 0;
+
+    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currKey.puk!));
+    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currKey.pikHex!));
+    var keyPair = ed.KeyPair(privateKey, publicKey);
+    String? puk = currKey.puk;
+
+    Signer signer = Signer(publicKey: puk, nonce: timestamp);
+    ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(height: keypageHeightToUse); //, index: 0);
+
+    // prepare payload
+
+    ApiRequestWriteDataTo data = ApiRequestWriteDataTo(dataToWrite, dataAccountPath);
+
+    ApiRequestRawTx_WriteDataTo tx = ApiRequestRawTx_WriteDataTo(
+        payload: data,
+        signer: signer,
+        signature: "",
+        sponsor: dataAccountPath,
+        origin: dataAccountPath,
+        keyPage: keyPage);
+
+    TokenTx tokenTx = TokenTx();
+    TransactionHeader header = TransactionHeader(
+        origin: dataAccountPath,
         nonce: timestamp,
         keyPageHeight: keypageHeightToUse,
         keyPageIndex: keyPageIndexInsideKeyBook);
