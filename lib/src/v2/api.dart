@@ -1650,18 +1650,17 @@ class ACMEApiV2 {
     return txid;
   }
 
-  Future<String?> callWriteDataTo(
-      String dataAccountPath, String dataToWrite, int timestamp, KeyPage currKeyPage, acme.Key currKey,
-      [int? keyPageHeight, List<String>? tags]) async {
+  Future<String?> callWriteDataTo(String dataAccountPath, String dataToWrite, int timestamp, Address currAddr,
+      [List<String>? tags]) async {
     String ACMEApiUrl = apiRPCUrl + apiPrefix;
 
-    int keypageHeightToUse = keyPageHeight ?? 1;
+    int keypageHeightToUse = 1;
     int keyPageIndexInsideKeyBook = 0;
 
-    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currKey.puk!));
-    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currKey.pikHex!));
+    ed.PublicKey publicKey = ed.PublicKey(HEX.decode(currAddr.puk!));
+    ed.PrivateKey privateKey = ed.PrivateKey(HEX.decode(currAddr.pikHex!));
     var keyPair = ed.KeyPair(privateKey, publicKey);
-    String? puk = currKey.puk;
+    String? puk = currAddr.puk;
 
     Signer signer = Signer(publicKey: puk, nonce: timestamp);
     ApiRequestRawTxKeyPage keyPage = ApiRequestRawTxKeyPage(height: keypageHeightToUse); //, index: 0);
