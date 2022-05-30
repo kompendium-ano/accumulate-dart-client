@@ -19,7 +19,7 @@ class LiteIdentity extends TxSigner {
   }
 
 
-  AccURL get acmeTokenAccount => AccURL.parse(_tokenUrl.toString()+"/${ACMETokenUrl.path}");
+  AccURL get acmeTokenAccount => AccURL.parse(_tokenUrl.toString()+"/${ACMETokenUrl.authority}");
 
 
   static AccURL computeUrl(Uint8List publicKeyHash) {
