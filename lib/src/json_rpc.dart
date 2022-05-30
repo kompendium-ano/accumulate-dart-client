@@ -84,6 +84,7 @@ class JsonRPC extends RpcService {
 
       print(message);
       print(errorData);
+      print(json.encode(requestPayload));
       throw RPCError(code, message, errorData);
     }
 
