@@ -1,9 +1,9 @@
 import 'dart:convert';
 import "dart:typed_data";
-import '../../src/utils.dart';
+import '../utils.dart';
 
 import "../acc_url.dart";
-import "../marshaller.dart";
+import "../encoding.dart";
 import "../tx_types.dart";
 import "base_payload.dart";
 
@@ -15,7 +15,7 @@ dynamic manager;
 }
 
 
-class CreateIdentity implements BasePayload {
+class CreateIdentity extends BasePayload {
   late AccURL _url;
   Uint8List? _keyHash;
   AccURL? _keyBookUrl;
@@ -34,7 +34,7 @@ class CreateIdentity implements BasePayload {
   }
 
   @override
-  Uint8List marshalBinary() {
+  Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
     //forConcat.addAll(uvarintMarshalBinary(TransactionType.createIdentity));
     forConcat.addAll(stringMarshalBinary("1"));

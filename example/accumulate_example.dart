@@ -53,7 +53,7 @@ void main() {
       print("faucet $res");
       String txId = res["result"]["txid"];
       print("txId $txId");
-      await client.waitOnTx(txId);
+      await client.waitOnTx(DateTime.now().millisecondsSinceEpoch,txId);
       print("waiting done");
 
       res = await client.queryUrl(lid.url);
@@ -92,7 +92,7 @@ void main() {
       res = await client.createIdentity(lid.url, createIdentity, lid);
       txId = res["result"]["txid"];
       print("createIdentity txId $txId");
-      await client.waitOnTx(txId);
+      await client.waitOnTx(DateTime.now().millisecondsSinceEpoch,txId);
       print("waiting done");
 
       //res = await client.queryUrl(identityUrl);
@@ -125,7 +125,7 @@ void main() {
       res = await client.sendTokens(lid.acmeTokenAccount, sendTokensArg, lid);
 
       txId = res["result"]["txid"];
-      await client.waitOnTx(txId);
+      await client.waitOnTx(DateTime.now().millisecondsSinceEpoch,txId);
 
       res = await client.queryTx(txId);
       print(res);

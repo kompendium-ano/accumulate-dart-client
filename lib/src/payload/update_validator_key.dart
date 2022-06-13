@@ -1,6 +1,6 @@
 import 'dart:typed_data';
-import '../../src/utils.dart';
-import '../marshaller.dart';
+import '../utils.dart';
+import '../encoding.dart';
 import "../tx_types.dart" show TransactionType;
 import "base_payload.dart" show BasePayload;
 
@@ -19,7 +19,8 @@ class UpdateValidatorKey extends BasePayload {
   }
 
 
-  Uint8List _marshalBinary() {
+  @override
+  Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
     forConcat.addAll(uvarintMarshalBinary(TransactionType.updateValidatorKey));
     forConcat.addAll(hashMarshalBinary(_publicKey));

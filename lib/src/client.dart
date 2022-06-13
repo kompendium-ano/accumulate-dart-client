@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'model/query_transaction_response_model.dart' as query_trx_res_model;
 import 'package:hex/hex.dart';
 
 import "acc_url.dart" show AccURL;
@@ -63,8 +64,9 @@ class Client {
   }
 
   Future<Map<String, dynamic>> execute(Transaction tx) {
-    return call("create-adi", tx.toTxRequest().toMap);
-    //return call("execute", tx.toTxRequest().toMap);
+    //return call("send-tokens", tx.toTxRequest().toMap);
+    //return call("create-adi", tx.toTxRequest().toMap);
+    return call("execute", tx.toTxRequest().toMap);
   }
 
   Future<Map<String, dynamic>> queryAcmeOracle() {
@@ -171,18 +173,110 @@ class Client {
     return call("query-directory", params);
   }
 
-  /**
-   * Wait for a transaction (and its associated synthetic tx ids) to be delivered.
-   * Throw an error if the transaction has failed or the timeout is exhausted.
-   * @param txId
-   * @param options
-   * @returns void
-   */
-  Future<void> waitOnTx(String txId, [WaitTxOptions? options]) async {
+
+  waitOnTx(int startTime,String txId, [WaitTxOptions? options]) async {
+    Completer completer = Completer();
+    // Options
+    int timeout = options?.timeout ?? 30000;
+    final pollInterval = options?.pollInterval ?? 1000;
+    final ignoreSyntheticTxs = options?.ignoreSyntheticTxs ?? false;
+
+    try {
+      print(txId);
+      final resp = await queryTx(txId);
+      query_trx_res_model
+          .QueryTransactionResponseModel queryTransactionResponseModel = query_trx_res_model
+          .QueryTransactionResponseModel.fromJson(resp);
+
+      if (queryTransactionResponseModel.result != null) {
+        query_trx_res_model
+            .QueryTransactionResponseModelResult result = queryTransactionResponseModel
+            .result!;
+        if (result.status != null) {
+          if (result.status!.delivered!) {
+            log("${result.syntheticTxids}");
+            if(ignoreSyntheticTxs){
+              completer.complete(true);
+            }else{
+
+              if(result.syntheticTxids!.isNotEmpty){
+                int nowTime = DateTime
+                    .now()
+                    .millisecondsSinceEpoch;
+                if (nowTime - startTime < timeout) {
+                  sleep(Duration(milliseconds: pollInterval));
+                  completer.complete(await waitOnTx(startTime, result.syntheticTxids!.first));
+                } else {
+                  completer.complete(false);
+                }
+              }else{
+                completer.complete(true);
+              }
+            }
+
+          } else {
+            int nowTime = DateTime
+                .now()
+                .millisecondsSinceEpoch;
+            if (nowTime - startTime < timeout) {
+              sleep(Duration(milliseconds: pollInterval));
+              completer.complete(await waitOnTx(startTime, txId));
+            } else {
+              completer.complete(false);
+            }
+          }
+        } else {
+          int nowTime = DateTime
+              .now()
+              .millisecondsSinceEpoch;
+          if (nowTime - startTime < timeout) {
+            sleep(Duration(milliseconds: pollInterval));
+            completer.complete(await waitOnTx(startTime, txId));
+          } else {
+            completer.complete(false);
+          }
+        }
+      } else {
+        int nowTime = DateTime
+            .now()
+            .millisecondsSinceEpoch;
+        if (nowTime - startTime < timeout) {
+          sleep(Duration(milliseconds: pollInterval));
+          completer.complete(await waitOnTx(startTime, txId));
+        } else {
+          completer.complete(false);
+        }
+      }
+    }catch (e) {
+      // Do not retry on definitive transaction errors
+      if (e is TxError) {
+        //rethrow;
+        completer.completeError(false);
+      }
+
+      int nowTime = DateTime
+          .now()
+          .millisecondsSinceEpoch;
+      if (nowTime - startTime < timeout) {
+        sleep(Duration(milliseconds: pollInterval));
+        completer.complete(await waitOnTx(startTime, txId));
+      } else {
+        completer.complete(false);
+      }
+
+     // lastError = e;
+      print("going to sleep");
+
+    }
+
+    return completer.future;
+
+  }
+   waitOnTx1(String txId, [WaitTxOptions? options]) async {
     Completer completer = Completer();
     // Options
     final to = options?.timeout ?? 30000;
-    final pollInterval = options?.pollInterval ?? 500;
+    final pollInterval = options?.pollInterval ?? 1000;
     final ignoreSyntheticTxs = options?.ignoreSyntheticTxs ?? false;
 
 
@@ -192,9 +286,20 @@ class Client {
     do {
       try {
         final resp = await queryTx(txId);
+        query_trx_res_model.QueryTransactionResponseModel queryTransactionResponseModel = query_trx_res_model.QueryTransactionResponseModel.fromJson(resp);
+        if(queryTransactionResponseModel.result != null){
+          print("has error");
+        }else{
+          print("has NO error");
+          print(queryTransactionResponseModel.result!.toJson());
+        }
         Map<String,dynamic> result = resp["result"];
 
-        log("wait on tx resp ${jsonEncode(resp["result"]["syntheticTxids"])}");
+
+
+
+
+        //log("wait on tx resp ${jsonEncode(resp["result"]["syntheticTxids"])}");
         List<String> syntheticTxids = [];//resp["result"]["syntheticTxids"];
         Map<String, dynamic> status = {};
         if(result.containsKey("syntheticTxids")){
@@ -208,25 +313,27 @@ class Client {
         }
 
 
-
-
         if (!status.containsKey("delivered")) {
-          throw Exception("Transaction not delivered");
+          completer.completeError(false);
+          //throw Exception("Transaction not delivered");
         }else{
           bool delivered = status["delivered"] as bool;
-          print(delivered);
+          log("wait on tx $delivered");
           if(delivered){
-           return completer.complete();
+           completer.complete(true);
           }
         }
 
         if (status.containsKey("code")) {
-          throw TxError(txId, status);
+          //throw TxError(txId, status);
+          completer.completeError(false);
         }
 
         if (ignoreSyntheticTxs) {
-          return;
+          completer.complete(true);
         }
+
+        log("going to add stxIds");
 
         // Also verify the associated synthetic txs
         final timeoutLeft = to - DateTime.now().millisecondsSinceEpoch + start;
@@ -237,11 +344,13 @@ class Client {
 
         WaitTxOptions waitTxOptions = WaitTxOptions();
         waitTxOptions.timeout = timeoutLeft;
-        waitTxOptions.pollInterval = options?.pollInterval;
-        waitTxOptions.ignoreSyntheticTxs = options?.ignoreSyntheticTxs;
+        waitTxOptions.pollInterval = options!.pollInterval;
+        waitTxOptions.ignoreSyntheticTxs = options!.ignoreSyntheticTxs;
 
         for(String stxId in stxIds) {
-          await waitOnTx(stxId, waitTxOptions);
+          log("execute loop $stxId");
+          waitOnTx1(stxId, waitTxOptions);
+          log("done loop wait $stxId");
         }
 
         /*
@@ -252,7 +361,8 @@ class Client {
       } catch (e) {
         // Do not retry on definitive transaction errors
         if (e is TxError) {
-          rethrow;
+          //rethrow;
+          completer.completeError(false);
         }
 
         lastError = e;
@@ -261,7 +371,7 @@ class Client {
       // Poll while timeout is not reached
     } while (DateTime.now().millisecondsSinceEpoch - start < to);
 
-    return completer.complete();
+    completer.completeError(false);
     throw Exception(
         'Transaction $txId was not confirmed within ${to / 1000}s. Cause: $lastError');
   }

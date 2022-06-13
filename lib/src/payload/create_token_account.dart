@@ -1,9 +1,9 @@
 import 'dart:convert';
 import "dart:typed_data";
-import '../../src/utils.dart';
+import '../utils.dart';
 
 import "../acc_url.dart";
-import "../marshaller.dart";
+import "../encoding.dart";
 import "../tx_types.dart";
 import "base_payload.dart";
 
@@ -33,7 +33,8 @@ class CreateTokenAccount extends BasePayload {
   }
 
 
-  Uint8List _marshalBinary() {
+  @override
+  Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
     forConcat.addAll(uvarintMarshalBinary(TransactionType.createTokenAccount));
 

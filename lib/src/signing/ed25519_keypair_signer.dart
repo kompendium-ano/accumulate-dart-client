@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 
-import '../../src/utils.dart';
+import '../utils.dart';
 import "package:crypto/crypto.dart";
+import 'package:hex/hex.dart';
 import '../signature_type.dart';
 import "../signer.dart";
 import "ed25519_keypair.dart";
@@ -28,6 +29,14 @@ class Ed25519KeypairSigner implements Signer {
 
   @override
   Uint8List publicKeyHash() {
+
+    List<int> bytes = sha256.convert(_keypair.publicKey).bytes;
+    List hexBytes = [];
+    for (var element in bytes) {
+      hexBytes.add(HEX.encode([element]));
+
+    }
+    //return Uint8List.fromList(hexBytes);
     return sha256.convert(_keypair.publicKey).bytes.asUint8List();
   }
 

@@ -1,7 +1,7 @@
 import "dart:typed_data";
-import '../../src/utils.dart';
+import '../utils.dart';
 
-import "../marshaller.dart";
+import "../encoding.dart";
 import "../tx_types.dart";
 import "base_payload.dart";
 
@@ -16,7 +16,8 @@ class UpdateKey extends BasePayload {
     _newKeyHash = arg.newKeyHash;
   }
 
-  Uint8List _marshalBinary() {
+  @override
+  Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
     forConcat.addAll(uvarintMarshalBinary(TransactionType.updateKey));
     forConcat.addAll(hashMarshalBinary(_newKeyHash));

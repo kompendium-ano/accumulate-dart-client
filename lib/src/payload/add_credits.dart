@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 import 'dart:convert';
 
-import '../../src/utils.dart';
+import '../utils.dart';
 
 import "../acc_url.dart" show AccURL;
-import "../marshaller.dart";
+import "../encoding.dart";
 import "../tx_types.dart" show TransactionType;
 import "base_payload.dart" show BasePayload;
 
@@ -15,7 +15,7 @@ dynamic amount;
 dynamic oracle;
 }
 
-class AddCredits implements BasePayload {
+class AddCredits extends BasePayload {
   late AccURL _recipient;
   late int _amount;
   late int _oracle;
@@ -26,8 +26,9 @@ class AddCredits implements BasePayload {
     _oracle = arg.oracle is int ? arg.oracle : int.parse(arg.oracle);
   }
 
+
   @override
-  Uint8List marshalBinary() {
+  Uint8List extendedMarshalBinary() {
 
     List<int> forConcat = [];
     forConcat.addAll(uvarintMarshalBinary(TransactionType.addCredits));

@@ -1,5 +1,5 @@
 import "dart:typed_data";
-import '../../src/utils.dart';
+import '../utils.dart';
 import "package:crypto/crypto.dart";
 import '../signature_type.dart';
 import "../signer.dart" show SignatureType;

@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import '../../src/utils.dart';
+import '../utils.dart';
 
 import "../acc_url.dart" show AccURL;
-import "../marshaller.dart";
+import "../encoding.dart";
 import "../tx_types.dart";
 import "base_payload.dart";
 
@@ -29,7 +29,8 @@ class CreateDataAccount extends BasePayload {
     _scratch = arg.scratch ?? false;
   }
 
-  Uint8List _marshalBinary() {
+  @override
+  Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
     forConcat.addAll(uvarintMarshalBinary(TransactionType.createDataAccount));
     forConcat.addAll(stringMarshalBinary(_url.toString()));

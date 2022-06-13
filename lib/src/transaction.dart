@@ -9,87 +9,101 @@ import "payload.dart";
 import "signer.dart";
 import "tx_signer.dart";
 import 'utils.dart';
-import 'marshaller.dart';
+import 'encoding.dart';
 import 'dart:convert';
 
-
 class HeaderOptions {
-int? timestamp;
-String? memo;
-Uint8List? metadata;
+  int? timestamp;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class Header {
   late AccURL _principal;
 
- late Uint8List _initiator;
+  late Uint8List _initiator;
 
-  late String _memo;
+  String? _memo;
 
-  Uint8List _metadata = List<int>.from([]).asUint8List();
+  Uint8List? _metadata;
 
   late int _timestamp;
 
-
-  Header(dynamic principal,[HeaderOptions? options] ) {
+  Header(dynamic principal, [HeaderOptions? options]) {
     _principal = AccURL.toAccURL(principal);
     _timestamp = options?.timestamp ?? DateTime.now().microsecondsSinceEpoch;
 
-     _memo = options?.memo ?? "" ;
-     //_metadata = Uint8List(0);
-     if(options?.metadata! != null){
-       _metadata = options!.metadata!.asUint8List();
-     }
+    _memo = options?.memo;
 
+    if (options?.metadata! != null) {
+      _metadata = options!.metadata!.asUint8List();
+    }
   }
 
   AccURL get principal => _principal;
 
-  int get timestamp =>_timestamp;
+  int get timestamp => _timestamp;
 
-
-  dynamic  get memo {
+  String? get memo {
     return _memo;
   }
 
-  dynamic  get metadata {
+  Uint8List? get metadata {
     return _metadata;
   }
 
   Uint8List computeInitiator(SignerInfo signerInfo) {
     List<int> binary = [];
-    binary.addAll(uvarintMarshalBinary(signerInfo.type!));
-    binary.add(bytesMarshalBinary(signerInfo.publicKey!.toList()));
-    binary.addAll(stringMarshalBinary(signerInfo.url.toString()));
-    binary.addAll(uvarintMarshalBinary(signerInfo.version!));
-    binary.addAll(uvarintMarshalBinary(_timestamp));
+
+    binary.addAll(uvarintMarshalBinary(signerInfo.type!, 1));
+    binary.addAll(bytesMarshalBinary(signerInfo.publicKey!, 2));
+    binary.addAll(stringMarshalBinary(signerInfo.url.toString(), 4));
+    binary.addAll(uvarintMarshalBinary(signerInfo.version!, 5));
+    binary.addAll(uvarintMarshalBinary(timestamp, 6));
+
+    print("computeInitiator");
+
+    print(HEX.encode(uvarintMarshalBinary(signerInfo.type!, 1)));
+    print(HEX.encode(bytesMarshalBinary(signerInfo.publicKey!, 2)));
+    print(HEX.encode(stringMarshalBinary(signerInfo.url.toString(), 4)));
+    print(HEX.encode(uvarintMarshalBinary(signerInfo.version!, 5)));
+
+    print(timestamp);
+    print("${HEX.encode(uvarintMarshalBinary(timestamp, 6))}");
+    print("computeInitiator final");
 
     _initiator = sha256.convert(binary).bytes.asUint8List();
+    print("binary ${HEX.encode(_initiator)}");
     return _initiator;
   }
 
   Uint8List marshalBinary() {
     if (_initiator.isEmpty) {
-      throw Exception (
+      throw Exception(
           "Initiator hash missing. Must be initilized by calling computeInitiator");
     }
     List<int> forConcat = [];
-    forConcat.addAll(stringMarshalBinary(_principal.toString()));
-    forConcat.addAll(_initiator);
+    print("marshalBinary");
+    //print(_principal.toString());
+    forConcat.addAll(stringMarshalBinary(_principal.toString(), 1));
+    forConcat.addAll(hashMarshalBinary(_initiator, 2));
+   // print(HEX.encode(stringMarshalBinary(_principal.toString(), 1)));
+    //print(HEX.encode(hashMarshalBinary(_initiator, 2)));
 
-    if(_memo.isNotEmpty){
-      List<int> encodedMemo = utf8.encode(_memo);
-      forConcat.addAll(uvarintMarshalBinary(encodedMemo.length));
-      forConcat.addAll(encodedMemo);
+    if (_memo != null && _memo!.isNotEmpty)  {
+      forConcat.addAll(stringMarshalBinary(_memo!, 3));
     }
 
-    if(_metadata.isNotEmpty){
-      forConcat.addAll(_metadata);
+    if (_metadata != null && _metadata!.isNotEmpty)  {
+      forConcat.addAll(bytesMarshalBinary(_metadata!, 4));
     }
+
+   // print(HEX.encode(forConcat));
 
     return forConcat.asUint8List();
   }
 }
+
 /**
  * An Accumulate Transaction
  */
@@ -100,68 +114,87 @@ class Transaction {
 
   Signature? _signature;
 
-  Uint8List _hash = List<int>.from([]).asUint8List();
+  Uint8List? _hash;
+  late Uint8List _bodyHash;
 
-  Transaction(Payload payload, Header header, [ Signature? signature]) {
+  Transaction(Payload payload, Header header, [Signature? signature]) {
     _payloadBinary = payload.marshalBinary();
     _header = header;
     _signature = signature;
+    _bodyHash = payload.hash();
+
   }
 
   /**
    * Compute the hash of the transaction
    */
   List<int> hash() {
-    if (_hash.isNotEmpty) {
-      return _hash;
+    if (_hash != null) {
+      return _hash!.toList();
     }
 
+
+    print("marshal transaction");
     final headerHash = sha256.convert(_header.marshalBinary()).bytes;
-    final bodyHash = sha256.convert(_payloadBinary).bytes;
+
+
     List<int> tempHash = [];
     tempHash.addAll(headerHash);
-    tempHash.addAll(bodyHash);
+    tempHash.addAll(_bodyHash.toList());
+
+
     _hash = sha256.convert(tempHash).bytes.asUint8List();
-    return _hash;
+
+    print(HEX.encode(_hash!.toList()));
+    return _hash!.toList();
+
+
+
+    /*
+    List<int> encodedHeader = _header.marshalBinary();
+    List<int> sHash = sha256.convert(encodedHeader).bytes;
+    List<int> tHash = sha256.convert(_bodyHash).bytes;
+
+    List<int> txhRaw = [];
+    txhRaw.addAll(sHash);
+    txhRaw.addAll(tHash);
+
+    _hash = sha256.convert(txhRaw).bytes.asUint8List();
+    return _hash!.toList();*/
+
+
   }
 
-  /**
-   * Data that needs to be signed in order to submit the transaction.
-   */
+
   List<int> dataForSignature(SignerInfo signerInfo) {
     Uint8List sigHash = header.computeInitiator(signerInfo);
 
-    List<int> tempHash = List<int>.from(sigHash.toList()).toList();
+    List<int> tempHash = List<int>.from(sigHash.toList());
 
-    tempHash.addAll(hash().toList());
+    tempHash.addAll(hash());
 
     return sha256.convert(tempHash).bytes;
   }
 
-  Uint8List get payload  => _payloadBinary;
-
+  Uint8List get payload => _payloadBinary;
 
   AccURL get principal => _header.principal;
 
-
   Header get header => _header;
-
 
   dynamic get signature => _signature;
 
-
-  set signature(dynamic /* Signature | */ signature) {
+  set signature(dynamic signature) {
     _signature = signature;
   }
 
-  Future sign(TxSigner signer) async{
-    _signature = await signer.sign(this);
+  sign(TxSigner signer) {
+    _signature = signer.sign(this);
   }
-
 
   TxRequest toTxRequest({bool? checkOnly}) {
     if (_signature == null) {
-      throw Exception ("Unsigned transaction cannot be converted to TxRequest");
+      throw Exception("Unsigned transaction cannot be converted to TxRequest");
     }
 
     final signerInfo = _signature!.signerInfo;
@@ -169,65 +202,76 @@ class Transaction {
     txRequest.checkOnly = checkOnly ?? false;
     txRequest.isEnvelope = false;
     txRequest.origin = _header.principal.toString();
-    txRequest.signer =  {
-      "url" : signerInfo!.url.toString(),
-      "publicKey" : HEX.encode(signerInfo!.publicKey!.toList()),
-      "version" : signerInfo.version,
-      "timestamp" : _header.timestamp,
-      "signatureType" : SignatureType().marshalJSON(signerInfo!.type!),
-      "useSimpleHash" : true
+    txRequest.signer = {
+      "url": signerInfo!.url.toString(),
+      "publicKey": HEX.encode(signerInfo!.publicKey!.toList()),
+      "version": signerInfo.version,
+      "timestamp": _header.timestamp,
+      "signatureType": "${SignatureType().marshalJSON(signerInfo!.type!)}",
+      "useSimpleHash": true
     };
     txRequest.signature = HEX.encode(_signature!.signature!.toList());
     txRequest.txHash = HEX.encode(_hash!.toList());
     txRequest.payload = HEX.encode(_payloadBinary!.toList());
-    txRequest.memo = _header._memo;
-    txRequest.metadata = HEX.encode(_header.metadata!.toList());
+    if(_header._memo != null){
+      txRequest.memo = _header._memo!;
+    }
+
+    if(_header._metadata != null){
+      txRequest.metadata = HEX.encode(_header.metadata!.toList());
+    }
+
 
     return txRequest;
   }
 }
 
-class TxRequest{
+class TxRequest {
   bool? checkOnly;
   bool? isEnvelope;
   late String origin;
 
-  late Map<String,dynamic> signer;
+  late Map<String, dynamic> signer;
   late String signature;
   String? txHash;
+
+  //late Map<String,dynamic> payload;
   late String payload;
   String? memo;
   String? metadata;
 
   Map<String, dynamic> get toMap {
     Map<String, dynamic> value = {};
-    if(checkOnly != null){
-      value.addAll({"checkOnly":checkOnly!});
+    if (checkOnly != null) {
+      value.addAll({"checkOnly": checkOnly!});
     }
 
-    if(isEnvelope != null){
-      value.addAll({"isEnvelope":isEnvelope!});
+    if (isEnvelope != null) {
+      value.addAll({"isEnvelope": isEnvelope!});
     }
 
-    value.addAll({"origin":origin});
-    value.addAll({"signer":signer});
-    value.addAll({"signature":signature});
+    value.addAll({"origin": origin});
+    value.addAll({"signer": signer});
+    value.addAll({"signature": signature});
 
-    if(txHash != null){
-      value.addAll({"txHash":txHash!});
+    if (txHash != null) {
+      value.addAll({"txHash": txHash!});
     }
 
-    value.addAll({"payload":payload});
+    value.addAll({"payload": payload});
 
-    if(memo != null){
-      value.addAll({"memo":memo!});
+    if (memo != null) {
+      value.addAll({"memo": memo!});
     }
 
-    if(metadata != null){
-      value.addAll({"metadata":metadata!});
+    if (metadata != null) {
+      value.addAll({"metadata": metadata!});
     }
 
     return value;
-
   }
+
+
+
+
 }

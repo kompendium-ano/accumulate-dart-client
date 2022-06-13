@@ -1,9 +1,10 @@
 import 'dart:convert';
 import "dart:typed_data";
-import '../../src/utils.dart';
+import '../utils.dart';
+import 'package:hex/hex.dart';
 
 import "../acc_url.dart";
-import "../marshaller.dart";
+import "../encoding.dart";
 import "../tx_types.dart";
 import "base_payload.dart";
 
@@ -29,8 +30,8 @@ class SendTokensArg {
 
 class SendTokens extends BasePayload {
   late List<TokenRecipient> _to;
-  late Uint8List _hash;
-  late Uint8List _meta;
+  late Uint8List? _hash;
+  late Uint8List? _meta;
   SendTokens(SendTokensArg arg) : super() {
 
     if (arg.to.isEmpty) {
@@ -38,33 +39,49 @@ class SendTokens extends BasePayload {
 
     }
     _to = arg.to.map((r) => TokenRecipient(AccURL.toAccURL(r.url),r.amount is int ? r.amount : int.parse(r.amount))).toList();
-    _hash = arg.hash!;
-    _meta = arg.meta!;
+    _hash = arg.hash;
+    _meta = arg.meta;
   }
 
-  Uint8List _marshalBinary() {
+
+
+ @override
+  Uint8List extendedMarshalBinary() {
 
     List<int> forConcat = [];
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.sendTokens));
+    forConcat.addAll(uvarintMarshalBinary(TransactionType.sendTokens, 1));
 
-    if (_hash.isNotEmpty) {
+    if (_hash != null) {
 
-      if (_hash.length != 32) {
+      if (_hash!.length != 32) {
         throw Exception("Invalid hash length");
       }
-      forConcat.addAll(hashMarshalBinary(_hash));
+
+      forConcat.addAll(hashMarshalBinary(_hash!, 2));
     }
-    if (_meta.isNotEmpty) {
-      forConcat.addAll(hashMarshalBinary(_meta));
+    if (_meta != null) {
+
+      forConcat.addAll(bytesMarshalBinary(_meta!, 3));
     }
 
     for (var recipient in _to) {
-      forConcat.addAll(stringMarshalBinary(recipient.url.toString()));
-      forConcat.addAll(uvarintMarshalBinary(recipient.amount));
+
+      forConcat.addAll(fieldMarshalBinary(4, marshalBinaryTokenRecipient(recipient)));
+
     }
 
     return forConcat.asUint8List();
   }
+
+  Uint8List marshalBinaryTokenRecipient(TokenRecipient tr){
+    List<int> forConcat = [];
+    forConcat.addAll(stringMarshalBinary(tr.url.toString(), 1));
+    forConcat.addAll(bigNumberMarshalBinary(BigInt.from(tr.amount), 2));
+
+  return bytesMarshalBinary(forConcat.asUint8List());
+}
+
+
 
 }
 

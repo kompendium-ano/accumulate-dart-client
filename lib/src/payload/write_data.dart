@@ -1,7 +1,7 @@
 import 'dart:typed_data';
-import '../../src/utils.dart';
+import '../utils.dart';
 
-import "../marshaller.dart";
+import "../encoding.dart";
 import "../tx_types.dart" show TransactionType;
 import "base_payload.dart" show BasePayload;
 
@@ -19,7 +19,8 @@ class WriteData extends BasePayload {
     _scratch = arg.scratch ?? false;
   }
 
-  Uint8List _marshalBinary() {
+  @override
+  Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
     forConcat.addAll(uvarintMarshalBinary(TransactionType.writeData));
 

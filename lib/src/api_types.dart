@@ -97,32 +97,30 @@ class MinorBlocksQueryOptions {
 class WaitTxOptions {
   /// Timeout after which status polling is aborted. Duration in ms.
   /// Default: 30000ms (30s)
-  int? timeout;
+  int timeout = 30000;
 
   /// Interval between each tx status poll. Duration in ms.
   /// Default: 500ms.
-  int? pollInterval;
+  int pollInterval = 500;
 
   /// If set to true, only the user tx status is checked.
   /// If set to false, will also wait on the associated synthetic txs to be delivered.
   /// Default: false
-  bool? ignoreSyntheticTxs;
+  bool ignoreSyntheticTxs = false;
 
 
   Map<String, dynamic> get toMap {
     Map <String, dynamic> value = {};
 
-    if(timeout != null){
+
       value.addAll({"timeout":timeout!});
-    }
 
-    if(pollInterval != null){
+
       value.addAll({"pollInterval":pollInterval!});
-    }
 
-    if(ignoreSyntheticTxs != null){
+
       value.addAll({"ignoreSyntheticTxs":ignoreSyntheticTxs!});
-    }
+
 
     return value;
 

@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
-import '../../src/utils.dart';
+import '../utils.dart';
 
-import "../marshaller.dart";
+import "../encoding.dart";
 import "../tx_types.dart" show TransactionType;
 import "base_payload.dart" show BasePayload;
 
@@ -18,7 +18,8 @@ class BurnTokens extends BasePayload {
   }
 
 
-  Uint8List _marshalBinary() {
+  @override
+  Uint8List extendedMarshalBinary() {
 
     List<int> forConcat = [];
     forConcat.addAll(uvarintMarshalBinary(TransactionType.burnTokens));

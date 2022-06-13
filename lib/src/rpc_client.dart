@@ -59,8 +59,15 @@ class RpcClient {
 
     Client client = Client();
 
-    //print(_endpoint);
-    print(json.encode(requestPayload));
+
+    print("RpcClient params $params");
+    print("RpcClient ${json.encode(requestPayload)}");
+
+/*
+    HttpServerProxy proxy = HttpServerProxy(_endpoint);
+       final response1 = await proxy.call(function, [params]);
+
+       print(response1);*/
 
     final response = await client.post(
       Uri.parse(_endpoint),
@@ -78,8 +85,7 @@ class RpcClient {
       final message = error['message'] as String?;
       final errorData = error['data'];
 
-      print(json.encode(requestPayload));
-      print(json.encode(data));
+      print("RpcClient ${json.encode(data)}");
       throw RPCError(code, message, errorData);
     }
 
