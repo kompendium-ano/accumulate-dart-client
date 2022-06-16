@@ -1,5 +1,4 @@
 import "dart:async";
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
@@ -8,44 +7,35 @@ import 'package:hex/hex.dart';
 
 import "acc_url.dart" show AccURL;
 import "acme.dart";
-import "api_types.dart"
-    show
-        MinorBlocksQueryOptions,
-        QueryOptions,
-        QueryPagination,
-        TxError,
-        TxQueryOptions,
-        WaitTxOptions;
-import "payload.dart" show Payload;
-import "payload/add_credits.dart" show AddCredits, AddCreditsArg;
-import "payload/add_validator.dart" show AddValidator, AddValidatorArg;
-import "payload/burn_tokens.dart" show BurnTokens, BurnTokensArg;
-import "payload/create_data_account.dart"
-    show CreateDataAccount, CreateDataAccountArg;
-import "payload/create_identity.dart" show CreateIdentity, CreateIdentityArg;
-import "payload/create_key_book.dart" show CreateKeyBook, CreateKeyBookArg;
-import "payload/create_key_page.dart" show CreateKeyPage, CreateKeyPageArg;
-import "payload/create_token.dart" show CreateToken, CreateTokenArg;
-import "payload/create_token_account.dart"
-    show CreateTokenAccount, CreateTokenAccountArg;
-import "payload/issue_tokens.dart" show IssueTokens, IssueTokensArg;
-import "payload/remove_validator.dart" show RemoveValidator, RemoveValidatorArg;
-import "payload/send_tokens.dart" show SendTokens, SendTokensArg;
-//import "payload/update_account_auth.dart" show AccountAuthOperation, UpdateAccountAuth;
-import "payload/update_key.dart" show UpdateKey, UpdateKeyArg;
-//import "payload/update_key_page.dart" show KeyPageOperation, UpdateKeyPage;
-import "payload/update_validator_key.dart"
-    show UpdateValidatorKey, UpdateValidatorKeyArg;
-import "payload/write_data.dart" show WriteData, WriteDataArg;
-import "rpc_client.dart" show RpcClient;
-import "transaction.dart" show Header, Transaction;
-import "tx_signer.dart" show TxSigner;
-import "utils.dart" show sleep;
+import "api_types.dart";
+import "payload.dart";
+import "payload/add_credits.dart";
+import "payload/add_validator.dart";
+import "payload/burn_tokens.dart";
+import "payload/create_data_account.dart";
+import "payload/create_identity.dart";
+import "payload/create_key_book.dart";
+import "payload/create_key_page.dart";
+import "payload/create_token.dart";
+import "payload/create_token_account.dart";
+import "payload/issue_tokens.dart";
+import "payload/remove_validator.dart";
+import "payload/send_tokens.dart";
 
-class Client {
+//import "payload/update_account_auth.dart" show AccountAuthOperation, UpdateAccountAuth;
+import "payload/update_key.dart";
+
+//import "payload/update_key_page.dart" show KeyPageOperation, UpdateKeyPage;
+import "payload/update_validator_key.dart";
+import "payload/write_data.dart";
+import "rpc_client.dart";
+import "transaction.dart";
+import "tx_signer.dart";
+
+class ACMEClient {
   late RpcClient _rpcClient;
 
-  Client(String endpoint) {
+  ACMEClient(String endpoint) {
     _rpcClient = RpcClient(endpoint);
   }
 
@@ -64,8 +54,6 @@ class Client {
   }
 
   Future<Map<String, dynamic>> execute(Transaction tx) {
-    //return call("send-tokens", tx.toTxRequest().toMap);
-    //return call("create-adi", tx.toTxRequest().toMap);
     return call("execute", tx.toTxRequest().toMap);
   }
 
@@ -173,51 +161,43 @@ class Client {
     return call("query-directory", params);
   }
 
-
-  waitOnTx(int startTime,String txId, [WaitTxOptions? options]) async {
+  waitOnTx(int startTime, String txId, [WaitTxOptions? options]) async {
     Completer completer = Completer();
-    // Options
+
     int timeout = options?.timeout ?? 30000;
     final pollInterval = options?.pollInterval ?? 1000;
     final ignoreSyntheticTxs = options?.ignoreSyntheticTxs ?? false;
 
     try {
-      print(txId);
       final resp = await queryTx(txId);
-      query_trx_res_model
-          .QueryTransactionResponseModel queryTransactionResponseModel = query_trx_res_model
-          .QueryTransactionResponseModel.fromJson(resp);
+      query_trx_res_model.QueryTransactionResponseModel
+          queryTransactionResponseModel =
+          query_trx_res_model.QueryTransactionResponseModel.fromJson(resp);
 
       if (queryTransactionResponseModel.result != null) {
-        query_trx_res_model
-            .QueryTransactionResponseModelResult result = queryTransactionResponseModel
-            .result!;
+        query_trx_res_model.QueryTransactionResponseModelResult result =
+            queryTransactionResponseModel.result!;
         if (result.status != null) {
           if (result.status!.delivered!) {
             log("${result.syntheticTxids}");
-            if(ignoreSyntheticTxs){
+            if (ignoreSyntheticTxs) {
               completer.complete(true);
-            }else{
-
-              if(result.syntheticTxids!.isNotEmpty){
-                int nowTime = DateTime
-                    .now()
-                    .millisecondsSinceEpoch;
+            } else {
+              if (result.syntheticTxids!.isNotEmpty) {
+                int nowTime = DateTime.now().millisecondsSinceEpoch;
                 if (nowTime - startTime < timeout) {
                   sleep(Duration(milliseconds: pollInterval));
-                  completer.complete(await waitOnTx(startTime, result.syntheticTxids!.first));
+                  completer.complete(
+                      await waitOnTx(startTime, result.syntheticTxids!.first));
                 } else {
                   completer.complete(false);
                 }
-              }else{
+              } else {
                 completer.complete(true);
               }
             }
-
           } else {
-            int nowTime = DateTime
-                .now()
-                .millisecondsSinceEpoch;
+            int nowTime = DateTime.now().millisecondsSinceEpoch;
             if (nowTime - startTime < timeout) {
               sleep(Duration(milliseconds: pollInterval));
               completer.complete(await waitOnTx(startTime, txId));
@@ -226,9 +206,7 @@ class Client {
             }
           }
         } else {
-          int nowTime = DateTime
-              .now()
-              .millisecondsSinceEpoch;
+          int nowTime = DateTime.now().millisecondsSinceEpoch;
           if (nowTime - startTime < timeout) {
             sleep(Duration(milliseconds: pollInterval));
             completer.complete(await waitOnTx(startTime, txId));
@@ -237,9 +215,7 @@ class Client {
           }
         }
       } else {
-        int nowTime = DateTime
-            .now()
-            .millisecondsSinceEpoch;
+        int nowTime = DateTime.now().millisecondsSinceEpoch;
         if (nowTime - startTime < timeout) {
           sleep(Duration(milliseconds: pollInterval));
           completer.complete(await waitOnTx(startTime, txId));
@@ -247,189 +223,79 @@ class Client {
           completer.complete(false);
         }
       }
-    }catch (e) {
+    } catch (e) {
       // Do not retry on definitive transaction errors
       if (e is TxError) {
         //rethrow;
         completer.completeError(false);
       }
 
-      int nowTime = DateTime
-          .now()
-          .millisecondsSinceEpoch;
+      int nowTime = DateTime.now().millisecondsSinceEpoch;
       if (nowTime - startTime < timeout) {
         sleep(Duration(milliseconds: pollInterval));
         completer.complete(await waitOnTx(startTime, txId));
       } else {
         completer.complete(false);
       }
-
-     // lastError = e;
-      print("going to sleep");
-
     }
 
     return completer.future;
-
-  }
-   waitOnTx1(String txId, [WaitTxOptions? options]) async {
-    Completer completer = Completer();
-    // Options
-    final to = options?.timeout ?? 30000;
-    final pollInterval = options?.pollInterval ?? 1000;
-    final ignoreSyntheticTxs = options?.ignoreSyntheticTxs ?? false;
-
-
-
-    final start = DateTime.now().millisecondsSinceEpoch;
-    dynamic lastError;
-    do {
-      try {
-        final resp = await queryTx(txId);
-        query_trx_res_model.QueryTransactionResponseModel queryTransactionResponseModel = query_trx_res_model.QueryTransactionResponseModel.fromJson(resp);
-        if(queryTransactionResponseModel.result != null){
-          print("has error");
-        }else{
-          print("has NO error");
-          print(queryTransactionResponseModel.result!.toJson());
-        }
-        Map<String,dynamic> result = resp["result"];
-
-
-
-
-
-        //log("wait on tx resp ${jsonEncode(resp["result"]["syntheticTxids"])}");
-        List<String> syntheticTxids = [];//resp["result"]["syntheticTxids"];
-        Map<String, dynamic> status = {};
-        if(result.containsKey("syntheticTxids")){
-          syntheticTxids = List<String>.from(result["syntheticTxids"]);
-          log("wait on tx resp ${jsonEncode(syntheticTxids)}");
-        }
-
-        if(result.containsKey("status")){
-          status = result["status"];
-          log("wait on tx resp ${jsonEncode(status)}");
-        }
-
-
-        if (!status.containsKey("delivered")) {
-          completer.completeError(false);
-          //throw Exception("Transaction not delivered");
-        }else{
-          bool delivered = status["delivered"] as bool;
-          log("wait on tx $delivered");
-          if(delivered){
-           completer.complete(true);
-          }
-        }
-
-        if (status.containsKey("code")) {
-          //throw TxError(txId, status);
-          completer.completeError(false);
-        }
-
-        if (ignoreSyntheticTxs) {
-          completer.complete(true);
-        }
-
-        log("going to add stxIds");
-
-        // Also verify the associated synthetic txs
-        final timeoutLeft = to - DateTime.now().millisecondsSinceEpoch + start;
-        final List<String> stxIds = [];
-        if (syntheticTxids.isNotEmpty) {
-          stxIds.addAll(syntheticTxids);
-        }
-
-        WaitTxOptions waitTxOptions = WaitTxOptions();
-        waitTxOptions.timeout = timeoutLeft;
-        waitTxOptions.pollInterval = options!.pollInterval;
-        waitTxOptions.ignoreSyntheticTxs = options!.ignoreSyntheticTxs;
-
-        for(String stxId in stxIds) {
-          log("execute loop $stxId");
-          waitOnTx1(stxId, waitTxOptions);
-          log("done loop wait $stxId");
-        }
-
-        /*
-        await Future.forEach(
-            stxIds, (stxId) => waitOnTx(stxId as String, waitTxOptions));*/
-
-        return completer.future;
-      } catch (e) {
-        // Do not retry on definitive transaction errors
-        if (e is TxError) {
-          //rethrow;
-          completer.completeError(false);
-        }
-
-        lastError = e;
-        sleep(Duration(milliseconds: pollInterval));
-      }
-      // Poll while timeout is not reached
-    } while (DateTime.now().millisecondsSinceEpoch - start < to);
-
-    completer.completeError(false);
-    throw Exception(
-        'Transaction $txId was not confirmed within ${to / 1000}s. Cause: $lastError');
   }
 
   Future<Map<String, dynamic>> addCredits(
-      dynamic principal, AddCreditsArg addCredits, TxSigner signer) {
+      dynamic principal, AddCreditsParam addCredits, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), AddCredits(addCredits), signer);
   }
 
   Future<Map<String, dynamic>> addValidator(
-      dynamic principal, AddValidatorArg addValidator, TxSigner signer) {
+      dynamic principal, AddValidatorParam addValidator, TxSigner signer) {
     return _execute(
         AccURL.toAccURL(principal), AddValidator(addValidator), signer);
   }
 
   Future<Map<String, dynamic>> burnTokens(
-      dynamic principal, BurnTokensArg burnTokens, TxSigner signer) {
+      dynamic principal, BurnTokensParam burnTokens, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), BurnTokens(burnTokens), signer);
   }
 
   Future<Map<String, dynamic>> createDataAccount(dynamic principal,
-      CreateDataAccountArg createDataAccount, TxSigner signer) {
+      CreateDataAccountParam createDataAccount, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal),
         CreateDataAccount(createDataAccount), signer);
   }
 
   Future<Map<String, dynamic>> createIdentity(
-      dynamic principal, CreateIdentityArg createIdentity, TxSigner signer) {
+      dynamic principal, CreateIdentityParam createIdentity, TxSigner signer) {
     return _execute(
         AccURL.toAccURL(principal), CreateIdentity(createIdentity), signer);
   }
 
   Future<Map<String, dynamic>> createKeyBook(
-      dynamic principal, CreateKeyBookArg createKeyBook, TxSigner signer) {
+      dynamic principal, CreateKeyBookParam createKeyBook, TxSigner signer) {
     return _execute(
         AccURL.toAccURL(principal), CreateKeyBook(createKeyBook), signer);
   }
 
   Future<Map<String, dynamic>> createKeyPage(
-      dynamic principal, CreateKeyPageArg createKeyPage, TxSigner signer) {
+      dynamic principal, CreateKeyPageParam createKeyPage, TxSigner signer) {
     return _execute(
         AccURL.toAccURL(principal), CreateKeyPage(createKeyPage), signer);
   }
 
   Future<Map<String, dynamic>> createToken(
-      dynamic principal, CreateTokenArg createToken, TxSigner signer) {
+      dynamic principal, CreateTokenParam createToken, TxSigner signer) {
     return _execute(
         AccURL.toAccURL(principal), CreateToken(createToken), signer);
   }
 
   Future<Map<String, dynamic>> createTokenAccount(dynamic principal,
-      CreateTokenAccountArg createTokenAccount, TxSigner signer) {
+      CreateTokenAccountParam createTokenAccount, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal),
         CreateTokenAccount(createTokenAccount), signer);
   }
 
   Future<Map<String, dynamic>> issueTokens(
-      dynamic principal, IssueTokensArg issueTokens, TxSigner signer) {
+      dynamic principal, IssueTokensParam issueTokens, TxSigner signer) {
     return _execute(
         AccURL.toAccURL(principal), IssueTokens(issueTokens), signer);
   }
@@ -441,7 +307,7 @@ class Client {
   }
 
   Future<Map<String, dynamic>> sendTokens(
-      dynamic principal, SendTokensArg sendTokens, TxSigner signer) {
+      dynamic principal, SendTokensParam sendTokens, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), SendTokens(sendTokens), signer);
   }
 
@@ -453,9 +319,10 @@ class Client {
   }
 */
   Future<Map<String, dynamic>> updateKey(
-      dynamic principal, UpdateKeyArg updateKey, TxSigner signer) {
+      dynamic principal, UpdateKeyParam updateKey, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), UpdateKey(updateKey), signer);
   }
+
 /*
   Future<Map<String, dynamic>> updateKeyPage(
       dynamic principal, List<KeyPageOperation> operation, TxSigner signer) {
@@ -464,13 +331,13 @@ class Client {
   }*/
 
   Future<Map<String, dynamic>> updateValidatorKey(dynamic principal,
-      UpdateValidatorKeyArg updateValidatorKey, TxSigner signer) {
+      UpdateValidatorKeyParam updateValidatorKey, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal),
         UpdateValidatorKey(updateValidatorKey), signer);
   }
 
   Future<Map<String, dynamic>> writeData(
-      dynamic principal, WriteDataArg writeData, TxSigner signer) {
+      dynamic principal, WriteDataParam writeData, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), WriteData(writeData), signer);
   }
 

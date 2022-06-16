@@ -1,8 +1,7 @@
 import "dart:typed_data";
-import "dart:async";
 import "acc_url.dart";
-import "signer.dart" show Signature, Signer, SignerInfo;
-import "transaction.dart" show Transaction;
+import "signer.dart";
+import "transaction.dart";
 import 'utils.dart';
 
 class TxSigner {
@@ -19,7 +18,7 @@ class TxSigner {
   }
 
   static TxSigner withNewVersion(TxSigner signer, int version) {
-    return TxSigner (signer.info.url.toString(), signer.signer, version);
+    return TxSigner(signer.info.url.toString(), signer.signer, version);
   }
 
   Signer get signer => _signer;
@@ -39,15 +38,13 @@ class TxSigner {
     signerInfo.version = _version;
     signerInfo.type = _signer.type;
     return signerInfo;
-
-    }
+  }
 
   Signature sign(Transaction tx) {
     Signature signature = Signature();
     signature.signerInfo = info;
-    signature.signature = signer.signRaw(tx.dataForSignature(info).asUint8List());
+    signature.signature =
+        signer.signRaw(tx.dataForSignature(info).asUint8List());
     return signature;
-
   }
-
 }

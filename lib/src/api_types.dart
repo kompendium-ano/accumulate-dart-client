@@ -3,15 +3,13 @@ class QueryPagination {
   late int count;
 
   Map<String, dynamic> get toMap {
-    Map <String, dynamic> value = {};
+    Map<String, dynamic> value = {};
 
-    value.addAll({"start":start});
-    value.addAll({"count":count});
+    value.addAll({"start": start});
+    value.addAll({"count": count});
 
     return value;
-
   }
-
 }
 
 class QueryOptions {
@@ -20,22 +18,21 @@ class QueryOptions {
   bool? prove;
 
   Map<String, dynamic> get toMap {
-   Map <String, dynamic> value = {};
+    Map<String, dynamic> value = {};
 
-   if(expand != null){
-     value.addAll({"expand":expand!});
-   }
+    if (expand != null) {
+      value.addAll({"expand": expand!});
+    }
 
-   if(height != null){
-     value.addAll({"height":height!});
-   }
+    if (height != null) {
+      value.addAll({"height": height!});
+    }
 
-   if(prove != null){
-     value.addAll({"prove":prove!});
-   }
+    if (prove != null) {
+      value.addAll({"prove": prove!});
+    }
 
     return value;
-
   }
 }
 
@@ -45,32 +42,30 @@ class TxQueryOptions extends QueryOptions {
 
   @override
   Map<String, dynamic> get toMap {
-    Map <String, dynamic> value = {};
+    Map<String, dynamic> value = {};
 
-    if(expand != null){
-      value.addAll({"expand":expand!});
+    if (expand != null) {
+      value.addAll({"expand": expand!});
     }
 
-    if(height != null){
-      value.addAll({"height":height!});
+    if (height != null) {
+      value.addAll({"height": height!});
     }
 
-    if(prove != null){
-      value.addAll({"prove":prove!});
+    if (prove != null) {
+      value.addAll({"prove": prove!});
     }
 
-    if(wait != null){
-      value.addAll({"wait":wait!});
+    if (wait != null) {
+      value.addAll({"wait": wait!});
     }
 
-    if(ignorePending != null){
-      value.addAll({"ignorePending":ignorePending!});
+    if (ignorePending != null) {
+      value.addAll({"ignorePending": ignorePending!});
     }
 
     return value;
-
   }
-
 }
 
 class MinorBlocksQueryOptions {
@@ -78,18 +73,18 @@ class MinorBlocksQueryOptions {
   bool? filterSynthAnchorsOnlyBlocks;
 
   Map<String, dynamic> get toMap {
-    Map <String, dynamic> value = {};
+    Map<String, dynamic> value = {};
 
-    if(txFetchMode != null){
-      value.addAll({"txFetchMode":txFetchMode!});
+    if (txFetchMode != null) {
+      value.addAll({"txFetchMode": txFetchMode!});
     }
 
-    if(filterSynthAnchorsOnlyBlocks != null){
-      value.addAll({"filterSynthAnchorsOnlyBlocks":filterSynthAnchorsOnlyBlocks!});
+    if (filterSynthAnchorsOnlyBlocks != null) {
+      value.addAll(
+          {"filterSynthAnchorsOnlyBlocks": filterSynthAnchorsOnlyBlocks!});
     }
 
     return value;
-
   }
 }
 
@@ -108,24 +103,17 @@ class WaitTxOptions {
   /// Default: false
   bool ignoreSyntheticTxs = false;
 
-
   Map<String, dynamic> get toMap {
-    Map <String, dynamic> value = {};
+    Map<String, dynamic> value = {};
 
+    value.addAll({"timeout": timeout!});
 
-      value.addAll({"timeout":timeout!});
+    value.addAll({"pollInterval": pollInterval!});
 
-
-      value.addAll({"pollInterval":pollInterval!});
-
-
-      value.addAll({"ignoreSyntheticTxs":ignoreSyntheticTxs!});
-
+    value.addAll({"ignoreSyntheticTxs": ignoreSyntheticTxs!});
 
     return value;
-
   }
-
 }
 
 class TxError implements Exception {

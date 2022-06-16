@@ -1,48 +1,43 @@
 import 'dart:typed_data';
-import 'dart:convert';
-
 import '../utils.dart';
-
-import "../acc_url.dart" show AccURL;
+import "../acc_url.dart";
 import "../encoding.dart";
-import "../tx_types.dart" show TransactionType;
-import "base_payload.dart" show BasePayload;
+import "../tx_types.dart";
+import "base_payload.dart";
 
-
-class AddCreditsArg  {
-dynamic recipient;
-dynamic amount;
-dynamic oracle;
+class AddCreditsParam {
+  dynamic recipient;
+  dynamic amount;
+  dynamic oracle;
 }
 
 class AddCredits extends BasePayload {
   late AccURL _recipient;
   late int _amount;
   late int _oracle;
-  AddCredits(AddCreditsArg arg) : super() {
 
-    _recipient = AccURL.toAccURL(arg.recipient);
-    _amount = arg.amount is int ? arg.amount : int.parse(arg.amount);
-    _oracle = arg.oracle is int ? arg.oracle : int.parse(arg.oracle);
+  AddCredits(AddCreditsParam addCreditsParam) : super() {
+    _recipient = AccURL.toAccURL(addCreditsParam.recipient);
+    _amount = addCreditsParam.amount is int
+        ? addCreditsParam.amount
+        : int.parse(addCreditsParam.amount);
+    _oracle = addCreditsParam.oracle is int
+        ? addCreditsParam.oracle
+        : int.parse(addCreditsParam.oracle);
   }
-
 
   @override
   Uint8List extendedMarshalBinary() {
-
     List<int> forConcat = [];
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.addCredits));
-    forConcat.addAll(stringMarshalBinary(_recipient.toString()));
-    forConcat.addAll(uvarintMarshalBinary(_amount));
 
-    if(_oracle > 0 ){
-      forConcat.addAll(uvarintMarshalBinary(_oracle));
+    forConcat.addAll(uvarintMarshalBinary(TransactionType.addCredits, 1));
+    forConcat.addAll(stringMarshalBinary(_recipient.toString(), 2));
+    forConcat.addAll(bigNumberMarshalBinary(_amount, 3));
+
+    if (_oracle > 0) {
+      forConcat.addAll(uvarintMarshalBinary(_oracle, 4));
     }
-
 
     return forConcat.asUint8List();
   }
-
-
-
 }

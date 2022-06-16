@@ -1,8 +1,4 @@
-
-
-//An Accumulate URL (e.g: 'acc://my-identity/mydata')
 class AccURL {
-
   late String authority;
   late String path;
   late String query;
@@ -23,16 +19,13 @@ class AccURL {
 
     query = parsedUri.query;
 
-    fragment  = parsedUri.fragment;
+    fragment = parsedUri.fragment;
   }
 
-  //Parse, if necessary, argument into an AccURL
   static AccURL toAccURL(dynamic arg) {
-
     return arg is AccURL ? arg : AccURL.parse(arg);
   }
 
-  //Parse a string into an AccURL
   static AccURL parse(String url) {
     return AccURL(url);
   }
@@ -41,8 +34,4 @@ class AccURL {
   String toString() {
     return "acc://$authority$path";
   }
-
-
-
-
 }

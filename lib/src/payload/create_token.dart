@@ -1,4 +1,3 @@
-import 'dart:convert';
 import "dart:typed_data";
 import '../utils.dart';
 
@@ -7,76 +6,59 @@ import "../encoding.dart";
 import "../tx_types.dart";
 import "base_payload.dart";
 
-
-class CreateTokenArg {
+class CreateTokenParam {
   dynamic url;
-  dynamic keyBookUrl;
   late String symbol;
   late int precision;
   dynamic properties;
-  dynamic initialSupply;
-  bool? hasSupplyLimit;
-  dynamic manager;
+  dynamic supplyLimit;
+  List<AccURL>? authorities;
 }
 
 class CreateToken extends BasePayload {
   late AccURL _url;
-  AccURL? _keyBookUrl;
   late String _symbol;
   late int _precision;
   AccURL? _properties;
-  int? _initialSupply;
-  late bool _hasSupplyLimit;
-  AccURL? _manager;
-  CreateToken(CreateTokenArg arg) : super() {
+  int? _supplyLimit;
+  List<AccURL>? _authorities;
 
-    _url = AccURL.toAccURL(arg.url);
-    _keyBookUrl =
-        arg.keyBookUrl ? AccURL.toAccURL(arg.keyBookUrl) : null;
-    _symbol = arg.symbol;
-    _precision = arg.precision;
-    _properties =
-        arg.properties ? AccURL.toAccURL(arg.properties) : null;
-    _initialSupply =
-        arg.initialSupply ? int.parse(arg.initialSupply) : null;
-    _hasSupplyLimit = arg.hasSupplyLimit ?? false;
-    _manager = arg.manager ? AccURL.toAccURL(arg.manager) : null;
+  CreateToken(CreateTokenParam createTokenParam) : super() {
+    _url = AccURL.toAccURL(createTokenParam.url);
+    _symbol = createTokenParam.symbol;
+    _precision = createTokenParam.precision;
+    _properties = createTokenParam.properties
+        ? AccURL.toAccURL(createTokenParam.properties)
+        : null;
+    _supplyLimit = createTokenParam.supplyLimit
+        ? int.parse(createTokenParam.supplyLimit)
+        : null;
+    _authorities = createTokenParam.authorities;
   }
 
   @override
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.createToken));
 
-    forConcat.addAll(stringMarshalBinary(_url.toString()));
-
-
-    if (_keyBookUrl != null) {
-      forConcat.addAll(stringMarshalBinary(_keyBookUrl.toString()));
-    }
+    forConcat.addAll(uvarintMarshalBinary(TransactionType.createToken, 1));
+    forConcat.addAll(stringMarshalBinary(_url.toString(), 2));
 
     if (_symbol.isNotEmpty) {
-      forConcat.addAll(stringMarshalBinary(_symbol.toString()));
+      forConcat.addAll(stringMarshalBinary(_symbol, 4));
     }
-
     if (_precision > 0) {
-      forConcat.addAll(uvarintMarshalBinary(_precision));
+      forConcat.addAll(uvarintMarshalBinary(_precision, 5));
     }
-
     if (_properties != null) {
-      forConcat.addAll(stringMarshalBinary(_properties.toString()));
+      forConcat.addAll(stringMarshalBinary(_properties.toString(), 6));
     }
-
-    if (_initialSupply != null) {
-      forConcat.addAll(uvarintMarshalBinary(_initialSupply!));
+    if (_supplyLimit != null) {
+      forConcat.addAll(bigNumberMarshalBinary(_supplyLimit!, 7));
     }
-
-    forConcat.addAll(booleanMarshalBinary(_hasSupplyLimit));
-
-
-
-    if (_manager != null) {
-      forConcat.addAll(stringMarshalBinary(_manager.toString()));
+    if (_authorities != null) {
+      for (AccURL accURL in _authorities!) {
+        forConcat.addAll(stringMarshalBinary(accURL.toString(), 9));
+      }
     }
 
     return forConcat.asUint8List();

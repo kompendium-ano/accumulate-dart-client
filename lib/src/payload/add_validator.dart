@@ -1,39 +1,35 @@
-import 'dart:convert';
 import "dart:typed_data";
 import '../utils.dart';
 
-import "../acc_url.dart" ;
+import "../acc_url.dart";
 import "../encoding.dart";
-import "../tx_types.dart" show TransactionType;
-import "base_payload.dart" show BasePayload;
+import "../tx_types.dart";
+import "base_payload.dart";
 
-
-class AddValidatorArg {
+class AddValidatorParam {
   late Uint8List publicKey;
-dynamic owner;
+  dynamic owner;
 }
 
 class AddValidator extends BasePayload {
   late Uint8List _publicKey;
   late AccURL _owner;
-  AddValidator(AddValidatorArg arg) : super() {
 
-    _publicKey = arg.publicKey;
-    _owner = AccURL.toAccURL(arg.owner);
+  AddValidator(AddValidatorParam addValidatorParam) : super() {
+    _publicKey = addValidatorParam.publicKey;
+    _owner = AccURL.toAccURL(addValidatorParam.owner);
   }
-
 
   @override
   Uint8List extendedMarshalBinary() {
-
     List<int> forConcat = [];
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.addValidator));
-    forConcat.addAll(hashMarshalBinary(_publicKey));
 
-    if(_owner.toString().isNotEmpty){
-      forConcat.addAll(stringMarshalBinary(_owner.toString()));
+    forConcat.addAll(uvarintMarshalBinary(TransactionType.addValidator, 1));
+    forConcat.addAll(bytesMarshalBinary(_publicKey, 2));
+
+    if (_owner.toString().isNotEmpty) {
+      forConcat.addAll(stringMarshalBinary(_owner.toString(), 3));
     }
-
 
     return forConcat.asUint8List();
   }

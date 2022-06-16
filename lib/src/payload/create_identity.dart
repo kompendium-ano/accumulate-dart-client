@@ -1,58 +1,50 @@
-import 'dart:convert';
 import "dart:typed_data";
+import '../tx_types.dart';
 import '../utils.dart';
 
 import "../acc_url.dart";
 import "../encoding.dart";
-import "../tx_types.dart";
 import "base_payload.dart";
 
-class CreateIdentityArg {
-dynamic url;
-Uint8List? keyHash;
-dynamic keyBookUrl;
-dynamic manager;
+class CreateIdentityParam {
+  dynamic url;
+  Uint8List? keyHash;
+  dynamic keyBookUrl;
+  List<AccURL>? authorities;
 }
-
 
 class CreateIdentity extends BasePayload {
   late AccURL _url;
   Uint8List? _keyHash;
   AccURL? _keyBookUrl;
-  AccURL? _manager;
-  CreateIdentity(CreateIdentityArg arg) : super() {
-    _url = AccURL.toAccURL(arg.url);
-    _keyHash = arg.keyHash! ;
-    if(arg.keyBookUrl != null){
-      _keyBookUrl = AccURL.toAccURL(arg.keyBookUrl);
+  List<AccURL>? _authorities;
+
+  CreateIdentity(CreateIdentityParam createIdentityParam) : super() {
+    _url = AccURL.toAccURL(createIdentityParam.url);
+    _keyHash = createIdentityParam.keyHash!;
+    if (createIdentityParam.keyBookUrl != null) {
+      _keyBookUrl = AccURL.toAccURL(createIdentityParam.keyBookUrl);
     }
 
-    if(arg.manager != null){
-      _manager = AccURL.toAccURL(arg.manager);
-    }
-
+    _authorities = createIdentityParam.authorities;
   }
 
   @override
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
-    //forConcat.addAll(uvarintMarshalBinary(TransactionType.createIdentity));
-    forConcat.addAll(stringMarshalBinary("1"));
-    forConcat.addAll(stringMarshalBinary(_url.toString()));
 
-
-    if (_keyHash != null && _keyHash!.isNotEmpty) {
-      forConcat.addAll(hashMarshalBinary(_keyHash!));
-
+    forConcat.addAll(uvarintMarshalBinary(TransactionType.createIdentity, 1));
+    forConcat.addAll(stringMarshalBinary(_url.toString(), 2));
+    if (_keyHash != null) {
+      forConcat.addAll(bytesMarshalBinary(_keyHash!, 3));
     }
-
     if (_keyBookUrl != null) {
-      forConcat.addAll(stringMarshalBinary(_keyBookUrl.toString()));
-
+      forConcat.addAll(stringMarshalBinary(_keyBookUrl.toString(), 4));
     }
-
-    if (_manager != null) {
-      forConcat.addAll(stringMarshalBinary(_manager.toString()));
+    if (_authorities != null) {
+      for (AccURL accURL in _authorities!) {
+        forConcat.addAll(stringMarshalBinary(accURL.toString(), 6));
+      }
     }
 
     return forConcat.asUint8List();

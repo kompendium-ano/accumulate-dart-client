@@ -3,13 +3,11 @@ import "dart:typed_data";
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:bip39/bip39.dart' as bip39;
 import '../utils.dart';
-import 'package:hex/hex.dart';
 
 class Keypair {
-late Uint8List publicKey;
-late Uint8List secretKey;
+  late Uint8List publicKey;
+  late Uint8List secretKey;
 }
-
 
 class Ed25519Keypair {
   late Keypair _keypair;
@@ -18,28 +16,17 @@ class Ed25519Keypair {
     if (keypair != null) {
       _keypair = keypair;
     } else {
-
       String mnemonic = bip39.generateMnemonic();
-     // print("mnemonic $mnemonic");
       Uint8List seed = bip39.mnemonicToSeed(mnemonic);
-String seedHex = bip39.mnemonicToSeedHex(mnemonic);
-//print("seed $seed\nseedHex ${HEX.decode(seedHex)}");
-
-//ed.verify(publicKey, message, sig)
       var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32));
       var publicKey = ed.public(privateKey);
 
       _keypair = Keypair();
       _keypair.secretKey = privateKey.bytes.asUint8List();
       _keypair.publicKey = publicKey.bytes.asUint8List();
-     // print("_keypair.secretKey ${HEX.encode(_keypair.secretKey)}");
-      //print("_keypair.secretKey ${HEX.encode(_keypair.secretKey)}");
-      //print("_keypair.publicKey ${HEX.encode(_keypair.publicKey)}");
     }
   }
-  /**
-   * Generate a new random keypair
-   */
+
   static Ed25519Keypair generate() {
     String mnemonic = bip39.generateMnemonic();
     Uint8List seed = bip39.mnemonicToSeed(mnemonic);
@@ -53,18 +40,17 @@ String seedHex = bip39.mnemonicToSeedHex(mnemonic);
     return Ed25519Keypair(keypair);
   }
 
-
-  static Ed25519Keypair fromSecretKey(Uint8List secretKey, {bool skipValidation = true}) {
-
-
+  static Ed25519Keypair fromSecretKey(Uint8List secretKey,
+      {bool skipValidation = true}) {
     var privateKey = ed.PrivateKey(secretKey);
     var publicKey = ed.public(privateKey);
 
-    if(!skipValidation){
-      final message = utf8.encode("@accumulate/accumulate.js-validation-v1").asUint8List();
+    if (!skipValidation) {
+      final message =
+          utf8.encode("@accumulate/accumulate.js-validation-v1").asUint8List();
       final sig = ed.sign(privateKey, message);
       bool valid = ed.verify(publicKey, message, sig);
-      if(!valid){
+      if (!valid) {
         throw Exception('Invalid Private key');
       }
     }
@@ -73,13 +59,10 @@ String seedHex = bip39.mnemonicToSeedHex(mnemonic);
     keypair.secretKey = privateKey.bytes.asUint8List();
     keypair.publicKey = publicKey.bytes.asUint8List();
 
-
     return Ed25519Keypair(keypair);
   }
 
-
   static Ed25519Keypair fromSeed(Uint8List seed) {
-
     var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32));
     var publicKey = ed.public(privateKey);
     Keypair keypair = Keypair();
@@ -89,16 +72,10 @@ String seedHex = bip39.mnemonicToSeedHex(mnemonic);
     return Ed25519Keypair(keypair);
   }
 
-  /**
-   * The raw public key for this keypair
-   */
   Uint8List get publicKey {
     return _keypair.publicKey;
   }
 
-  /**
-   * The raw secret key for this keypair
-   */
   Uint8List get secretKey {
     return _keypair.secretKey;
   }

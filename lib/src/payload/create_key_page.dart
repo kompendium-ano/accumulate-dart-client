@@ -7,36 +7,28 @@ import "../encoding.dart";
 import "../tx_types.dart";
 import "base_payload.dart";
 
-class CreateKeyPageArg {
-dynamic keys;
-dynamic manager;
+class CreateKeyPageParam {
+  dynamic keys;
 }
 
 class CreateKeyPage extends BasePayload {
   late List<Uint8List> _keys;
-  AccURL? _manager;
-  CreateKeyPage(CreateKeyPageArg arg) : super() {
 
-    _keys = arg.keys
-        .map((key) => (key is Uint8List ? key : utf8.encode(key.toString()).asUint8List()));
-    _manager = arg.manager ? AccURL.toAccURL(arg.manager) : null;
+  CreateKeyPage(CreateKeyPageParam createKeyPageParam) : super() {
+    _keys = createKeyPageParam.keys.map((key) =>
+        (key is Uint8List ? key : utf8.encode(key.toString()).asUint8List()));
   }
 
   @override
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.createKeyPage));
 
+    forConcat.addAll(uvarintMarshalBinary(TransactionType.createKeyPage, 1));
     for (var key in _keys) {
-      forConcat.addAll(hashMarshalBinary(key));
-    }
-
-    if (_manager != null) {
-      forConcat.addAll(stringMarshalBinary(_manager.toString()));
-
+      forConcat.addAll(fieldMarshalBinary(
+          2, bytesMarshalBinary(bytesMarshalBinary(key, 1))));
     }
 
     return forConcat.asUint8List();
   }
 }
-

@@ -2,7 +2,7 @@ import "dart:typed_data";
 import '../utils.dart';
 import 'package:crypto/crypto.dart';
 
-import "../payload.dart" show Payload;
+import "../payload.dart";
 
 abstract class BasePayload implements Payload {
   Uint8List? _binary;
@@ -26,7 +26,5 @@ abstract class BasePayload implements Payload {
     return _payloadHash!;
   }
 
- Uint8List extendedMarshalBinary();
-
-
+  Uint8List extendedMarshalBinary();
 }

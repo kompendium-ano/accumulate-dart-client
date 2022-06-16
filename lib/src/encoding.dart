@@ -16,21 +16,23 @@ Uint8List fieldMarshalBinary(int field, Uint8List val) {
 }
 
 Uint8List uvarintMarshalBinaryAlt(int val, [int? field]) {
-
   const int radix = 8; // Set radix value
-  BigInt bigInt = BigInt.from(val); // converting int to BigInt for Unsigned bit data conversion
-  final data = ByteData((bigInt.bitLength / radix).ceil()); // Create Empty byte array with  length(in bytes) in given number
+  BigInt bigInt = BigInt.from(
+      val); // converting int to BigInt for Unsigned bit data conversion
+  final data = ByteData((bigInt.bitLength / radix)
+      .ceil()); // Create Empty byte array with  length(in bytes) in given number
   var _bigInt = bigInt;
   var i = 0;
 
-    for ( i = 0; i < data.lengthInBytes; i++) {
+  for (i = 0; i < data.lengthInBytes; i++) {
+    data.setUint8(
+        i,
+        _bigInt
+            .toUnsigned(radix)
+            .toInt()); // Extract last 8 bits and convert them into decimal
 
-      data.setUint8(i,_bigInt.toUnsigned(radix).toInt()); // Extract last 8 bits and convert them into decimal
-
-      _bigInt = _bigInt >> 7;
-
+    _bigInt = _bigInt >> 7;
   }
-
 
   if (field != null) {
     return fieldMarshalBinary(field, data.buffer.asUint8List());
@@ -38,19 +40,19 @@ Uint8List uvarintMarshalBinaryAlt(int val, [int? field]) {
 
   return data.buffer.asUint8List();
 }
+
 Uint8List uvarintMarshalBinary(int val, [int? field]) {
-  const int radix = 8; // Set radix value
-  BigInt bigInt = BigInt.from(val); // converting int to BigInt for Unsigned bit data conversion
-  String hex = bigInt.toRadixString(16);
+  const int radix = 8;
+  BigInt bigInt = BigInt.from(val);
 
   List<int> numData = [];
 
   var _bigInt = bigInt;
   var i = 0;
   BigInt mxNum = BigInt.from(8);
-  while(_bigInt > mxNum){
+  while (_bigInt > mxNum) {
     var tmpBigInt = _bigInt.toUnsigned(radix);
-    if((tmpBigInt + BigInt.from(128)) < BigInt.from(255)){
+    if ((tmpBigInt + BigInt.from(128)) < BigInt.from(255)) {
       tmpBigInt += BigInt.from(128);
     }
 
@@ -59,9 +61,9 @@ Uint8List uvarintMarshalBinary(int val, [int? field]) {
     i++;
   }
 
-
   var tmpBigInt = _bigInt.toUnsigned(radix);
-  if((tmpBigInt > BigInt.from(8)) && ((tmpBigInt + BigInt.from(128)) < BigInt.from(255))){
+  if ((tmpBigInt > BigInt.from(8)) &&
+      ((tmpBigInt + BigInt.from(128)) < BigInt.from(255))) {
     tmpBigInt += BigInt.from(128);
   }
 
@@ -74,7 +76,8 @@ Uint8List uvarintMarshalBinary(int val, [int? field]) {
   return numData.asUint8List();
 }
 
-Uint8List bigNumberMarshalBinary(BigInt bn, [int? field]) {
+Uint8List bigNumberMarshalBinary(int num, [int? field]) {
+  BigInt bn = BigInt.from(num);
   List<int> data = bytesMarshalBinary(bigIntToUint8List(bn));
   return withFieldNumber(data.asUint8List(), field);
 }

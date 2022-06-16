@@ -1,53 +1,43 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import '../utils.dart';
 
-import "../acc_url.dart" show AccURL;
+import "../acc_url.dart";
 import "../encoding.dart";
 import "../tx_types.dart";
 import "base_payload.dart";
 
-class CreateDataAccountArg {
+class CreateDataAccountParam {
   dynamic url;
-  dynamic keyBookUrl;
-  dynamic managerKeyBookUrl;
+  List<AccURL>? authorities;
   bool? scratch;
 }
 
 class CreateDataAccount extends BasePayload {
   late AccURL _url;
-  AccURL? _keyBookUrl;
-  AccURL? _managerKeyBookUrl;
+  List<AccURL>? _authorities;
   late bool _scratch;
 
-  CreateDataAccount(CreateDataAccountArg arg) : super() {
-    _url = AccURL.toAccURL(arg.url);
-    _keyBookUrl = arg.keyBookUrl ? AccURL.toAccURL(arg.keyBookUrl) : null;
-    _managerKeyBookUrl =
-        arg.managerKeyBookUrl ? AccURL.toAccURL(arg.managerKeyBookUrl) : null;
-    _scratch = arg.scratch ?? false;
+  CreateDataAccount(CreateDataAccountParam createDataAccountParam) : super() {
+    _url = AccURL.toAccURL(createDataAccountParam.url);
+    _authorities = createDataAccountParam.authorities;
+    _scratch = createDataAccountParam.scratch ?? false;
   }
 
   @override
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.createDataAccount));
-    forConcat.addAll(stringMarshalBinary(_url.toString()));
+    forConcat
+        .addAll(uvarintMarshalBinary(TransactionType.createDataAccount, 1));
+    forConcat.addAll(stringMarshalBinary(_url.toString(), 2));
 
+    forConcat.addAll(booleanMarshalBinary(_scratch, 5));
 
-    if (_keyBookUrl != null) {
-      forConcat.addAll(stringMarshalBinary(_keyBookUrl.toString()));
-
+    if (_authorities != null) {
+      for (AccURL accURL in _authorities!) {
+        forConcat.addAll(stringMarshalBinary(accURL.toString(), 6));
+      }
     }
-
-    if (_managerKeyBookUrl != null) {
-      forConcat.addAll(stringMarshalBinary(_managerKeyBookUrl.toString()));
-
-    }
-
-    forConcat.addAll(booleanMarshalBinary(_scratch));
-
 
     return forConcat.asUint8List();
   }

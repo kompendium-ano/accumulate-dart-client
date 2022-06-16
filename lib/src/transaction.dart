@@ -1,5 +1,4 @@
 import "dart:typed_data";
-import "dart:async";
 import 'signature_type.dart';
 import 'package:hex/hex.dart';
 
@@ -10,7 +9,6 @@ import "signer.dart";
 import "tx_signer.dart";
 import 'utils.dart';
 import 'encoding.dart';
-import 'dart:convert';
 
 class HeaderOptions {
   int? timestamp;
@@ -61,19 +59,8 @@ class Header {
     binary.addAll(uvarintMarshalBinary(signerInfo.version!, 5));
     binary.addAll(uvarintMarshalBinary(timestamp, 6));
 
-    print("computeInitiator");
-
-    print(HEX.encode(uvarintMarshalBinary(signerInfo.type!, 1)));
-    print(HEX.encode(bytesMarshalBinary(signerInfo.publicKey!, 2)));
-    print(HEX.encode(stringMarshalBinary(signerInfo.url.toString(), 4)));
-    print(HEX.encode(uvarintMarshalBinary(signerInfo.version!, 5)));
-
-    print(timestamp);
-    print("${HEX.encode(uvarintMarshalBinary(timestamp, 6))}");
-    print("computeInitiator final");
-
     _initiator = sha256.convert(binary).bytes.asUint8List();
-    print("binary ${HEX.encode(_initiator)}");
+
     return _initiator;
   }
 
@@ -83,30 +70,22 @@ class Header {
           "Initiator hash missing. Must be initilized by calling computeInitiator");
     }
     List<int> forConcat = [];
-    print("marshalBinary");
-    //print(_principal.toString());
+
     forConcat.addAll(stringMarshalBinary(_principal.toString(), 1));
     forConcat.addAll(hashMarshalBinary(_initiator, 2));
-   // print(HEX.encode(stringMarshalBinary(_principal.toString(), 1)));
-    //print(HEX.encode(hashMarshalBinary(_initiator, 2)));
 
-    if (_memo != null && _memo!.isNotEmpty)  {
+    if (_memo != null && _memo!.isNotEmpty) {
       forConcat.addAll(stringMarshalBinary(_memo!, 3));
     }
 
-    if (_metadata != null && _metadata!.isNotEmpty)  {
+    if (_metadata != null && _metadata!.isNotEmpty) {
       forConcat.addAll(bytesMarshalBinary(_metadata!, 4));
     }
-
-   // print(HEX.encode(forConcat));
 
     return forConcat.asUint8List();
   }
 }
 
-/**
- * An Accumulate Transaction
- */
 class Transaction {
   late Header _header;
 
@@ -122,49 +101,23 @@ class Transaction {
     _header = header;
     _signature = signature;
     _bodyHash = payload.hash();
-
   }
 
-  /**
-   * Compute the hash of the transaction
-   */
   List<int> hash() {
     if (_hash != null) {
       return _hash!.toList();
     }
 
-
-    print("marshal transaction");
     final headerHash = sha256.convert(_header.marshalBinary()).bytes;
-
 
     List<int> tempHash = [];
     tempHash.addAll(headerHash);
     tempHash.addAll(_bodyHash.toList());
 
-
     _hash = sha256.convert(tempHash).bytes.asUint8List();
 
-    print(HEX.encode(_hash!.toList()));
     return _hash!.toList();
-
-
-
-    /*
-    List<int> encodedHeader = _header.marshalBinary();
-    List<int> sHash = sha256.convert(encodedHeader).bytes;
-    List<int> tHash = sha256.convert(_bodyHash).bytes;
-
-    List<int> txhRaw = [];
-    txhRaw.addAll(sHash);
-    txhRaw.addAll(tHash);
-
-    _hash = sha256.convert(txhRaw).bytes.asUint8List();
-    return _hash!.toList();*/
-
-
   }
-
 
   List<int> dataForSignature(SignerInfo signerInfo) {
     Uint8List sigHash = header.computeInitiator(signerInfo);
@@ -213,14 +166,13 @@ class Transaction {
     txRequest.signature = HEX.encode(_signature!.signature!.toList());
     txRequest.txHash = HEX.encode(_hash!.toList());
     txRequest.payload = HEX.encode(_payloadBinary!.toList());
-    if(_header._memo != null){
+    if (_header._memo != null) {
       txRequest.memo = _header._memo!;
     }
 
-    if(_header._metadata != null){
+    if (_header._metadata != null) {
       txRequest.metadata = HEX.encode(_header.metadata!.toList());
     }
-
 
     return txRequest;
   }
@@ -235,7 +187,6 @@ class TxRequest {
   late String signature;
   String? txHash;
 
-  //late Map<String,dynamic> payload;
   late String payload;
   String? memo;
   String? metadata;
@@ -270,8 +221,4 @@ class TxRequest {
 
     return value;
   }
-
-
-
-
 }

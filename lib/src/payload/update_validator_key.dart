@@ -1,30 +1,31 @@
 import 'dart:typed_data';
 import '../utils.dart';
 import '../encoding.dart';
-import "../tx_types.dart" show TransactionType;
-import "base_payload.dart" show BasePayload;
+import "../tx_types.dart";
+import "base_payload.dart";
 
-class UpdateValidatorKeyArg {
-late Uint8List publicKey;
-late Uint8List newPublicKey;
+class UpdateValidatorKeyParam {
+  late Uint8List publicKey;
+  late Uint8List newPublicKey;
 }
 
 class UpdateValidatorKey extends BasePayload {
-  late Uint8List  _publicKey;
-  late Uint8List  _newPublicKey;
-  UpdateValidatorKey(UpdateValidatorKeyArg arg) : super() {
+  late Uint8List _publicKey;
+  late Uint8List _newPublicKey;
 
-    _publicKey = arg.publicKey;
-    _newPublicKey = arg.newPublicKey;
+  UpdateValidatorKey(UpdateValidatorKeyParam updateValidatorKeyParam)
+      : super() {
+    _publicKey = updateValidatorKeyParam.publicKey;
+    _newPublicKey = updateValidatorKeyParam.newPublicKey;
   }
-
 
   @override
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.updateValidatorKey));
-    forConcat.addAll(hashMarshalBinary(_publicKey));
-    forConcat.addAll(hashMarshalBinary(_newPublicKey));
+    forConcat
+        .addAll(uvarintMarshalBinary(TransactionType.updateValidatorKey, 1));
+    forConcat.addAll(bytesMarshalBinary(_publicKey, 2));
+    forConcat.addAll(bytesMarshalBinary(_newPublicKey, 3));
 
     return forConcat.asUint8List();
   }
