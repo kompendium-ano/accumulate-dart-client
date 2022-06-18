@@ -13,6 +13,3 @@ jobs:
           name: Get dependencies
           command: dart pub get
 
-      - run:
-          name: Build the library
-          command: dart run example/accumulate_example.dart
