@@ -1,3 +1,3 @@
-library accumulate;
+library accumulate_api6;
 
 export 'src/client.dart';

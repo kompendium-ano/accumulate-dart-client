@@ -3,21 +3,20 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:accumulate_api/src/lite_identity.dart';
-import 'package:accumulate_api/src/payload/add_credits.dart';
-import 'package:accumulate_api/src/payload/create_identity.dart';
-import 'package:accumulate_api/src/payload/send_tokens.dart';
-import 'package:accumulate_api/src/signer.dart';
-import 'package:accumulate_api/src/signing/ed25519_keypair_signer.dart';
-import 'package:accumulate_api/src/tx_signer.dart';
+import 'package:accumulate/src/lite_identity.dart';
+import 'package:accumulate/src/payload/add_credits.dart';
+import 'package:accumulate/src/payload/create_identity.dart';
+import 'package:accumulate/src/payload/send_tokens.dart';
+import 'package:accumulate/src/signer.dart';
+import 'package:accumulate/src/signing/ed25519_keypair_signer.dart';
+import 'package:accumulate/src/tx_signer.dart';
 import 'package:hex/hex.dart';
-import 'package:accumulate_api/src/client.dart';
+import 'package:accumulate/src/client.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:accumulate_api/src/utils.dart';
+import 'package:accumulate/src/utils.dart';
 
-
-import 'package:accumulate_api/accumulate_api.dart';
+import 'package:accumulate/accumulate.dart';
 import 'package:test/test.dart';
 
 @Timeout(Duration(seconds: 300))
