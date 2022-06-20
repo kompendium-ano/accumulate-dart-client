@@ -11,14 +11,13 @@ import 'package:accumulate_api6/src/signer.dart';
 import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
 import 'package:accumulate_api6/src/tx_signer.dart';
 import 'package:hex/hex.dart';
-import 'package:accumulate_api6/src/client.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:accumulate_api6/src/utils.dart';
 
 import 'package:accumulate_api6/accumulate_api6.dart';
 
-Client client = Client("https://testnet.accumulatenetwork.io/v2");
+ACMEClient client = ACMEClient("https://testnet.accumulatenetwork.io/v2");
 
 Future<void> main() async {
   testFeatures();
@@ -61,12 +60,12 @@ void testFeatures() async {
 
   int creditAmount = 60000;
   sleep(const Duration(seconds: 10));
-  AddCreditsArg addCreditsArg = AddCreditsArg();
-  addCreditsArg.recipient = lid.url;
-  addCreditsArg.amount = (creditAmount * pow(10, 8)) ~/ oracle;
-  addCreditsArg.oracle = oracle;
+  AddCreditsParam addCreditsParam = AddCreditsParam();
+  addCreditsParam.recipient = lid.url;
+  addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
+  addCreditsParam.oracle = oracle;
 
-  res = await client.addCredits(lid.url, addCreditsArg, lid);
+  res = await client.addCredits(lid.url, addCreditsParam, lid);
 
   print("addCredits $res");
   txId = res["result"]["txid"];
@@ -78,7 +77,7 @@ void testFeatures() async {
   identityUrl = "acc://${DateTime.now().millisecondsSinceEpoch}";
   final identitySigner = Ed25519KeypairSigner.generate();
   final bookUrl = identityUrl + "/my-book";
-  CreateIdentityArg createIdentity = CreateIdentityArg();
+  CreateIdentityParam createIdentity = CreateIdentityParam();
 
   // Create identity
 
@@ -98,12 +97,12 @@ void testFeatures() async {
 
   creditAmount = 60000;
   sleep(const Duration(seconds: 10));
-  addCreditsArg = AddCreditsArg();
-  addCreditsArg.recipient = keyPageUrl;
-  addCreditsArg.amount = (creditAmount * pow(10, 8)) ~/ oracle;
-  addCreditsArg.oracle = oracle;
+  addCreditsParam = AddCreditsParam();
+  addCreditsParam.recipient = keyPageUrl;
+  addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
+  addCreditsParam.oracle = oracle;
 
-  await client.addCredits(client, addCreditsArg, lid);
+  await client.addCredits(client, addCreditsParam, lid);
 
   identityKeyPageTxSigner = TxSigner(keyPageUrl, identitySigner);
 
@@ -113,13 +112,13 @@ void testFeatures() async {
 
   const amount = 12;
 
-  SendTokensArg sendTokensArg = SendTokensArg();
-  TokenRecipientArg tokenRecipientArg = TokenRecipientArg();
-  tokenRecipientArg.url = recipient;
-  tokenRecipientArg.amount = amount;
-  sendTokensArg.to = [tokenRecipientArg];
+  SendTokensParam sendTokensParam = SendTokensParam();
+  TokenRecipientParam tokenRecipientParam = TokenRecipientParam();
+  tokenRecipientParam.url = recipient;
+  tokenRecipientParam.amount = amount;
+  sendTokensParam.to = [tokenRecipientParam];
 
-  res = await client.sendTokens(lid.acmeTokenAccount, sendTokensArg, lid);
+  res = await client.sendTokens(lid.acmeTokenAccount, sendTokensParam, lid);
 
   txId = res["result"]["txid"];
   await client.waitOnTx(DateTime.now().millisecondsSinceEpoch,txId);
