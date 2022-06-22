@@ -1,5 +1,6 @@
 import "dart:async";
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
@@ -368,6 +369,15 @@ class ACMEClient {
       "metric": metric,
       "duration": duration,
     });
+  }
+
+  Future<int> valueFromOracle() async{
+    final oracle = await queryAcmeOracle();
+    String priceHex = oracle["result"]["data"]["entry"]["data"][0];
+    print(priceHex);
+    dynamic priceInfo = jsonDecode(utf8.decode(HEX.decode(priceHex)));
+    int price = priceInfo["price"];
+    return price;
   }
 
   ///
