@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'model/address.dart';
+import 'model/data.dart';
 import 'model/query_transaction_response_model.dart' as query_trx_res_model;
 import 'package:hex/hex.dart';
 
@@ -556,6 +557,78 @@ class ACMEClient {
     }
 
     return txs;
+  }
+
+  ///
+  /// RPC: "query" - query data
+  Future<Data> callQuery(String? path) async {
+
+    var res = await queryUrl(path!);
+
+    Data urlData = new Data();
+    if (res != null) {
+      String? accountType = res['result']["type"];
+      var mrState = res['result']["merkleState"];
+      int? nonce = mrState["count"];
+      urlData.nonce = nonce;
+
+      LinkedHashMap? dt = LinkedHashMap?.from(res['result']["data"]); //res.result["data"];
+      switch (accountType) {
+        case "keyBook":
+        case "tokenAccount":
+          if (dt.length > 2) {
+            // process keypage
+            String? url = res['result']["data"]["url"];
+            String? tokenUrl = res['result']["data"]["tokenUrl"];
+            String? balance = res['result']["data"]["balance"];
+
+            urlData.url = url;
+            urlData.tokenUrl = tokenUrl;
+            if (balance != null) {
+              urlData.balance = int.parse(balance);
+            } else {
+              urlData.balance = 0;
+            }
+            urlData.txcount = 0;
+            urlData.creditBalance = 0;
+          }
+          break;
+        case "keyPage":
+          if (dt.length > 2) {
+            String? url = res['result']["data"]["url"];
+            String creditBalance = res['result']["data"]["creditBalance"] ?? "0";
+
+            urlData.url = url;
+            urlData.tokenUrl = res['result']["chainId"]; // as network name
+            urlData.creditBalance = int.parse(creditBalance);
+          }
+          break;
+        case "liteTokenAccount":
+          if (dt.length > 2) {
+            String? url = res['result']["data"]["url"];
+            String? tokenUrl = res['result']["data"]["tokenUrl"];
+            String balance = res['result']["data"]["balance"];
+            int? txcount = res['result']["data"]["txCount"];
+            int? nonce = res['result']["data"]["nonce"];
+            String creditBalance = res['result']["data"]["creditBalance"] ?? "0";
+
+            urlData.url = url;
+            urlData.tokenUrl = tokenUrl;
+            urlData.balance = int.parse(balance);
+            urlData.txcount = txcount;
+            urlData.nonce = nonce;
+            urlData.creditBalance = int.parse(creditBalance);
+          }
+          break;
+        default:
+          if (dt.length > 2) {
+            String? url = res['result']["data"]["url"];
+            urlData.url = url;
+          }
+          break;
+      }
+    }
+    return urlData;
   }
 
 }
