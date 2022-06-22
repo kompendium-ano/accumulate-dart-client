@@ -40,6 +40,18 @@ class Ed25519Keypair {
     return Ed25519Keypair(keypair);
   }
 
+  static Ed25519Keypair fromMnemonic(String mnemonic) {
+    Uint8List seed = bip39.mnemonicToSeed(mnemonic);
+
+    var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32));
+    var publicKey = ed.public(privateKey);
+
+    Keypair keypair = Keypair();
+    keypair.secretKey = privateKey.bytes.asUint8List();
+    keypair.publicKey = publicKey.bytes.asUint8List();
+    return Ed25519Keypair(keypair);
+  }
+
   static Ed25519Keypair fromSecretKey(Uint8List secretKey,
       {bool skipValidation = true}) {
     var privateKey = ed.PrivateKey(secretKey);
