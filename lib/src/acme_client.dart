@@ -1,4 +1,5 @@
 import "dart:async";
+import 'dart:collection';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
@@ -366,6 +367,116 @@ class ACMEClient {
       "metric": metric,
       "duration": duration,
     });
+  }
+
+  ///
+  /// "query-tx":         m.QueryTx,
+  Future<txModel.Transaction?> callGetTokenTransaction(String? txhash) async {
+    final res = await queryTx(txhash!);
+
+    txModel.Transaction? tx;
+    if (res != null) {
+      var data = res['result']["data"];
+      String? type = res['result']["type"];
+
+      print(type);
+      switch (type) {
+        case "syntheticTokenDeposit":
+        case "syntheticDepositTokens":
+          String? txid = res['result']["data"]["txid"];
+          String? from = res['result']["data"]["from"];
+          String? to = res['result']["data"]["to"];
+          int amount = int.parse(res['result']["data"]["amount"]);
+          String? tokenUrl = res['result']["data"]["tokenUrl"];
+
+          tx = txModel.Transaction("Outgoing", "", txid, from, to, amount, tokenUrl);
+          break;
+        case "addCredits":
+          String? txid = res['result']["data"]["txid"];
+          String? from = res['result']["sponsor"];
+          String? to = res['result']["data"]["recipient"];
+          int amount = res['result']["data"]["amount"];
+          //String? tokenUrl = res.result["data"]["tokenUrl"];
+
+          tx = txModel.Transaction("Incoming", "add-credits", txid, from, to, amount, "");
+          break;
+        case "sendTokens":
+          String? txid = res['result']["txid"];
+          String? from = res['result']["data"]["from"];
+          List to = res['result']["data"]["to"];
+          String? amount = "";
+          String? urlRecepient = "";
+          if (to != null) {
+            amount = to[0]["amount"];
+            urlRecepient = to[0]["url"];
+          }
+
+          tx = txModel.Transaction("Outgoing", "transaction", txid, from, urlRecepient, int.parse(amount!), "acc://");
+          break;
+        case "syntheticDepositCredits":
+        // TODO: handle differently from "addCredits"
+          String? txid = res['result']["data"]["txid"];
+          tx = txModel.Transaction("", "", txid, "", "", 0, ""); // use dummy structure for now
+          break;
+        case "createKeyPage":
+          String? txid = res['result']["txid"];
+          String? from = res['result']["origin"];
+          String? to = res['result']["data"]["url"];
+          LinkedHashMap sigs = res['result']["signatures"][0];
+          int? dateNonce = sigs["nonce"];
+
+          tx = txModel.Transaction("Outgoing", "", txid, from, to, 0, "ACME");
+          tx.created = dateNonce;
+
+          break;
+        case "acmeFaucet":
+          String? txid = res['result']["data"]["txid"];
+          String? from = res['result']["data"]["from"];
+          String? to = res['result']["data"]["url"];
+          int amount = 1000000000;
+          LinkedHashMap sigs = res['result']["signatures"][0];
+          int? dateNonce = sigs["Nonce"];
+
+          tx = txModel.Transaction("Incoming", "", txid, from, to, amount, "ACME");
+          tx.created = dateNonce;
+
+          break;
+        case "syntheticCreateChain":
+          String? txid = res['result']["data"]["txid"];
+          String? sponsor = res['result']["sponsor"];
+          String? origin = res['result']["origin"];
+          LinkedHashMap sigs = res['result']["signatures"][0];
+          int? dateNonce = sigs["Nonce"];
+
+          tx = txModel.Transaction("Outgoing", "", txid, sponsor, origin, 0, "ACME");
+          tx.created = dateNonce;
+          break;
+        case "createIdentity":
+        // TODO: handle differently from "syntethicCreateChain"
+          String? txid = res['result']["data"]["txid"];
+          tx = txModel.Transaction("", "", txid, "", "", 0, ""); // use dummy structure for now
+          break;
+          break;
+        default:
+          print("  default handler");
+          String? txid = res['result']["data"]["txid"];
+          String? from = res['result']["data"]["from"];
+          //ApiRespTxTo to = res.result["data"]["to"];
+          LinkedHashMap dataTo = res['result']["data"]["to"][0];
+          String? to = dataTo["url"];
+          int? amount = dataTo["amount"];
+          //int amount = int.parse(res.result["data"]["amount"]);
+          //String tokenUrl = res.result["data"]["tokenUrl"];
+          //int? dateNonce = res.result["signer"]["nonce"];
+          LinkedHashMap sigs = res['result']["signatures"][0];
+          int? dateNonce = sigs["Nonce"];
+
+          tx = txModel.Transaction("Outgoing", "", txid, from, to, amount, "ACME");
+          tx.created = dateNonce;
+      }
+    }
+
+    return tx;
   }
 
   ///
