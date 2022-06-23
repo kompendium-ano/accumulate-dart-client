@@ -2,6 +2,8 @@ import 'dart:core';
 
 import 'package:json_annotation/json_annotation.dart';
 
+import '../signing/ed25519_keypair_signer.dart';
+
 @JsonSerializable()
 class IdentityADI {
   String? _type;
@@ -14,6 +16,7 @@ class IdentityADI {
   int? _amountCredits;
   int? _countAccounts;
   int? _countKeybooks;
+  Ed25519KeypairSigner identitySigner = Ed25519KeypairSigner.generate();
 
   IdentityADI(this._type, this._path, this._sponsor);
 
