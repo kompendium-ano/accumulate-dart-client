@@ -1,4 +1,9 @@
-class AccURL {
+import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
+//part 'acc_url.g.dart';
+
+@HiveType(typeId: 666)
+class AccURL  extends HiveObject with EquatableMixin {
   late String authority;
   late String path;
   late String query;
@@ -34,4 +39,8 @@ class AccURL {
   String toString() {
     return "acc://$authority$path";
   }
+
+  @override
+
+  List<Object?> get props => [authority, path, query, fragment];
 }
