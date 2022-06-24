@@ -49,4 +49,7 @@ class Ed25519KeypairSigner implements Signer {
 
   @override
   set type(int? _type) {}
+
+  @override
+  Uint8List secretKey() => _keypair.secretKey;
 }

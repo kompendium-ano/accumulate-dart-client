@@ -7,6 +7,8 @@ abstract class Signer{
 
   Uint8List publicKey();
 
+  Uint8List secretKey();
+
   Uint8List publicKeyHash();
 
   int? type;
