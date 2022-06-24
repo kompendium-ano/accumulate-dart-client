@@ -198,7 +198,7 @@ Either<String, AccumulateURL> parseStringToAccumulateURL(String input) {
 class Address {
   String? _nickname;
   String? _spendingpass;
-  String? _address;
+  late String _address;
   AccumulateURL? _URL;
   int? _amount;
   int? _amountCredits;
@@ -213,7 +213,7 @@ class Address {
 
   /////////////////////////////////////////////////////
 
-  String? get address => _address;
+  String get address => _address;
 
   int? get amount => _amount;
 
@@ -299,7 +299,7 @@ class Address {
     _spendingpass = value;
   }
 
-  set address(String? value) {
+  set address(String value) {
     _address = value;
   }
 
