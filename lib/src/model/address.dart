@@ -385,6 +385,7 @@ class Address {
       final AccumulateURL tokenUrl = res.toOption().toNullable()!;
       tokenUrl.authority;
 
+
       // 1. Get the hash of the public key
       Digest keyHash = sha256.convert(pubKey); // keyHash := sha256.Sum256(pubKey)
 

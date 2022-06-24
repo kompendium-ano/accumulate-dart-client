@@ -491,13 +491,13 @@ class ACMEClient {
 
   ///
   /// RPC: "query-tx-history" (in v1 - "token-account-history")
-  Future<List<txModel.Transaction>> callGetTokenTransactionHistory(Address currAddr) async {
+  Future<List<txModel.Transaction>> callGetTokenTransactionHistory(String path) async {
 
     QueryPagination queryPagination = QueryPagination();
     queryPagination.start = 0;
     queryPagination.count = 100;
 
-    final res = await queryTxHistory(currAddr.lid!.acmeTokenAccount.toString(),queryPagination);
+    final res = await queryTxHistory(path,queryPagination);
 
 
     // Collect transaction iteratively
