@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 part 'acc_url.g.dart';
 
-@HiveType(typeId: 666)
+@HiveType(typeId: 100)
 class AccURL  extends HiveObject with EquatableMixin {
   @HiveField(0)
   late String authority;

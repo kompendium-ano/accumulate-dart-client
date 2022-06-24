@@ -8,19 +8,19 @@ part of 'acc_url.dart';
 
 class AccURLAdapter extends TypeAdapter<AccURL> {
   @override
-  final int typeId = 666;
+  final int typeId = 100;
 
   @override
   AccURL read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+      for (int i = 0; i < 1; i++) reader.readByte(): reader.read(),
     };
     return AccURL(fields[0])
       ..authority = Uri.parse(fields[0]).host
-      ..path = Uri.parse(fields[1]).path
-      ..query = Uri.parse(fields[2]).query
-      ..fragment = Uri.parse(fields[3]).fragment;
+      ..path = Uri.parse(fields[0]).path
+      ..query = Uri.parse(fields[0]).query
+      ..fragment = Uri.parse(fields[0]).fragment;
   }
 
   @override
