@@ -3,12 +3,19 @@ import "acc_url.dart";
 import "signer.dart";
 import "transaction.dart";
 import 'utils.dart';
+import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
+part 'tx_signer.g.dart';
 
-class TxSigner {
+@HiveType(typeId: 101)
+class TxSigner extends HiveObject with EquatableMixin{
+  @HiveField(0)
   late AccURL _url;
 
+  @HiveField(1)
   late Signer _signer;
 
+  @HiveField(2)
   late int _version;
 
   TxSigner(dynamic url, Signer signer, [int? version]) {
@@ -47,4 +54,7 @@ class TxSigner {
         signer.signRaw(tx.dataForSignature(info).asUint8List());
     return signature;
   }
+
+  @override
+  List<Object?> get props  => [_url, _signer, _version];
 }
