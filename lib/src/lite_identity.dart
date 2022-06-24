@@ -2,18 +2,17 @@ import 'dart:convert';
 import "dart:typed_data";
 
 import 'package:hex/hex.dart';
-import 'package:hive/hive.dart';
+
 
 import "acc_url.dart";
 import "acme.dart";
 import "package:crypto/crypto.dart";
 import "signer.dart";
 import "tx_signer.dart";
-part 'lite_identity.g.dart';
 
-@HiveType(typeId: 102)
+
 class LiteIdentity extends TxSigner{
-  LiteIdentity(Signer signer, [dynamic tokenUrl])
+  LiteIdentity(Signer signer)
       : super(LiteIdentity.computeUrl(signer.publicKeyHash()), signer);
 
   AccURL get acmeTokenAccount => AccURL.parse(

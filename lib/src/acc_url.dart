@@ -1,17 +1,13 @@
-import 'package:equatable/equatable.dart';
-import 'package:hive/hive.dart';
-part 'acc_url.g.dart';
+class AccURL  {
 
-@HiveType(typeId: 100)
-class AccURL  extends HiveObject with EquatableMixin {
-  @HiveField(0)
   late String authority;
-  @HiveField(1)
+
   late String path;
-  @HiveField(2)
+
   late String query;
-  @HiveField(3)
+
   late String fragment;
+  late String orgURL;
 
   AccURL(String url) {
     Uri parsedUri = Uri.parse(url);
@@ -22,6 +18,7 @@ class AccURL  extends HiveObject with EquatableMixin {
     if (parsedUri.host.isEmpty) {
       throw Exception("Missing authority");
     }
+    orgURL = url;
     authority = parsedUri.host;
 
     path = parsedUri.path;
@@ -44,7 +41,4 @@ class AccURL  extends HiveObject with EquatableMixin {
     return "acc://$authority$path";
   }
 
-  @override
-
-  List<Object?> get props => [authority, path, query, fragment];
 }

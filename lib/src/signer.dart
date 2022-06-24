@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 import 'acc_url.dart';
 
-abstract class Signer {
+abstract class Signer{
+
   Uint8List signRaw(Uint8List data);
 
   Uint8List publicKey();
