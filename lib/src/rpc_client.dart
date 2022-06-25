@@ -54,6 +54,9 @@ class RpcClient {
       body: json.encode(requestPayload),
     );
 
+    print(json.encode(requestPayload));
+    print(json.encode(response.body));
+
     final data = json.decode(response.body) as Map<String, dynamic>;
 
     if (data.containsKey('error')) {
