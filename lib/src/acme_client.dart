@@ -525,7 +525,7 @@ class ACMEClient {
             break;
           case "addCredits":
             String? txid = tx["txid"];
-            int? amountCredits = tx["data"]["amount"]; // that's amount of credits
+            int? amountCredits = (tx["data"]["amount"] is String)? int.parse(tx["data"]["amount"]):tx["data"]["amount"]; // that's amount of credits
             int amount = (amountCredits! * 0.01).toInt() * 100000000; // in acmes
 
             txModel.Transaction txl = txModel.Transaction("Incoming", "credits", txid, "", "", amount, "acc://ACME");

@@ -23,24 +23,13 @@ Future<void> main() async {
   testFeatures();
 }
 
-Future<int> valueFromOracle() async {
-  final oracle = await client.queryAcmeOracle();
-  String priceHex = oracle["result"]["data"]["entry"]["data"][0];
-  print(priceHex);
-  dynamic priceInfo = jsonDecode(utf8.decode(HEX.decode(priceHex)));
-  int price = priceInfo["price"];
-  print(price);
-
-  return price;
-}
 
 void testFeatures() async {
   LiteIdentity lid;
   String identityUrl;
   TxSigner identityKeyPageTxSigner;
 
-  print("inside test app");
-  final oracle = await valueFromOracle();
+  final oracle = await client.valueFromOracle();
 
   lid = LiteIdentity(Ed25519KeypairSigner.generate());
 
@@ -59,10 +48,9 @@ void testFeatures() async {
   print(res);
 
   int creditAmount = 60000;
-  sleep(const Duration(seconds: 10));
   AddCreditsParam addCreditsParam = AddCreditsParam();
   addCreditsParam.recipient = lid.url;
-  addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
+  addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ 1;
   addCreditsParam.oracle = oracle;
 
   res = await client.addCredits(lid.url, addCreditsParam, lid);

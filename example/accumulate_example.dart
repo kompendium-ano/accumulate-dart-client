@@ -75,7 +75,7 @@ void main() {
       //final resAccountType = await client.queryUrl(acc.url);
       //print("resAccountType $resAccountType");
 
-      identityUrl = "acc://${DateTime.now().millisecondsSinceEpoch}";
+      identityUrl = "acc://adi${DateTime.now().millisecondsSinceEpoch}";
       final identitySigner = Ed25519KeypairSigner.generate();
       final bookUrl = identityUrl + "/my-book";
       CreateIdentityParam createIdentity = CreateIdentityParam();
@@ -103,7 +103,7 @@ void main() {
       addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
       addCreditsParam.oracle = oracle;
 
-      await client.addCredits(client, addCreditsParam, lid);
+      await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
 
       identityKeyPageTxSigner = TxSigner(keyPageUrl, identitySigner);
 
