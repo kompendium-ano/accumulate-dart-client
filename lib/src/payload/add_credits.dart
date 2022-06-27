@@ -1,4 +1,6 @@
 import 'dart:typed_data';
+import 'package:hex/hex.dart';
+
 import '../utils.dart';
 import "../acc_url.dart";
 import "../encoding.dart";
@@ -37,6 +39,11 @@ class AddCredits extends BasePayload {
     if (_oracle > 0) {
       forConcat.addAll(uvarintMarshalBinary(_oracle, 4));
     }
+
+    print(HEX.encode(uvarintMarshalBinary(TransactionType.addCredits, 1)));
+    print(HEX.encode(stringMarshalBinary(_recipient.toString(), 2)));
+    print(HEX.encode(bigNumberMarshalBinary(_amount, 3)));
+    print(HEX.encode(uvarintMarshalBinary(_oracle, 4)));
 
     return forConcat.asUint8List();
   }
