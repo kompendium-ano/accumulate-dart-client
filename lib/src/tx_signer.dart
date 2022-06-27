@@ -26,6 +26,7 @@ class TxSigner{
   AccURL get url => _url;
 
   Uint8List get publicKey => _signer.publicKey();
+  Uint8List get secretKey => _signer.secretKey();
 
   Uint8List get publicKeyHash => _signer.publicKeyHash();
 
