@@ -11,6 +11,8 @@ abstract class Signer{
 
   Uint8List publicKeyHash();
 
+  String mnemonic();
+
   int? type;
 }
 

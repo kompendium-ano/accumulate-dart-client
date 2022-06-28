@@ -52,4 +52,7 @@ class Ed25519KeypairSigner implements Signer {
 
   @override
   Uint8List secretKey() => _keypair.secretKey;
+
+  @override
+  String mnemonic() => _keypair.mnemonic;
 }

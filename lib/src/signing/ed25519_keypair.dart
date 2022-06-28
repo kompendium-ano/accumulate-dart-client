@@ -7,6 +7,7 @@ import '../utils.dart';
 class Keypair {
   late Uint8List publicKey;
   late Uint8List secretKey;
+  late String mnemonic;
 }
 
 class Ed25519Keypair {
@@ -20,10 +21,10 @@ class Ed25519Keypair {
       Uint8List seed = bip39.mnemonicToSeed(mnemonic);
       var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32));
       var publicKey = ed.public(privateKey);
-
       _keypair = Keypair();
       _keypair.secretKey = privateKey.bytes.asUint8List();
       _keypair.publicKey = publicKey.bytes.asUint8List();
+      _keypair.mnemonic = mnemonic;
     }
   }
 
@@ -37,6 +38,7 @@ class Ed25519Keypair {
     Keypair keypair = Keypair();
     keypair.secretKey = privateKey.bytes.asUint8List();
     keypair.publicKey = publicKey.bytes.asUint8List();
+    keypair.mnemonic = mnemonic;
     return Ed25519Keypair(keypair);
   }
 
@@ -49,6 +51,7 @@ class Ed25519Keypair {
     Keypair keypair = Keypair();
     keypair.secretKey = privateKey.bytes.asUint8List();
     keypair.publicKey = publicKey.bytes.asUint8List();
+    keypair.mnemonic = mnemonic;
     return Ed25519Keypair(keypair);
   }
 
@@ -70,6 +73,7 @@ class Ed25519Keypair {
     Keypair keypair = Keypair();
     keypair.secretKey = privateKey.bytes.asUint8List();
     keypair.publicKey = publicKey.bytes.asUint8List();
+    keypair.mnemonic = "";
 
     return Ed25519Keypair(keypair);
   }
@@ -80,6 +84,7 @@ class Ed25519Keypair {
     Keypair keypair = Keypair();
     keypair.secretKey = privateKey.bytes.asUint8List();
     keypair.publicKey = publicKey.bytes.asUint8List();
+    keypair.mnemonic = "";
 
     return Ed25519Keypair(keypair);
   }
@@ -90,5 +95,9 @@ class Ed25519Keypair {
 
   Uint8List get secretKey {
     return _keypair.secretKey;
+  }
+
+  String get mnemonic {
+    return _keypair.mnemonic;
   }
 }
