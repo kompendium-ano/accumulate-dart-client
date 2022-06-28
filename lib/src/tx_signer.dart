@@ -27,6 +27,7 @@ class TxSigner{
 
   Uint8List get publicKey => _signer.publicKey();
   Uint8List get secretKey => _signer.secretKey();
+  String get mnemonic => _signer.mnemonic();
 
   Uint8List get publicKeyHash => _signer.publicKeyHash();
 
