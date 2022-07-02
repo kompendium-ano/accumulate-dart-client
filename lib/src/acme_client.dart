@@ -635,13 +635,13 @@ class ACMEClient {
               String? tokenUrl = "acc://";
               String balance = "0";
               int? txcount = res['mainChain']["count"];
-              String creditBalance =  dt["creditBalance"];
+              int creditBalance =  dt["creditBalance"];
 
               urlData.url = url;
               urlData.tokenUrl = tokenUrl;
               urlData.balance = int.parse(balance);
               urlData.txcount = txcount;
-              urlData.creditBalance = int.parse(creditBalance);
+              urlData.creditBalance = creditBalance;
             }
             break;
 
