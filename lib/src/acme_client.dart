@@ -572,7 +572,8 @@ class ACMEClient {
   /// RPC: "query" - query data
   Future<Data> callQuery(String? path) async {
 
-    var res = await queryUrl(path!);
+    var result = await queryUrl(path!);
+    var res = result["result"];
 
     Data urlData = new Data();
     if (res != null) {
