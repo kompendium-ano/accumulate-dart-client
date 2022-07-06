@@ -569,31 +569,4 @@ class ACMEClient {
   }
 
 
-  ///
-  /// "query-directory":  m.QueryDirectory,
-  Future<DataDirectory> callQueryDirectory(String path) async {
-
-    QueryPagination queryPagination =  QueryPagination();
-    queryPagination.count = 100;
-    queryPagination.start = 0;
-
-
-    var res = await queryDirectory(path, queryPagination, null);
-
-    DataDirectory directoryData = new DataDirectory();
-    directoryData.keybooksCount = 1;
-    if (res != null) {
-      String? accountType = res['result']["type"];
-      int total = res['result']["total"];
-      //List<String> entries = res.result["data"]["entries"].cast<String>();
-      //directoryData.entities = entries;
-      // entries.length > 2
-      if (total > 2) {
-        directoryData.tokenAccountsCount = total - 2;
-      }
-    }
-
-    return directoryData;
-  }
-
 }
