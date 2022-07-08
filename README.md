@@ -71,7 +71,7 @@ await client.addCredits(lid.url, addCreditsParam, lid);
 ### 4. Send ACME token to another Lite ACME token account
 
 ```dart
-int sendToken = 100;
+int sendToken = 10000;
 final recipient =  
     LiteIdentity(Ed25519KeypairSigner.generate()).acmeTokenAccount;  
 SendTokensParam sendTokensParam = SendTokensParam();  
