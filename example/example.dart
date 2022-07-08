@@ -23,7 +23,6 @@ Future<void> main() async {
   testFeatures();
 }
 
-
 void testFeatures() async {
   LiteIdentity lid;
   String identityUrl;
@@ -34,12 +33,14 @@ void testFeatures() async {
   lid = LiteIdentity(Ed25519KeypairSigner.generate());
 
   print("new account ${lid.acmeTokenAccount.toString()}");
+
   dynamic res = await client.faucet(lid.acmeTokenAccount);
-  print("faucet $res");
+
   String txId = res["result"]["txid"];
-  print("txId $txId");
-  await client.waitOnTx(DateTime.now().millisecondsSinceEpoch,txId);
-  print("waiting done");
+  print("faucet txId $txId");
+
+  await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
+  print("transaction complete");
 
   res = await client.queryUrl(lid.url);
   print(res);
@@ -55,14 +56,10 @@ void testFeatures() async {
 
   res = await client.addCredits(lid.url, addCreditsParam, lid);
 
-  print("addCredits $res");
   txId = res["result"]["txid"];
   print("addCredits txId $txId");
 
-  //final resAccountType = await client.queryUrl(acc.url);
-  //print("resAccountType $resAccountType");
-
-  identityUrl = "acc://${DateTime.now().millisecondsSinceEpoch}";
+  identityUrl = "acc://adi-${DateTime.now().millisecondsSinceEpoch}";
   final identitySigner = Ed25519KeypairSigner.generate();
   final bookUrl = identityUrl + "/my-book";
   CreateIdentityParam createIdentity = CreateIdentityParam();
@@ -76,8 +73,9 @@ void testFeatures() async {
   res = await client.createIdentity(lid.url, createIdentity, lid);
   txId = res["result"]["txid"];
   print("createIdentity txId $txId");
-  await client.waitOnTx(DateTime.now().millisecondsSinceEpoch,txId);
-  print("waiting done");
+
+  await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
+  print("transaction complete");
 
   //res = await client.queryUrl(identityUrl);
 
@@ -98,7 +96,7 @@ void testFeatures() async {
   final recipient =
       LiteIdentity(Ed25519KeypairSigner.generate()).acmeTokenAccount;
 
-  const amount = 12;
+  const amount = 12000;
 
   SendTokensParam sendTokensParam = SendTokensParam();
   TokenRecipientParam tokenRecipientParam = TokenRecipientParam();
@@ -109,7 +107,8 @@ void testFeatures() async {
   res = await client.sendTokens(lid.acmeTokenAccount, sendTokensParam, lid);
 
   txId = res["result"]["txid"];
-  await client.waitOnTx(DateTime.now().millisecondsSinceEpoch,txId);
+
+  await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
 
   res = await client.queryTx(txId);
   print(res);
