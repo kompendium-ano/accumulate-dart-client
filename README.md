@@ -101,5 +101,5 @@ await client.createIdentity(lid.url, createIdentityParam, lid);
 ## Contributions
 The Library is developed by Kompendium, LLC. Contributions are welcome, open new PR or submit a new issue.
 
-Current maintainer:
+Library developer & maintainer:
 Jimmy Jose <theguywhomakesapp@gmail.com>
