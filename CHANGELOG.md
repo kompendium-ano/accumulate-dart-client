@@ -1,3 +1,13 @@
+# 0.2.9
+- Major refactor
+- New function calls and parameters added
+
+# 0.2.8
+- various bug fixes
+
+# 0.2.7
+- various bug fixes
+
 # 0.2.6
 - refactor responses for history
 - various bug fixes

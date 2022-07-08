@@ -19,6 +19,10 @@ class Ed25519KeypairSigner implements Signer {
     return Ed25519KeypairSigner(Ed25519Keypair());
   }
 
+  static Ed25519KeypairSigner fromMnemonic(String mnemonic) {
+    return Ed25519KeypairSigner(Ed25519Keypair.fromMnemonic(mnemonic));
+  }
+
   @override
   int get type => SignatureType.signatureTypeED25519;
 
@@ -45,4 +49,10 @@ class Ed25519KeypairSigner implements Signer {
 
   @override
   set type(int? _type) {}
+
+  @override
+  Uint8List secretKey() => _keypair.secretKey;
+
+  @override
+  String mnemonic() => _keypair.mnemonic;
 }

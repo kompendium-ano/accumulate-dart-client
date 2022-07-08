@@ -4,7 +4,7 @@ import "signer.dart";
 import "transaction.dart";
 import 'utils.dart';
 
-class TxSigner {
+class TxSigner{
   late AccURL _url;
 
   late Signer _signer;
@@ -26,6 +26,8 @@ class TxSigner {
   AccURL get url => _url;
 
   Uint8List get publicKey => _signer.publicKey();
+  Uint8List get secretKey => _signer.secretKey();
+  String get mnemonic => _signer.mnemonic();
 
   Uint8List get publicKeyHash => _signer.publicKeyHash();
 
@@ -47,4 +49,5 @@ class TxSigner {
         signer.signRaw(tx.dataForSignature(info).asUint8List());
     return signature;
   }
+
 }

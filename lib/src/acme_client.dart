@@ -1,7 +1,11 @@
 import "dart:async";
+import 'dart:collection';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'model/address.dart';
+import 'model/data.dart';
 import 'model/query_transaction_response_model.dart' as query_trx_res_model;
 import 'package:hex/hex.dart';
 
@@ -31,6 +35,7 @@ import "payload/write_data.dart";
 import "rpc_client.dart";
 import "transaction.dart";
 import "tx_signer.dart";
+import 'model/tx.dart' as txModel;
 
 class ACMEClient {
   late RpcClient _rpcClient;
@@ -365,4 +370,203 @@ class ACMEClient {
       "duration": duration,
     });
   }
+
+  Future<int> valueFromOracle() async{
+    final oracle = await queryAcmeOracle();
+    String priceHex = oracle["result"]["data"]["entry"]["data"][0];
+    dynamic priceInfo = jsonDecode(utf8.decode(HEX.decode(priceHex)));
+    int price = priceInfo["price"];
+    return price;
+  }
+
+  ///
+  /// "query-tx":         m.QueryTx,
+  Future<txModel.Transaction?> callGetTokenTransaction(String? txhash) async {
+    final res = await queryTx(txhash!);
+
+    txModel.Transaction? tx;
+    if (res != null) {
+      var data = res['result']["data"];
+      String? type = res['result']["type"];
+
+      print(type);
+      switch (type) {
+        case "syntheticTokenDeposit":
+        case "syntheticDepositTokens":
+          String? txid = res['result']["data"]["txid"];
+          String? from = res['result']["data"]["from"];
+          String? to = res['result']["data"]["to"];
+          int amount = int.parse(res['result']["data"]["amount"]);
+          String? tokenUrl = res['result']["data"]["tokenUrl"];
+
+          tx = txModel.Transaction("Outgoing", "", txid, from, to, amount, tokenUrl);
+          break;
+        case "addCredits":
+          String? txid = res['result']["data"]["txid"];
+          String? from = res['result']["sponsor"];
+          String? to = res['result']["data"]["recipient"];
+          int amount = res['result']["data"]["amount"];
+          //String? tokenUrl = res.result["data"]["tokenUrl"];
+
+          tx = txModel.Transaction("Incoming", "add-credits", txid, from, to, amount, "");
+          break;
+        case "sendTokens":
+          String? txid = res['result']["txid"];
+          String? from = res['result']["data"]["from"];
+          List to = res['result']["data"]["to"];
+          String? amount = "";
+          String? urlRecepient = "";
+          if (to != null) {
+            amount = to[0]["amount"];
+            urlRecepient = to[0]["url"];
+          }
+
+          tx = txModel.Transaction("Outgoing", "transaction", txid, from, urlRecepient, int.parse(amount!), "acc://");
+          break;
+        case "syntheticDepositCredits":
+        // TODO: handle differently from "addCredits"
+          String? txid = res['result']["data"]["txid"];
+          tx = txModel.Transaction("", "", txid, "", "", 0, ""); // use dummy structure for now
+          break;
+        case "createKeyPage":
+          String? txid = res['result']["txid"];
+          String? from = res['result']["origin"];
+          String? to = res['result']["data"]["url"];
+          LinkedHashMap sigs = res['result']["signatures"][0];
+          int? dateNonce = sigs["nonce"];
+
+          tx = txModel.Transaction("Outgoing", "", txid, from, to, 0, "ACME");
+          tx.created = dateNonce;
+
+          break;
+        case "acmeFaucet":
+          String? txid = res['result']["data"]["txid"];
+          String? from = res['result']["data"]["from"];
+          String? to = res['result']["data"]["url"];
+          int amount = 1000000000;
+          LinkedHashMap sigs = res['result']["signatures"][0];
+          int? dateNonce = sigs["Nonce"];
+
+          tx = txModel.Transaction("Incoming", "", txid, from, to, amount, "ACME");
+          tx.created = dateNonce;
+
+          break;
+        case "syntheticCreateChain":
+          String? txid = res['result']["data"]["txid"];
+          String? sponsor = res['result']["sponsor"];
+          String? origin = res['result']["origin"];
+          LinkedHashMap sigs = res['result']["signatures"][0];
+          int? dateNonce = sigs["Nonce"];
+
+          tx = txModel.Transaction("Outgoing", "", txid, sponsor, origin, 0, "ACME");
+          tx.created = dateNonce;
+          break;
+        case "createIdentity":
+        // TODO: handle differently from "syntethicCreateChain"
+          String? txid = res['result']["data"]["txid"];
+          tx = txModel.Transaction("", "", txid, "", "", 0, ""); // use dummy structure for now
+          break;
+          break;
+        default:
+          print("  default handler");
+          String? txid = res['result']["data"]["txid"];
+          String? from = res['result']["data"]["from"];
+          //ApiRespTxTo to = res.result["data"]["to"];
+          LinkedHashMap dataTo = res['result']["data"]["to"][0];
+          String? to = dataTo["url"];
+          int? amount = dataTo["amount"];
+          //int amount = int.parse(res.result["data"]["amount"]);
+          //String tokenUrl = res.result["data"]["tokenUrl"];
+          //int? dateNonce = res.result["signer"]["nonce"];
+          LinkedHashMap sigs = res['result']["signatures"][0];
+          int? dateNonce = sigs["Nonce"];
+
+          tx = txModel.Transaction("Outgoing", "", txid, from, to, amount, "ACME");
+          tx.created = dateNonce;
+      }
+    }
+
+    return tx;
+  }
+
+  ///
+  /// RPC: "query-tx-history" (in v1 - "token-account-history")
+  Future<List<txModel.Transaction>> callGetTokenTransactionHistory(String path) async {
+
+    QueryPagination queryPagination = QueryPagination();
+    queryPagination.start = 0;
+    queryPagination.count = 100;
+
+    final res = await queryTxHistory(path,queryPagination);
+
+
+    // Collect transaction iteratively
+    List<txModel.Transaction> txs = [];
+    if (res != null) {
+      var records = res['result']["items"];
+
+      if (records == null) {
+        return [];
+      }
+
+      for (var i = 0; i < records.length; i++) {
+        var tx = records[i];
+        String? type = tx["type"];
+
+        switch (type) {
+          case "syntheticDepositTokens": // that's faucet
+            String? txid = tx["txid"];
+            String? amount = tx["data"]["amount"]; // AMOUNT INCOSISTENT, faucet returns String while other types int
+            String? token = tx["data"]["token"];
+
+            // if nothing that was a faucet
+            txModel.Transaction txl = txModel.Transaction("Incoming", "", txid, "", "", int.parse(amount!), "acc://$token");
+            txs.add(txl);
+            break;
+          case "addCredits":
+            String? txid = tx["txid"];
+            int? amountCredits = (tx["data"]["amount"] is String)? int.parse(tx["data"]["amount"]):tx["data"]["amount"]; // that's amount of credits
+            int amount = (amountCredits! * 0.01).toInt() * 100000000; // in acmes
+
+            txModel.Transaction txl = txModel.Transaction("Incoming", "credits", txid, "", "", amount, "acc://ACME");
+            txs.add(txl);
+            break;
+          case "sendTokens":
+            String? txid = tx["txid"];
+            String? from = tx["data"]["from"];
+            List to = tx["data"]["to"];
+            String? amount = "";
+            String? urlRecepient = "";
+            if (to != null) {
+              amount = to[0]["amount"];
+              urlRecepient = to[0]["url"];
+            }
+
+            txModel.Transaction txl = txModel.Transaction("Outgoing", "transaction", txid, from, urlRecepient, int.parse(amount!), "acc://");
+            txs.add(txl);
+            break;
+          case "syntheticCreateChain":
+            String? txid = tx["txid"];
+            int? amount = tx["data"]["amount"];
+            String? token = tx["data"]["token"];
+
+            txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "acc://$token");
+            txs.add(txl);
+            break;
+          default:
+            String? txid = tx["txid"];
+            int? amount = tx["data"]["amount"];
+            String? token = tx["data"]["token"];
+
+            txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "acc://$token");
+            txs.add(txl);
+            break;
+        }
+      }
+    }
+
+    return txs;
+  }
+
+
 }

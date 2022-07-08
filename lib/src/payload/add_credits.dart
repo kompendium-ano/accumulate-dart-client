@@ -1,4 +1,6 @@
 import 'dart:typed_data';
+import 'package:hex/hex.dart';
+
 import '../utils.dart';
 import "../acc_url.dart";
 import "../encoding.dart";
@@ -30,7 +32,7 @@ class AddCredits extends BasePayload {
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
 
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.addCredits, 1));
+    forConcat.addAll(uvarintMarshalBinaryAlt(TransactionType.addCredits, 1));
     forConcat.addAll(stringMarshalBinary(_recipient.toString(), 2));
     forConcat.addAll(bigNumberMarshalBinary(_amount, 3));
 
