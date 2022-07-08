@@ -1,4 +1,4 @@
-name: accumulate_api6
+name: accumulate_api
 description: Dart client for Accumulate blockchain, defines basic models and API calls to work with network, supports all types of accounts.
 repository: https://github.com/kompendium-ano/accumulate-dart-client
 version: 0.2.9

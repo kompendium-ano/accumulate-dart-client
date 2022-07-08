@@ -1,14 +1,14 @@
 import 'dart:convert' show utf8;
 import 'dart:core';
 
-import 'package:accumulate_api6/src/acc_url.dart';
-import 'package:accumulate_api6/src/utils.dart';
+import 'package:accumulate_api/src/acc_url.dart';
+import 'package:accumulate_api/src/utils.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import "package:hex/hex.dart";
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../accumulate_api6.dart';
+import '../../accumulate_api.dart';
 
 // // URL is an Accumulate URL.
 // type URL struct {
