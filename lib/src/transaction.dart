@@ -29,7 +29,7 @@ class Header {
 
   Header(dynamic principal, [HeaderOptions? options]) {
     _principal = AccURL.toAccURL(principal);
-    _timestamp = options?.timestamp ?? DateTime.now().microsecondsSinceEpoch;
+    _timestamp = options?.timestamp ?? DateTime.now().millisecondsSinceEpoch;
 
     _memo = options?.memo;
 
