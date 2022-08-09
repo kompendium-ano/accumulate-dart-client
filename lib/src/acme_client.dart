@@ -63,7 +63,7 @@ class ACMEClient {
   }
 
   Future<Map<String, dynamic>> queryAcmeOracle() {
-    return queryData(ACMEOracleUrl);
+    return call("describe");//queryData(ACMEOracleUrl);
   }
 
   Future<Map<String, dynamic>> queryData(dynamic url, [String? entryHash]) {
@@ -87,6 +87,9 @@ class ACMEClient {
 
   Future<Map<String, dynamic>> queryTx(String txId, [TxQueryOptions? options]) {
     Map<String, dynamic> params = {};
+    if(txId.startsWith("acc://")){
+      txId = txId.substring(6).split("@")[0];
+    }
     params.addAll({"txid": txId});
     if (options != null) {
       params.addAll(options.toMap);
