@@ -16,6 +16,7 @@ class QueryOptions {
   bool? expand;
   int? height;
   bool? prove;
+  bool? scratch;
 
   Map<String, dynamic> get toMap {
     Map<String, dynamic> value = {};
@@ -30,6 +31,10 @@ class QueryOptions {
 
     if (prove != null) {
       value.addAll({"prove": prove!});
+    }
+
+    if (scratch != null) {
+      value.addAll({"scratch": scratch!});
     }
 
     return value;
@@ -56,6 +61,10 @@ class TxQueryOptions extends QueryOptions {
       value.addAll({"prove": prove!});
     }
 
+    if (scratch != null) {
+      value.addAll({"scratch": scratch!});
+    }
+
     if (wait != null) {
       value.addAll({"wait": wait!});
     }
@@ -66,6 +75,21 @@ class TxQueryOptions extends QueryOptions {
 
     return value;
   }
+}
+
+class TxHistoryQueryOptions  {
+bool? scratch;
+
+Map<String, dynamic> get toMap {
+  Map<String, dynamic> value = {};
+
+  if (scratch != null) {
+    value.addAll({"scratch": scratch!});
+  }
+
+
+  return value;
+}
 }
 
 class MinorBlocksQueryOptions {

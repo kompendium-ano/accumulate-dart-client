@@ -10,18 +10,18 @@ import "base_payload.dart";
 class CreateDataAccountParam {
   dynamic url;
   List<AccURL>? authorities;
-  bool? scratch;
+  //bool? scratch;
 }
 
 class CreateDataAccount extends BasePayload {
   late AccURL _url;
   List<AccURL>? _authorities;
-  late bool _scratch;
+  //late bool _scratch;
 
   CreateDataAccount(CreateDataAccountParam createDataAccountParam) : super() {
     _url = AccURL.toAccURL(createDataAccountParam.url);
     _authorities = createDataAccountParam.authorities;
-    _scratch = createDataAccountParam.scratch ?? false;
+    //_scratch = createDataAccountParam.scratch ?? false;
   }
 
   @override
@@ -31,11 +31,11 @@ class CreateDataAccount extends BasePayload {
         .addAll(uvarintMarshalBinary(TransactionType.createDataAccount, 1));
     forConcat.addAll(stringMarshalBinary(_url.toString(), 2));
 
-    forConcat.addAll(booleanMarshalBinary(_scratch, 5));
+   // forConcat.addAll(booleanMarshalBinary(_scratch, 5));
 
     if (_authorities != null) {
       for (AccURL accURL in _authorities!) {
-        forConcat.addAll(stringMarshalBinary(accURL.toString(), 6));
+        forConcat.addAll(stringMarshalBinary(accURL.toString(), 3));
       }
     }
 

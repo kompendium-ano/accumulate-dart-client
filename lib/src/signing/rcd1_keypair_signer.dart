@@ -19,7 +19,6 @@ class RCD1KeypairSigner extends Ed25519KeypairSigner {
     hashList.addAll(Uint8List(1));
     hashList.addAll(publicKey());
 
-    ;
     _rcd1Hash = sha256
         .convert(sha256.convert(hashList).bytes.asUint8List())
         .bytes

@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:accumulate_api6/src/payload/add_credits.dart';
 import 'package:accumulate_api6/src/payload/create_identity.dart';
 import 'package:accumulate_api6/src/payload/send_tokens.dart';
+import 'package:accumulate_api6/src/payload/token_recipient.dart';
 import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
 import 'package:accumulate_api6/src/tx_signer.dart';
 import 'package:hex/hex.dart';

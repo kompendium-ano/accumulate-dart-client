@@ -3,23 +3,26 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:accumulate_api6/src/lite_identity.dart';
-import 'package:accumulate_api6/src/payload/add_credits.dart';
-import 'package:accumulate_api6/src/payload/create_identity.dart';
-import 'package:accumulate_api6/src/payload/send_tokens.dart';
-import 'package:accumulate_api6/src/signer.dart';
-import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
-import 'package:accumulate_api6/src/tx_signer.dart';
+//import '../lib/src/lite_identity.dart';
+import '../lib/src/payload/add_credits.dart';
+import '../lib/src/payload/create_identity.dart';
+import '../lib/src/payload/send_tokens.dart';
+import '../lib/src/payload/token_recipient.dart';
+import '../lib/src/signer.dart';
+import '../lib/src/signing/ed25519_keypair_signer.dart';
+import '../lib/src/tx_signer.dart';
 import 'package:hex/hex.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:accumulate_api6/src/utils.dart';
+import '../lib/src/utils.dart';
 
-import 'package:accumulate_api6/accumulate_api6.dart';
+import '../lib/accumulate_api6.dart';
 
-ACMEClient client = ACMEClient("https://testnet.accumulatenetwork.io/v2");
+final endPoint = "https://testnet.accumulatenetwork.io/v2";
+ACMEClient client = ACMEClient(endPoint);
 
 Future<void> main() async {
+  print(endPoint);
   testFeatures();
 }
 
@@ -39,8 +42,8 @@ void testFeatures() async {
   String txId = res["result"]["txid"];
   print("faucet txId $txId");
 
-  await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
-  print("transaction complete");
+  bool status = await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
+  print("transaction $status");
 
   res = await client.queryUrl(lid.url);
   print(res);

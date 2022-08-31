@@ -9,7 +9,7 @@ import 'model/data.dart';
 import 'model/query_transaction_response_model.dart' as query_trx_res_model;
 import 'package:hex/hex.dart';
 
-import "acc_url.dart" show AccURL;
+import "acc_url.dart";
 import "acme.dart";
 import "api_types.dart";
 import "payload.dart";
@@ -63,7 +63,7 @@ class ACMEClient {
   }
 
   Future<Map<String, dynamic>> queryAcmeOracle() {
-    return call("describe");//queryData(ACMEOracleUrl);
+    return call("describe");
   }
 
   Future<Map<String, dynamic>> queryData(dynamic url, [String? entryHash]) {
@@ -73,6 +73,10 @@ class ACMEClient {
       params.addAll({"entryHash": entryHash});
     }
     return call("query-data", params);
+  }
+
+  Future<Map<String, dynamic>> queryAnchor(String anchor){
+  return this.queryUrl(ANCHORS_URL.append('#anchor/${anchor}'));
   }
 
   Future<Map<String, dynamic>> queryUrl(dynamic url, [QueryOptions? options]) {
@@ -86,11 +90,14 @@ class ACMEClient {
   }
 
   Future<Map<String, dynamic>> queryTx(String txId, [TxQueryOptions? options]) {
+
+    final paramName = txId.startsWith("acc://") ? "txIdUrl" : "txid";
+
     Map<String, dynamic> params = {};
-    if(txId.startsWith("acc://")){
+    /*if(txId.startsWith("acc://")){
       txId = txId.substring(6).split("@")[0];
-    }
-    params.addAll({"txid": txId});
+    }*/
+    params.addAll({paramName: txId});
     if (options != null) {
       params.addAll(options.toMap);
     }
@@ -99,12 +106,16 @@ class ACMEClient {
   }
 
   Future<Map<String, dynamic>> queryTxHistory(
-      dynamic url, QueryPagination pagination) {
+      dynamic url, QueryPagination pagination,TxHistoryQueryOptions? options) {
     Map<String, dynamic> params = {};
     params.addAll({"url": url.toString()});
     params.addAll(pagination.toMap);
+    if (options != null) {
+      params.addAll(options.toMap);
+    }
     return call("query-tx-history", params);
   }
+
 
   Future<Map<String, dynamic>> queryDataSet(
       dynamic url, QueryPagination pagination, QueryOptions? options) {
@@ -187,7 +198,13 @@ class ACMEClient {
             queryTransactionResponseModel.result!;
         if (result.status != null) {
           if (result.status!.delivered!) {
-            log("${result.syntheticTxids}");
+            if (result.status!.failed != null) {
+              if (result.status!.failed!) {
+                completer.complete(false);
+              }
+            }
+
+            log("${result.status!.delivered!} ${result.syntheticTxids}");
             if (ignoreSyntheticTxs) {
               completer.complete(true);
             } else {
@@ -498,7 +515,11 @@ class ACMEClient {
     queryPagination.start = 0;
     queryPagination.count = 100;
 
-    final res = await queryTxHistory(path,queryPagination);
+    TxHistoryQueryOptions txHistoryQueryOptions = TxHistoryQueryOptions();
+
+
+
+    final res = await queryTxHistory(path,queryPagination,txHistoryQueryOptions);
 
 
     // Collect transaction iteratively
