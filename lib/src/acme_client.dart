@@ -200,6 +200,7 @@ class ACMEClient {
           if (result.status!.delivered!) {
             if (result.status!.failed != null) {
               if (result.status!.failed!) {
+                print("${result.status?.toJson()}");
                 completer.complete(false);
               }
             }
@@ -260,6 +261,7 @@ class ACMEClient {
         sleep(Duration(milliseconds: pollInterval));
         completer.complete(await waitOnTx(startTime, txId));
       } else {
+        print("last complete");
         completer.complete(false);
       }
     }

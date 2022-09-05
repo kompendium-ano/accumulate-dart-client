@@ -34,35 +34,40 @@ void testFeatures() async {
   final oracle = await client.valueFromOracle();
 
   lid = LiteIdentity(Ed25519KeypairSigner.generate());
-
   print("new account ${lid.acmeTokenAccount.toString()}");
 
   dynamic res = await client.faucet(lid.acmeTokenAccount);
-
+  sleep(Duration(seconds: 10));
   String txId = res["result"]["txid"];
   print("faucet txId $txId");
 
   bool status = await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
   print("transaction $status");
+ // sleep(Duration(seconds: 60));
 
+
+/*
   res = await client.queryUrl(lid.url);
   print(res);
 
   res = await client.queryUrl(lid.acmeTokenAccount);
   print(res);
-
+*/
   int creditAmount = 60000;
   AddCreditsParam addCreditsParam = AddCreditsParam();
   addCreditsParam.recipient = lid.url;
-  addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ 1;
+  addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
   addCreditsParam.oracle = oracle;
 
-  res = await client.addCredits(lid.url, addCreditsParam, lid);
+  res = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
+
 
   txId = res["result"]["txid"];
   print("addCredits txId $txId");
+  sleep(Duration(seconds: 45));
 
-  identityUrl = "acc://adi-${DateTime.now().millisecondsSinceEpoch}";
+
+  identityUrl = "acc://adi-${DateTime.now().millisecondsSinceEpoch}.acme";
   final identitySigner = Ed25519KeypairSigner.generate();
   final bookUrl = identityUrl + "/my-book";
   CreateIdentityParam createIdentity = CreateIdentityParam();
@@ -91,7 +96,7 @@ void testFeatures() async {
   addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
   addCreditsParam.oracle = oracle;
 
-  await client.addCredits(client, addCreditsParam, lid);
+  await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
 
   identityKeyPageTxSigner = TxSigner(keyPageUrl, identitySigner);
 
