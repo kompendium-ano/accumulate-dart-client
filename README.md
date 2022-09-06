@@ -99,7 +99,8 @@ await client.createIdentity(lid.url, createIdentityParam, lid);
 
 
 ## Contributions
-The Library is developed by Kompendium, LLC. Contributions are welcome, open new PR or submit a new issue.
+The Library developed by Kompendium, LLC in partnership with Kelecorix, Inc and Sergey Bushnyak. Contributions are welcome, open new PR or submit new issue.
 
-Library developer & maintainer:
-Jimmy Jose <theguywhomakesapp@gmail.com>
+#### Library developers:
+* Jimmy Jose <theguywhomakesapp@gmail.com>
+* Sergey Bushnyak <sergey.bushnyak@kelecorix.com>
