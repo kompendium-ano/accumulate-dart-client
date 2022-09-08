@@ -21,7 +21,6 @@ class TokenRecipient {
   static Uint8List marshalBinaryTokenRecipient(TokenRecipient tr) {
 
     List<int> forConcat = [];
-
     forConcat.addAll(stringMarshalBinary(tr.url.toString(), 1));
     forConcat.addAll(bigNumberMarshalBinary(tr.amount, 2));
 

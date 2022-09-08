@@ -28,7 +28,7 @@ class WriteData extends BasePayload {
 
   @override
   Uint8List extendedMarshalBinary() {
-    List<int> forConcat = [];
+    List<int> forConcat = _marshalBinary();
 /*
     forConcat.addAll(uvarintMarshalBinary(TransactionType.writeData, 1));
 
@@ -43,7 +43,7 @@ class WriteData extends BasePayload {
 
     forConcat.addAll(uvarintMarshalBinary(TransactionType.writeData, 1));
 
-    if (withoutEntry) {
+    if (!withoutEntry) {
       forConcat.addAll(fieldMarshalBinary(2, marshalDataEntry(this._data)));
     }
 

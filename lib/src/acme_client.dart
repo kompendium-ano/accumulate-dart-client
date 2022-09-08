@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'payload/update_key_page.dart';
+
 import 'model/address.dart';
 import 'model/data.dart';
 import 'model/query_transaction_response_model.dart' as query_trx_res_model;
@@ -350,12 +352,13 @@ class ACMEClient {
     return _execute(AccURL.toAccURL(principal), UpdateKey(updateKey), signer);
   }
 
-/*
+
   Future<Map<String, dynamic>> updateKeyPage(
-      dynamic principal, List<KeyPageOperation> operation, TxSigner signer) {
+      dynamic principal, UpdateKeyPageParam updateKeyPageParam, TxSigner signer) {
     return _execute(
-        AccURL.toAccURL(principal), UpdateKeyPage(operation), signer);
-  }*/
+        AccURL.toAccURL(principal), UpdateKeyPage(updateKeyPageParam), signer);
+  }
+
 
   Future<Map<String, dynamic>> updateValidatorKey(dynamic principal,
       UpdateValidatorKeyParam updateValidatorKey, TxSigner signer) {
