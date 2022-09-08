@@ -4,6 +4,9 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'payload/create_lite_data_account.dart';
+import 'payload/factom.dart';
+
 import 'payload/update_key_page.dart';
 
 import 'model/address.dart';
@@ -34,6 +37,7 @@ import "payload/update_key.dart";
 //import "payload/update_key_page.dart" show KeyPageOperation, UpdateKeyPage;
 import "payload/update_validator_key.dart";
 import "payload/write_data.dart";
+import "payload/write_data_to.dart";
 import "rpc_client.dart";
 import "transaction.dart";
 import "tx_signer.dart";
@@ -593,6 +597,23 @@ class ACMEClient {
     }
 
     return txs;
+  }
+
+
+  Future<Map<String, dynamic>> factom(
+      dynamic principal, FactomParam factomParam, TxSigner signer) {
+    return _execute(AccURL.toAccURL(principal), Factom(factomParam), signer);
+  }
+
+  Future<Map<String, dynamic>> createLiteDataAccount(dynamic principal,
+      CreateLiteDataAccountParam createLiteDataAccountParam, TxSigner signer) {
+    return _execute(AccURL.toAccURL(principal),
+        CreateLiteDataAccount(createLiteDataAccountParam), signer);
+  }
+
+  Future<Map<String, dynamic>> writeDataTo(
+      dynamic principal, WriteDataToParam writeDataToParam, TxSigner signer) {
+    return _execute(AccURL.toAccURL(principal), WriteDataTo(writeDataToParam), signer);
   }
 
 
