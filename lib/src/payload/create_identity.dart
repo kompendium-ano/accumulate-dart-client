@@ -11,6 +11,8 @@ class CreateIdentityParam {
   Uint8List? keyHash;
   dynamic keyBookUrl;
   List<AccURL>? authorities;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class CreateIdentity extends BasePayload {
@@ -27,6 +29,9 @@ class CreateIdentity extends BasePayload {
     }
 
     _authorities = createIdentityParam.authorities;
+
+    super.memo = createIdentityParam.memo;
+    super.metadata = createIdentityParam.metadata;
   }
 
   @override

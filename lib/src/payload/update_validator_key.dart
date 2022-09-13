@@ -7,6 +7,8 @@ import "base_payload.dart";
 class UpdateValidatorKeyParam {
   late Uint8List publicKey;
   late Uint8List newPublicKey;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class UpdateValidatorKey extends BasePayload {
@@ -17,6 +19,8 @@ class UpdateValidatorKey extends BasePayload {
       : super() {
     _publicKey = updateValidatorKeyParam.publicKey;
     _newPublicKey = updateValidatorKeyParam.newPublicKey;
+    super.memo = updateValidatorKeyParam.memo;
+    super.metadata = updateValidatorKeyParam.metadata;
   }
 
   @override

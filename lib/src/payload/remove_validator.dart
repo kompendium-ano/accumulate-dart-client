@@ -10,6 +10,8 @@ import "base_payload.dart";
 class RemoveValidatorArg {
   late Uint8List publicKey;
   dynamic owner;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class RemoveValidator extends BasePayload {
@@ -19,6 +21,8 @@ class RemoveValidator extends BasePayload {
   RemoveValidator(RemoveValidatorArg arg) : super() {
     _publicKey = arg.publicKey;
     _owner = arg.owner ? AccURL.toAccURL(arg.owner) : null;
+    super.memo = arg.memo;
+    super.metadata = arg.metadata;
   }
 
   @override

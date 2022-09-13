@@ -11,6 +11,8 @@ class AddCreditsParam {
   dynamic recipient;
   dynamic amount;
   dynamic oracle;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class AddCredits extends BasePayload {
@@ -26,6 +28,11 @@ class AddCredits extends BasePayload {
     _oracle = addCreditsParam.oracle is int
         ? addCreditsParam.oracle
         : int.parse(addCreditsParam.oracle);
+
+print("addCreditsParam.memo ${addCreditsParam.memo}");
+    print("addCreditsParam.metadata ${addCreditsParam.metadata}");
+    super.memo = addCreditsParam.memo;
+    super.metadata = addCreditsParam.metadata;
   }
 
   @override
@@ -42,4 +49,6 @@ class AddCredits extends BasePayload {
 
     return forConcat.asUint8List();
   }
+
+
 }

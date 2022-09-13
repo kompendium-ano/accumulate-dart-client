@@ -8,6 +8,8 @@ import "base_payload.dart";
 
 class BurnTokensParam {
   dynamic amount;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class BurnTokens extends BasePayload {
@@ -17,6 +19,9 @@ class BurnTokens extends BasePayload {
     _amount = burnTokensParam.amount is int
         ? burnTokensParam.amount
         : int.parse(burnTokensParam.amount);
+
+    super.memo = burnTokensParam.memo;
+    super.metadata = burnTokensParam.metadata;
   }
 
   @override

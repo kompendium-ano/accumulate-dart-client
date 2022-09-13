@@ -59,8 +59,8 @@ void testFeatures() async {
   String txId = res["result"]["txid"];
   print("faucet txId $txId");
 
-  bool status = await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
-  print("transaction $status");
+  //bool status = await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
+  //print("transaction $status");
  // sleep(Duration(seconds: 60));
 
 
@@ -76,6 +76,8 @@ void testFeatures() async {
   addCreditsParam.recipient = lid.url;
   addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
   addCreditsParam.oracle = oracle;
+  addCreditsParam.memo = "Add credits memo test";
+  addCreditsParam.metadata = utf8.encode("Add credits metadata test").asUint8List();
 
   res = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
 
@@ -83,7 +85,9 @@ void testFeatures() async {
   txId = res["result"]["txid"];
   print("addCredits txId $txId");
   sleep(Duration(seconds: 45));
-
+  res = await client.queryTx(txId);
+  print("addCredits res $res");
+return;
 
   identityUrl = "acc://adi-${DateTime.now().millisecondsSinceEpoch}.acme";
   final identitySigner = Ed25519KeypairSigner.generate();

@@ -11,6 +11,8 @@ class WriteDataToParam {
   late List<Uint8List> data;
   bool? scratch;
   bool? writeToState;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class WriteDataTo extends BasePayload {
@@ -24,6 +26,8 @@ class WriteDataTo extends BasePayload {
     _data = writeDataToParam.data;
     _scratch = writeDataToParam.scratch ?? false;
     _writeToState = writeDataToParam.writeToState ?? false;
+    super.memo = writeDataToParam.memo;
+    super.metadata = writeDataToParam.metadata;
   }
 
   @override

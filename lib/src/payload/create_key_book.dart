@@ -10,6 +10,8 @@ class CreateKeyBookParam {
   dynamic url;
   Uint8List? publicKeyHash;
   List<AccURL>? authorities;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class CreateKeyBook extends BasePayload {
@@ -21,6 +23,8 @@ class CreateKeyBook extends BasePayload {
     _url = AccURL.toAccURL(createKeyBookParam.url);
     _publicKeyHash = createKeyBookParam.publicKeyHash!;
     _authorities = createKeyBookParam.authorities;
+    super.memo = createKeyBookParam.memo;
+    super.metadata = createKeyBookParam.metadata;
   }
 
   @override

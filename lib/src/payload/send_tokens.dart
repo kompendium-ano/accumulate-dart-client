@@ -13,6 +13,8 @@ class SendTokensParam {
   late List<TokenRecipientParam> to;
   Uint8List? hash;
   Uint8List? meta;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class SendTokens extends BasePayload {
@@ -30,6 +32,8 @@ class SendTokens extends BasePayload {
         .toList();
     _hash = sendTokensParam.hash;
     _meta = sendTokensParam.meta;
+    super.memo = sendTokensParam.memo;
+    super.metadata = sendTokensParam.metadata;
   }
 
   @override

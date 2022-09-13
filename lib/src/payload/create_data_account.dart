@@ -11,6 +11,8 @@ class CreateDataAccountParam {
   dynamic url;
   List<AccURL>? authorities;
   //bool? scratch;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class CreateDataAccount extends BasePayload {
@@ -22,6 +24,8 @@ class CreateDataAccount extends BasePayload {
     _url = AccURL.toAccURL(createDataAccountParam.url);
     _authorities = createDataAccountParam.authorities;
     //_scratch = createDataAccountParam.scratch ?? false;
+    super.memo = createDataAccountParam.memo;
+    super.metadata = createDataAccountParam.metadata;
   }
 
   @override

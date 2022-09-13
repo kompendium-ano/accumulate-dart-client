@@ -9,6 +9,8 @@ import "base_payload.dart";
 class AddValidatorParam {
   late Uint8List publicKey;
   dynamic owner;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class AddValidator extends BasePayload {
@@ -21,6 +23,9 @@ class AddValidator extends BasePayload {
     {
       _owner = AccURL.toAccURL(addValidatorParam.owner);
     }
+
+    super.memo = addValidatorParam.memo;
+    super.metadata = addValidatorParam.metadata;
 
   }
 

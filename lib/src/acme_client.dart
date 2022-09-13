@@ -57,7 +57,22 @@ class ACMEClient {
 
   Future<Map<String, dynamic>> _execute(
       AccURL principal, Payload payload, TxSigner signer) async {
-    final header = Header(principal);
+    HeaderOptions? options;
+    if(payload.memo != null){
+      options = HeaderOptions();
+      options.memo = payload.memo;
+      print("payload.memo ${payload.memo}");
+    }
+
+    if(payload.metadata != null){
+      if(options == null){
+        options = HeaderOptions();
+      }
+      options.metadata = payload.metadata;
+      print("payload.metadata ${payload.metadata}");
+    }
+
+    final header = Header(principal,options);
     final tx = Transaction(payload, header);
     await tx.sign(signer);
 

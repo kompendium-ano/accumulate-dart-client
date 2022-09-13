@@ -13,6 +13,8 @@ class CreateTokenAccountParam {
   dynamic tokenUrl;
   List<AccURL>? authorities;
   TokenIssuerProofParam? proof;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class TokenIssuerProofParam {
@@ -33,6 +35,8 @@ class CreateTokenAccount extends BasePayload {
     _tokenUrl = AccURL.toAccURL(createTokenAccountParam.tokenUrl);
     _authorities = createTokenAccountParam.authorities;
     _proof = createTokenAccountParam.proof;
+    super.memo = createTokenAccountParam.memo;
+    super.metadata = createTokenAccountParam.metadata;
   }
 
   @override

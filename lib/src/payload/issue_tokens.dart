@@ -11,6 +11,8 @@ import 'token_recipient.dart';
 
 class IssueTokensParam {
   late List<TokenRecipientParam> to;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class IssueTokens extends BasePayload {
@@ -24,6 +26,9 @@ class IssueTokens extends BasePayload {
           : int.parse(tokenRecipientParam.amount);
       _to.add(TokenRecipient(url, amount));
     }
+
+    super.memo = issueTokensParam.memo;
+    super.metadata = issueTokensParam.metadata;
   }
 
   @override

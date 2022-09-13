@@ -35,6 +35,8 @@ class KeyOperation{
 
 class UpdateKeyPageParam {
   late List<KeyOperation> operations;
+  String? memo;
+  Uint8List? metadata;
 }
 
 
@@ -44,6 +46,8 @@ class UpdateKeyPage extends BasePayload{
 
  UpdateKeyPage(UpdateKeyPageParam updateKeyPageParam) : super() {
    _operations = updateKeyPageParam.operations;
+   super.memo = updateKeyPageParam.memo;
+   super.metadata = updateKeyPageParam.metadata;
  }
 
   @override

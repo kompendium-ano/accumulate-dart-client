@@ -9,6 +9,8 @@ import "base_payload.dart";
 
 class CreateKeyPageParam {
   dynamic keys;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class CreateKeyPage extends BasePayload {
@@ -17,6 +19,8 @@ class CreateKeyPage extends BasePayload {
   CreateKeyPage(CreateKeyPageParam createKeyPageParam) : super() {
     _keys = createKeyPageParam.keys.map((key) =>
         (key is Uint8List ? key : utf8.encode(key.toString()).asUint8List()));
+    super.memo = createKeyPageParam.memo;
+    super.metadata = createKeyPageParam.metadata;
   }
 
   @override

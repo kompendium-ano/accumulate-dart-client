@@ -13,6 +13,8 @@ class CreateTokenParam {
   dynamic properties;
   dynamic supplyLimit;
   List<AccURL>? authorities;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class CreateToken extends BasePayload {
@@ -34,6 +36,8 @@ class CreateToken extends BasePayload {
         ? (createTokenParam.supplyLimit is int ? createTokenParam.supplyLimit : int.parse(createTokenParam.supplyLimit))
         : null;
     _authorities = createTokenParam.authorities;
+    super.memo = createTokenParam.memo;
+    super.metadata = createTokenParam.metadata;
   }
 
   @override
