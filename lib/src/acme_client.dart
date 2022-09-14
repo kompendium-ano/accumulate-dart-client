@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'payload/update_account_auth.dart';
+
 import 'payload/create_lite_data_account.dart';
 import 'payload/factom.dart';
 
@@ -31,10 +33,9 @@ import "payload/issue_tokens.dart";
 import "payload/remove_validator.dart";
 import "payload/send_tokens.dart";
 
-//import "payload/update_account_auth.dart" show AccountAuthOperation, UpdateAccountAuth;
+
 import "payload/update_key.dart";
 
-//import "payload/update_key_page.dart" show KeyPageOperation, UpdateKeyPage;
 import "payload/update_validator_key.dart";
 import "payload/write_data.dart";
 import "payload/write_data_to.dart";
@@ -359,13 +360,13 @@ class ACMEClient {
     return _execute(AccURL.toAccURL(principal), SendTokens(sendTokens), signer);
   }
 
-  /*
+
   Future<Map<String, dynamic>> updateAccountAuth(dynamic principal,
-      List<AccountAuthOperation> operation, TxSigner signer) {
+      UpdateAccountAuthParam updateAccountAuthParam, TxSigner signer) {
     return _execute(
-        AccURL.toAccURL(principal), UpdateAccountAuth(operation), signer);
+        AccURL.toAccURL(principal), UpdateAccountAuth(updateAccountAuthParam), signer);
   }
-*/
+
   Future<Map<String, dynamic>> updateKey(
       dynamic principal, UpdateKeyParam updateKey, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), UpdateKey(updateKey), signer);
