@@ -81,7 +81,6 @@ void testFeatures() async {
 
   res = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
 
-
   txId = res["result"]["txid"];
   print("addCredits txId $txId");
   sleep(Duration(seconds: 45));

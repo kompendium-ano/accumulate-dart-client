@@ -29,8 +29,6 @@ class AddCredits extends BasePayload {
         ? addCreditsParam.oracle
         : int.parse(addCreditsParam.oracle);
 
-print("addCreditsParam.memo ${addCreditsParam.memo}");
-    print("addCreditsParam.metadata ${addCreditsParam.metadata}");
     super.memo = addCreditsParam.memo;
     super.metadata = addCreditsParam.metadata;
   }
@@ -46,6 +44,7 @@ print("addCreditsParam.memo ${addCreditsParam.memo}");
     if (_oracle > 0) {
       forConcat.addAll(uvarintMarshalBinary(_oracle, 4));
     }
+
 
     return forConcat.asUint8List();
   }
