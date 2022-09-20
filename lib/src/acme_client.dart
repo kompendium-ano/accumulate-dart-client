@@ -84,10 +84,6 @@ class ACMEClient {
     return call("execute", tx.toTxRequest().toMap);
   }
 
-  Future<Map<String, dynamic>> queryAcmeOracle() {
-    return call("describe");
-  }
-
   Future<Map<String, dynamic>> queryData(dynamic url, [String? entryHash]) {
     Map<String, dynamic> params = {};
     params.addAll({"url": url.toString()});
@@ -416,8 +412,8 @@ class ACMEClient {
     });
   }
 
-  Future<int> valueFromOracle() async{
-    final oracle = await queryAcmeOracle();
+  Future<int> getValueFromOracle() async{
+    final oracle = await describe();
     int price = oracle["result"]["values"]["oracle"]["price"];
     return price;
   }

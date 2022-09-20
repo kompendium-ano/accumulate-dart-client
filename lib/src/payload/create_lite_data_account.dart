@@ -1,16 +1,15 @@
 import 'dart:typed_data';
 
-import '../utils.dart';
-
+import "base_payload.dart";
 import "../acc_url.dart";
 import "../encoding.dart";
 import "../tx_types.dart";
-import "base_payload.dart";
+import '../utils.dart';
 
 class CreateLiteDataAccountParam {
   dynamic url;
   List<AccURL>? authorities;
-//bool? scratch;
+  bool? scratch;
   String? memo;
   Uint8List? metadata;
 }
@@ -18,7 +17,8 @@ class CreateLiteDataAccountParam {
 class CreateLiteDataAccount extends BasePayload {
   late AccURL _url;
   List<AccURL>? _authorities;
-  //late bool _scratch;
+
+  late bool _scratch;
 
   CreateLiteDataAccount(CreateLiteDataAccountParam createLiteDataAccountParam) : super() {
     _url = AccURL.toAccURL(createLiteDataAccountParam.url);
@@ -31,11 +31,10 @@ class CreateLiteDataAccount extends BasePayload {
   @override
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
-    forConcat
-        .addAll(uvarintMarshalBinary(TransactionType.createDataAccount, 1));
+    forConcat.addAll(uvarintMarshalBinary(TransactionType.createDataAccount, 1));
     forConcat.addAll(stringMarshalBinary(_url.toString(), 2));
 
-    // forConcat.addAll(booleanMarshalBinary(_scratch, 5));
+    forConcat.addAll(booleanMarshalBinary(_scratch, 5));
 
     if (_authorities != null) {
       for (AccURL accURL in _authorities!) {

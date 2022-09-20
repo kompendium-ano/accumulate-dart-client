@@ -1,4 +1,8 @@
 class TransactionType {
+
+  static const unknown = 0x00;
+
+
   // CreateIdentity creates an ADI,
   // which produces a synthetic chain.
   static const createIdentity = 0x01;
@@ -69,4 +73,7 @@ class TransactionType {
 
   //UpdateKey update key for existing keys.
   static const updateKey = 0x16;
+
+  // Used to sign Remote transactions
+  static const remote = 0x30;
 }

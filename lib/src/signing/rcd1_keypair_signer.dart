@@ -1,9 +1,10 @@
 import "dart:typed_data";
-import '../utils.dart';
 import "package:crypto/crypto.dart";
-import '../signature_type.dart';
+
 import "ed25519_keypair.dart";
 import "ed25519_keypair_signer.dart";
+import '../utils.dart';
+import '../signature_type.dart';
 
 class RCD1KeypairSigner extends Ed25519KeypairSigner {
   late Uint8List? _rcd1Hash;
@@ -19,10 +20,7 @@ class RCD1KeypairSigner extends Ed25519KeypairSigner {
     hashList.addAll(Uint8List(1));
     hashList.addAll(publicKey());
 
-    _rcd1Hash = sha256
-        .convert(sha256.convert(hashList).bytes.asUint8List())
-        .bytes
-        .asUint8List();
+    _rcd1Hash = sha256.convert(sha256.convert(hashList).bytes.asUint8List()).bytes.asUint8List();
     return _rcd1Hash!;
   }
 
