@@ -124,10 +124,10 @@ class UpdateKeyPage extends BasePayload {
     List<int> forConcat = [];
 
     forConcat.addAll(uvarintMarshalBinary(operation.type!, 1));
-    operation?.allow
-        ?.forEach((a) => forConcat.addAll(uvarintMarshalBinary(a as int, 2)));
-    operation?.deny
-        ?.forEach((d) => forConcat.addAll(uvarintMarshalBinary(d as int, 3)));
+    operation!.allow
+        !.forEach((a) => forConcat.addAll(uvarintMarshalBinary(a as int, 2)));
+    operation!.deny
+        !.forEach((d) => forConcat.addAll(uvarintMarshalBinary(d as int, 3)));
 
     return forConcat.asUint8List();
   }

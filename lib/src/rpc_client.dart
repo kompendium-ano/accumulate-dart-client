@@ -55,6 +55,7 @@ class RpcClient {
     );
 
     print(json.encode(requestPayload));
+    print("\n");
     print(response.body);
 
     final data = json.decode(response.body) as Map<String, dynamic>;

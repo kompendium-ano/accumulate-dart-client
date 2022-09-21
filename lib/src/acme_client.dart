@@ -17,7 +17,6 @@ import 'model/query_transaction_response_model.dart' as query_trx_res_model;
 import 'package:hex/hex.dart';
 
 import "acc_url.dart";
-import "acme.dart";
 import "api_types.dart";
 import "payload.dart";
 import "payload/add_credits.dart";
@@ -62,7 +61,7 @@ class ACMEClient {
     if(payload.memo != null){
       options = HeaderOptions();
       options.memo = payload.memo;
-      print("payload.memo ${payload.memo}");
+
     }
 
     if(payload.metadata != null){
@@ -70,7 +69,7 @@ class ACMEClient {
         options = HeaderOptions();
       }
       options.metadata = payload.metadata;
-      print("payload.metadata ${payload.metadata}");
+
     }
 
     final header = Header(principal,options);
@@ -113,12 +112,12 @@ class ACMEClient {
 
   Future<Map<String, dynamic>> queryTx(String txId, [TxQueryOptions? options]) {
 
-    final paramName = txId.startsWith("acc://") ? "txIdUrl" : "txid";
-
+    String paramName = txId.startsWith("acc://") ? "txIdUrl" : "txid";
+    paramName = "txid";
     Map<String, dynamic> params = {};
-    /*if(txId.startsWith("acc://")){
+    if(txId.startsWith("acc://")){
       txId = txId.substring(6).split("@")[0];
-    }*/
+    }
     params.addAll({paramName: txId});
     if (options != null) {
       params.addAll(options.toMap);

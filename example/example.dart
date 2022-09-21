@@ -4,6 +4,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 //import '../lib/src/lite_identity.dart';
+import 'package:test/test.dart';
+
 import '../lib/src/payload/update_account_auth.dart';
 
 import '../lib/src/payload/create_key_book.dart';
@@ -41,8 +43,6 @@ ACMEClient client = ACMEClient(endPoint);
 
 Future<void> main() async {
   print(endPoint);
-
-  //String url = "acc://ab8313657dc153edaa12e9f9ee6319b31fecf220f2184400/8cbc82cd058456e667c0f477.acme/TEST";
   testFeatures();
 }
 
@@ -55,8 +55,32 @@ void testFeatures() async {
 
   lid = LiteIdentity(Ed25519KeypairSigner.generate());
   print("new account ${lid.acmeTokenAccount.toString()}");
+  print("\n");
+  await Future.wait([
+      client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 5)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 5)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 5)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 5)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 5)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 5)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 5)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 5)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 5)),
 
+
+  ]);
   dynamic res = await client.faucet(lid.acmeTokenAccount);
+  print(res);
+  print("\n");
   sleep(Duration(seconds: 10));
   String txId = res["result"]["txid"];
   print("faucet txId $txId");
@@ -66,28 +90,30 @@ void testFeatures() async {
  // sleep(Duration(seconds: 60));
 
 
-/*
+  print("\n");
   res = await client.queryUrl(lid.url);
   print(res);
 
+  print("\n");
   res = await client.queryUrl(lid.acmeTokenAccount);
   print(res);
-*/
-  int creditAmount = 60000;
+  print("\n");
+  int creditAmount = 50000*10;
   AddCreditsParam addCreditsParam = AddCreditsParam();
   addCreditsParam.recipient = lid.url;
   addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
   addCreditsParam.oracle = oracle;
   addCreditsParam.memo = "Add credits memo test";
   addCreditsParam.metadata = utf8.encode("Add credits metadata test").asUint8List();
-
+print(addCreditsParam.amount);
   res = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
+  print("addCredits res $res");
 
   txId = res["result"]["txid"];
   print("addCredits txId $txId");
-  sleep(Duration(seconds: 45));
+  sleep(Duration(seconds: 10));
   res = await client.queryTx(txId);
-  print("addCredits res $res");
+
 
 
   identityUrl = "acc://adi-${DateTime.now().millisecondsSinceEpoch}.acme";
@@ -105,7 +131,7 @@ void testFeatures() async {
   txId = res["result"]["txid"];
   print("createIdentity txId $txId");
 
-  sleep(Duration(seconds: 60));
+  sleep(Duration(seconds: 10));
 
   //await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
  // print("transaction complete");
@@ -118,17 +144,17 @@ void testFeatures() async {
   res = await client.queryUrl(keyPageUrl);
   print("$keyPageUrl\n $res");
 
-  creditAmount = 10000;
+  creditAmount = 90000*10;
 
   addCreditsParam = AddCreditsParam();
   addCreditsParam.recipient = keyPageUrl;
-  addCreditsParam.amount = (creditAmount * pow(10, 8));
+  addCreditsParam.amount = (creditAmount * pow(10, 8))~/ oracle;
   addCreditsParam.oracle = oracle;
 
   res  = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
   txId = res["result"]["txid"];
   print("Add credits to page $keyPageUrl txId $txId");
-  sleep(Duration(seconds: 60));
+  sleep(Duration(seconds: 10));
 
   res = await client.queryUrl(keyPageUrl);
   print("$keyPageUrl\n $res");
@@ -145,11 +171,11 @@ void testFeatures() async {
   res = await client.createToken(identityUrl, createTokenParam, identityKeyPageTxSigner);
   txId = res["result"]["txid"];
   print("createToken txId $txId");
-  sleep(Duration(seconds: 120));
+  sleep(Duration(seconds: 10));
 
-  final recipient = LiteIdentity(Ed25519KeypairSigner.generate()).url.append(tokenUrl);
+  var recipient = LiteIdentity(Ed25519KeypairSigner.generate()).url.append(tokenUrl);
   print("recipient $recipient");
-  const amount = 123;
+  var amount = 123;
   IssueTokensParam issueTokensParam = IssueTokensParam();
   TokenRecipientParam tokenRecipientParam = TokenRecipientParam();
   tokenRecipientParam.url = recipient;
@@ -159,12 +185,12 @@ void testFeatures() async {
   res = await client.issueTokens(tokenUrl, issueTokensParam, identityKeyPageTxSigner);
   txId = res["result"]["txid"];
   print("issueTokens txId $txId");
-  sleep(Duration(seconds: 60));
+  sleep(Duration(seconds: 10));
 
-return;
+
 
   identityKeyPageTxSigner = TxSigner(keyPageUrl, identitySigner);
-
+/*
   AccountAuthOperation accountAuthOperation = AccountAuthOperation();
   accountAuthOperation.authority = identityKeyPageTxSigner.url;
   accountAuthOperation.type = AccountAuthOperationType.Disable;
@@ -177,12 +203,12 @@ return;
   txId = res["result"]["txid"];
   print("updateAccountAuth txId $txId");
 
-  sleep(Duration(seconds: 60));
+  sleep(Duration(seconds: 10));
+*/
 
-  return;
 
 
-/*
+
   final tokenAccountUrl = identityUrl + "/ACME";
   CreateTokenAccountParam createTokenAccountParam = CreateTokenAccountParam();
   createTokenAccountParam.url = tokenAccountUrl;
@@ -197,7 +223,7 @@ return;
   txId = res["result"]["txid"];
   print("Create token account txId $txId");
   await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
-*/
+
 
   final page1Signer = Ed25519KeypairSigner.generate();
   final newKeyBookUrl = identityUrl + "/" + "${DateTime.now().millisecondsSinceEpoch}";
@@ -213,7 +239,7 @@ return;
   sleep(Duration(seconds: 60));
 
   final page1Url = newKeyBookUrl + "/1";
-
+  creditAmount = 50000*10;
   addCreditsParam = AddCreditsParam();
   addCreditsParam.recipient = keyPageUrl;
   addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
@@ -226,7 +252,7 @@ return;
 
 
   final keyPage1TxSigner = new TxSigner(page1Url, page1Signer);
-
+/*
   // Add new key to keypage
   final newKey = Ed25519KeypairSigner.generate();
   UpdateKeyPageParam updateKeyPageParam = UpdateKeyPageParam();
@@ -243,19 +269,19 @@ return;
   print("Add new key to page $page1Url txId $txId");
 
   print("done");
-  return;
+*/
 
 
 
-/*
+
   //Send Token
-  final recipient =
+  recipient =
       LiteIdentity(Ed25519KeypairSigner.generate()).acmeTokenAccount;
 
-  const amount = 12000;
+   amount = 12000;
 
   SendTokensParam sendTokensParam = SendTokensParam();
-  TokenRecipientParam tokenRecipientParam = TokenRecipientParam();
+  tokenRecipientParam = TokenRecipientParam();
   tokenRecipientParam.url = recipient;
   tokenRecipientParam.amount = amount;
   sendTokensParam.to = [tokenRecipientParam];
@@ -267,7 +293,7 @@ return;
 
   await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
 
-  res = await client.queryTx(txId);*/
+  res = await client.queryTx(txId);
 sleep(Duration(seconds: 60));
   // Create data account
   final dataAccountUrl = identityUrl + "/jimmy-data";
@@ -309,8 +335,8 @@ sleep(Duration(seconds: 60));
 
 /*
   // Create a token account for the TEST token
-  final tokenAccountUrl = identityUrl + "/JimTokenAcc";
-  CreateTokenAccountParam createTokenAccountParam = CreateTokenAccountParam();
+  tokenAccountUrl = identityUrl + "/JimTokenAcc";
+  createTokenAccountParam = CreateTokenAccountParam();
   createTokenAccountParam.url = tokenAccountUrl;
   createTokenAccountParam.tokenUrl = tokenUrl;
   TokenIssuerProofParam tokenIssuerProofParam = TokenIssuerProofParam();

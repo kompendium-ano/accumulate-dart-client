@@ -42,14 +42,15 @@ Uint8List uvarintMarshalBinaryAlt(int val, [int? field]) {
 }
 
 Uint8List uvarintMarshalBinary(int val, [int? field]) {
+
   const int radix = 8;
   BigInt bigInt = BigInt.from(val);
 
   List<int> numData = [];
 
   var _bigInt = bigInt;
-  var i = 0;
-  BigInt mxNum = BigInt.from(8);
+
+  BigInt mxNum = BigInt.from(128);
   while (_bigInt > mxNum) {
     var tmpBigInt = _bigInt.toUnsigned(radix);
     if ((tmpBigInt + BigInt.from(128)) < BigInt.from(255)) {
@@ -58,16 +59,18 @@ Uint8List uvarintMarshalBinary(int val, [int? field]) {
 
     numData.add(tmpBigInt.toInt());
     _bigInt = _bigInt >> 7;
-    i++;
+
   }
 
   var tmpBigInt = _bigInt.toUnsigned(radix);
-  if ((tmpBigInt > BigInt.from(8)) &&
+  if ((tmpBigInt > BigInt.from(128)) &&
       ((tmpBigInt + BigInt.from(128)) < BigInt.from(255))) {
     tmpBigInt += BigInt.from(128);
   }
 
+
   numData.add(tmpBigInt.toInt());
+
 
   if (field != null) {
     return fieldMarshalBinary(field, numData.asUint8List());
@@ -132,5 +135,3 @@ ByteData bigIntToByteData(BigInt bigInt) {
 
   return data;
 }
-
-
