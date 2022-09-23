@@ -14,8 +14,11 @@ void main() {
     expect(uvarintMarshalBinary(127), [127].asUint8List());
     expect(uvarintMarshalBinary(128), [128, 1].asUint8List());
     expect(uvarintMarshalBinary(256), [128, 2].asUint8List());
-    expect(uvarintMarshalBinary(9007199254740991), [255, 255, 255, 255, 255, 255, 255, 15].asUint8List());
 
+    //
+    expect(uvarintMarshalBinary(9007199254740991), [255, 255, 255, 255, 255, 255, 255, 15].asUint8List());
+    expect(uvarintMarshalBinary(pow(2, 53).toInt()), [128, 128, 128, 128, 128, 128, 128, 16].asUint8List());
+    expect(uvarintMarshalBinary(pow(2, 64).toInt()), [255, 255, 255, 255, 255, 255, 255, 255, 255, 1].asUint8List());
   });
 
   test('should uvarint marshal binary BN numbers', () {
@@ -31,9 +34,9 @@ void main() {
 
   });
 
-  test('should uvarint marshal binary BN numbers', () {
+  test('should throw on number input greater than MAX_SAFE_INTEGER', () {
     //int MAXINT = pow(2, 53)-1; // 9007199254740991
-
+    throw UnimplementedError();
   });
 
   test('should marshal field', () {
