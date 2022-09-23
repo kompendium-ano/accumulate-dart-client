@@ -164,10 +164,10 @@ class Transaction {
     txRequest.origin = _header.principal.toString();
     txRequest.signer = {
       "url": signerInfo!.url.toString(),
-      "publicKey": HEX.encode(signerInfo!.publicKey!.toList()),
+      "publicKey": HEX.encode(signerInfo.publicKey!.toList()),
       "version": signerInfo.version,
       "timestamp": _header.timestamp,
-      "signatureType": "${SignatureType().marshalJSON(signerInfo!.type!)}",
+      "signatureType": "${SignatureType().marshalJSON(signerInfo.type!)}",
       "useSimpleHash": true
     };
     txRequest.signature = HEX.encode(_signature!.signature!.toList());

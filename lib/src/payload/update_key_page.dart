@@ -27,8 +27,8 @@ class KeyOperation {
   KeySpec? newKey;
   int? threshold;
 
-  List<TransactionType>? allow;
-  List<TransactionType>? deny;
+  List<int>? allow;
+  List<int>? deny;
 }
 
 class UpdateKeyPageParam {
@@ -124,10 +124,14 @@ class UpdateKeyPage extends BasePayload {
     List<int> forConcat = [];
 
     forConcat.addAll(uvarintMarshalBinary(operation.type!, 1));
-    operation!.allow
-        !.forEach((a) => forConcat.addAll(uvarintMarshalBinary(a as int, 2)));
-    operation!.deny
-        !.forEach((d) => forConcat.addAll(uvarintMarshalBinary(d as int, 3)));
+    if(operation.allow != null){
+      operation.allow!.forEach((a) => forConcat.addAll(uvarintMarshalBinary(a, 2)));
+    }
+
+    if(operation.deny != null){
+      operation.deny!.forEach((d) => forConcat.addAll(uvarintMarshalBinary(d, 3)));
+    }
+
 
     return forConcat.asUint8List();
   }

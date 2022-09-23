@@ -90,7 +90,7 @@ class ACMEClient {
   Future<Map<String, dynamic>> queryData(dynamic url, [String? entryHash]) {
     Map<String, dynamic> params = {};
     params.addAll({"url": url.toString()});
-    if (entryHash != null && entryHash!.isNotEmpty) {
+    if (entryHash != null && entryHash.isNotEmpty) {
       params.addAll({"entryHash": entryHash});
     }
     return call("query-data", params);
@@ -169,7 +169,7 @@ class ACMEClient {
     return call("query-minor-blocks", params);
   }
 
-  Future<Map<String, dynamic>> querySignerVersion(
+  Future<int> querySignerVersion(
       dynamic signer, Uint8List? publicKeyHash) async {
     AccURL signerUrl;
     Uint8List pkh;
@@ -184,9 +184,9 @@ class ACMEClient {
       pkh = signer.publicKeyHash;
     }
 
-    Map<String, dynamic> keyPage = await queryKeyPageIndex(signerUrl, pkh);
-
-    return queryUrl(keyPage["url"]);
+    Map<String, dynamic> res = await queryKeyPageIndex(signerUrl, pkh);
+    res = await queryUrl(res["result"]["data"]["keyPage"]);
+    return res["result"]["data"]["version"];
   }
 
   Future<Map<String, dynamic>> queryDirectory(
