@@ -130,11 +130,11 @@ class WaitTxOptions {
   Map<String, dynamic> get toMap {
     Map<String, dynamic> value = {};
 
-    value.addAll({"timeout": timeout!});
+    value.addAll({"timeout": timeout});
 
-    value.addAll({"pollInterval": pollInterval!});
+    value.addAll({"pollInterval": pollInterval});
 
-    value.addAll({"ignoreSyntheticTxs": ignoreSyntheticTxs!});
+    value.addAll({"ignoreSyntheticTxs": ignoreSyntheticTxs});
 
     return value;
   }
