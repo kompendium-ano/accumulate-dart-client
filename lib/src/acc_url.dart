@@ -46,7 +46,9 @@ class AccURL {
 
   AccURL append(dynamic path) {
     final pathStr = path.toString();
+
     String url = orgURL.toString();
+
     if (pathStr.length > 0) {
       if (pathStr.startsWith("acc://")) {
         url += pathStr.substring(5);
@@ -56,6 +58,7 @@ class AccURL {
         url += '/${pathStr}';
       }
     }
+
 
     return AccURL.parse(url);
   }

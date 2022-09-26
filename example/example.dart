@@ -4,10 +4,13 @@ import 'dart:math';
 import 'dart:typed_data';
 
 //import '../lib/src/lite_identity.dart';
+import 'package:crypto/crypto.dart';
+
 import '../lib/src/model/receipt_model.dart';
 
 import '../lib/src/api_types.dart';
 import '../lib/src/receipt.dart';
+import '../lib/src/transaction.dart' as trans;
 
 import '../lib/src/tx_types.dart';
 
@@ -76,6 +79,7 @@ Future<void> main() async {
   print("import account private key ${lid2.acmeTokenAccount}");
   print("\n");
 */
+
   testFeatures();
 }
 
@@ -412,7 +416,7 @@ sleep(Duration(seconds: 60));*/
 
   sleep(Duration(seconds: 60));*/
 
-/*
+
 
   var txn0url = '${tokenUrl}#txn/0';
 
@@ -423,77 +427,160 @@ sleep(Duration(seconds: 60));*/
   print("$txn0url $res");
 
   ReceiptModel receiptModel = ReceiptModel.fromMap(res);
-  receiptModel.result.receipts
-
+  List<Receipts> receipts = receiptModel.result!.receipts!;
+  Transaction transaction = receiptModel.result!.transaction!;
   // Get a chain proof (from any chain, ends in a BVN anchor)
   if (receiptModel.result!.receipts!.length == 0) {
     print("No proof found");
     return;
   }
-  const proof2 = receipts[0].proof;
+  Proof proof2 = receipts[0].proof!;
 
   // Convert the response to a Transaction
-  if (transaction.body.type != "createToken") {
-    throw new Error(
-    `Expected first transaction of ${issuer} to be createToken but got ${transaction.body.type}`
-    );
+  if (transaction.body!.type != "createToken") {
+    print('Expected first transaction of ${tokenUrl} to be createToken but got ${transaction.body!.type}');
   }
-  const header = new Header(transaction.header.principal, {
-    initiator: Buffer.from(transaction.header.initiator, "hex"),
-    memo: transaction.header.memo,
-    metadata: transaction.header.metadata
-        ? Buffer.from(transaction.header.metadata, "hex")
-        : undefined,
-  });
-  const body = new CreateToken(transaction.body);
-  const txn = new Transaction(body, header);
+
+  trans.HeaderOptions headerOptions = trans.HeaderOptions();
+  headerOptions.initiator = HEX.decode(transaction.header!.initiator!).asUint8List();
+  dynamic header = trans.Header(transaction.header!.principal!,headerOptions);
+  createTokenParam = CreateTokenParam();
+  createTokenParam.url = transaction.body!.url!;
+  createTokenParam.symbol = transaction.body!.symbol!;
+  createTokenParam.precision = 0;
+
+  CreateToken body = CreateToken(createTokenParam);
+  trans.Transaction txn = trans.Transaction(body, header);
 
   // Prove that the body is part of the transaction
-  const proof1: Receipt = {
-  start: body.hash(),
-  startIndex: 0,
-  end: body.hash(),
-  endIndex: 0,
-  anchor: txn.hash(),
-  entries: [
-  {
-  hash: sha256(header.marshalBinary()),
-  right: false,
-  },
-  ],
-  };
+  Receipt receipt = Receipt();
+  receipt.start = body.hash();
 
+  receipt.startIndex = 0;
+  receipt.end =  body.hash();
+  receipt.endIndex= 0;
+  receipt.anchor =  txn.hash();
+
+  ReceiptEntry entry = ReceiptEntry();
+  entry.hash = sha256.convert(header.marshalBinary()).bytes;
+  entry.right = false;
+
+  receipt.entries= [entry];
+
+  Receipt proof1 = receipt;
+
+  print("anchorRes ${proof2.anchor!}");
   // Prove the BVN anchor
-  const anchorRes = await client.queryAnchor(proof2.anchor);
-  const proof3 = anchorRes.receipt.proof;
+  dynamic anchorRes = await client.queryAnchor(proof2.anchor!);
+  Proof proof3 = Proof.fromMap(anchorRes["result"]["receipt"]["proof"]);
+
+  Receipt receipt2 = Receipt();
+  receipt2.start = proof2.start;
+  receipt2.startIndex = proof2.startIndex;
+  receipt2.end = proof2.end;
+  receipt2.endIndex = proof2.endIndex;
+  receipt2.anchor = proof2.anchor;
+  List<ReceiptEntry> entries2 = [];
+  for(Entry entry in proof2.entries!){
+    ReceiptEntry receiptEntry2 = ReceiptEntry();
+    receiptEntry2.right = entry.right;
+    receiptEntry2.hash = entry.hash;
+  }
+  receipt2.entries = entries2;
+
+
+  Receipt receipt3 = Receipt();
+  receipt3.start = proof3.start;
+  receipt3.startIndex = proof3.startIndex;
+  receipt3.end = proof3.end;
+  receipt3.endIndex = proof3.endIndex;
+  receipt3.anchor = proof3.anchor;
+  List<ReceiptEntry> entries3 = [];
+  for(Entry entry in proof3.entries!){
+    ReceiptEntry receiptEntry2 = ReceiptEntry();
+    receiptEntry2.right = entry.right;
+    receiptEntry2.hash = entry.hash;
+  }
+  receipt3.entries = entries3;
 
   // Assemble the full proof
-  const receipt = combineReceipts(combineReceipts(proof1, proof2), proof3);
+  dynamic receiptFinal = combineReceipts(combineReceipts(proof1, receipt2), receipt3);
 
-  */
 
-/*
   // Create a token account for the TEST token
   var tokenAccountUrl = identityUrl + "/JimTokenAcc";
   CreateTokenAccountParam createTokenAccountParam = CreateTokenAccountParam();
   createTokenAccountParam.url = tokenAccountUrl;
   createTokenAccountParam.tokenUrl = tokenUrl;
   TokenIssuerProofParam tokenIssuerProofParam = TokenIssuerProofParam();
-  Receipt receipt = Receipt();
-  receipt.
-  tokenIssuerProofParam.receipt =
-  createTokenAccountParam.proof
-  const createTokenAccount = {
-    url: tokenAccountUrl,
-    tokenUrl,
-    proof: await constructIssuerProof(client, tokenUrl),
-  };
-  res = await client.createTokenAccount(identityUrl, createTokenAccount, identityKeyPageTxSigner);
 
-  await client.waitOnTx(res.txid, { timeout: 10_000 });
+
+  tokenIssuerProofParam.receipt = receiptFinal;
+  tokenIssuerProofParam.transaction = body;
+  createTokenAccountParam.proof = tokenIssuerProofParam;
+
+  res = await client.createTokenAccount(identityUrl, createTokenAccountParam, identityKeyPageTxSigner);
+
+  txId = res["result"]["txid"];
+  print("Create Custom Token Account $txId");
+  sleep(Duration(seconds: 60));
 
   res = await client.queryUrl(tokenAccountUrl);
-*/
+
 
   print("DONE");
 }
+
+Receipt combineReceipts(Receipt r1,Receipt r2){
+
+  dynamic anchorStr = ((r1.anchor is Uint8List) || (r1.anchor is List<int>)) ? HEX.encode(r1.anchor) : r1.anchor;
+  dynamic startStr =
+    ((r2.start is Uint8List) || (r2.start is List<int>)) ? HEX.encode(r2.start) : r2.start;
+
+if (anchorStr != startStr) {
+  print("Receipts cannot be combined, anchor ${anchorStr} doesn't match root merkle tree ${startStr}");
+  }
+
+  Receipt result = cloneReceipt(r1);
+  result.anchor = copyHash(r2.anchor);
+
+  r2.entries.forEach((e) => result.entries.add(copyReceiptEntry(e)));
+
+  return result;
+}
+
+Receipt cloneReceipt(Receipt receipt){
+  Receipt newReceipt = Receipt();
+  newReceipt.start = copyHash(receipt.start);
+  newReceipt.startIndex = receipt.startIndex;
+  newReceipt.end = copyHash(receipt.end);
+  newReceipt.endIndex =  receipt.endIndex;
+  newReceipt.anchor =  copyHash(receipt.anchor);
+  newReceipt.entries =  receipt.entries.map(copyReceiptEntry).toList();
+
+return newReceipt;
+}
+
+ReceiptEntry copyReceiptEntry(ReceiptEntry re) {
+  ReceiptEntry result = ReceiptEntry();
+  result.hash = copyHash(re.hash);
+
+if (re.right != null && re.right!) {
+   result.right = true;
+   }
+return result;
+}
+
+Uint8List copyHash(dynamic hash){
+  if((hash is Uint8List)){
+    return hash;
+
+  }
+
+  if((hash is List<int>)){
+    return hash.asUint8List();
+
+  }
+return utf8.encode(hash).asUint8List();
+}
+

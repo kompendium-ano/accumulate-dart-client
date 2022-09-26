@@ -97,7 +97,8 @@ class ACMEClient {
   }
 
   Future<Map<String, dynamic>> queryAnchor(String anchor){
-  return this.queryUrl(ANCHORS_URL.append('#anchor/${anchor}'));
+
+  return this.queryUrl(ANCHORS_URL.toString()+('/#anchor/$anchor'));
   }
 
   Future<Map<String, dynamic>> queryUrl(dynamic url, [QueryOptions? options]) {

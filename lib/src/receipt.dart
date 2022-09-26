@@ -49,6 +49,15 @@ class Receipt {
   }
 
   static Uint8List getBytes(dynamic hash) {
-    return hash is Uint8List ? hash : utf8.encode(hash).asUint8List();
+    if((hash is Uint8List)){
+      return hash;
+
+    }
+
+    if((hash is List<int>)){
+      return hash.asUint8List();
+
+    }
+    return utf8.encode(hash).asUint8List();
   }
 }
