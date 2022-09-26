@@ -39,6 +39,9 @@ class TransactionType {
   // which produces a synthetic burn tokens transaction.
   static const burnTokens = 0x0a;
 
+  // Creates a lite token account
+  static const CreateLiteTokenAccount = 0x0b;
+
   // CreateKeyPage creates a key page,
   // which produces a synthetic chain create transaction.
   static const createKeyPage = 0x0c;
