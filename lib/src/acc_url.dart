@@ -1,8 +1,9 @@
+import 'dart:core';
 
 /**
  * The URL of the ACME token
  */
-final  ACME_TOKEN_URL = AccURL.parse("acc://ACME");
+final ACME_TOKEN_URL = AccURL.parse("acc://ACME");
 
 /**
  * The URL of the DN
@@ -14,6 +15,23 @@ final DN_URL = AccURL.parse("acc://dn.acme");
  */
 final ANCHORS_URL = DN_URL.append("anchors");
 
+class InvalidProtocolException implements Exception {
+  late String scheme;
+
+  InvalidProtocolException(this.scheme);
+
+  @override
+  String toString() {
+    return 'Invalid protocol: ${scheme}';
+  }
+}
+
+class MissingAuthorityException implements Exception {
+  @override
+  String toString() {
+    return 'Missing authority';
+  }
+}
 
 class AccURL {
   late String authority;
@@ -29,10 +47,10 @@ class AccURL {
     Uri parsedUri = Uri.parse(url);
 
     if (parsedUri.scheme != "acc") {
-      throw Exception('Invalid protocol: ${parsedUri.scheme}');
+      throw InvalidProtocolException(parsedUri.scheme);
     }
     if (parsedUri.host.isEmpty) {
-      throw Exception("Missing authority");
+      throw MissingAuthorityException();
     }
     orgURL = url;
     authority = parsedUri.host;
