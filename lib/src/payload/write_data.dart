@@ -82,8 +82,6 @@ class WriteData extends BasePayload {
     _customHash = sha256Update(forConcat.asUint8List());
 
     return _customHash!;
-
-
   }
 
   Uint8List marshalDataEntry(List<Uint8List> data) {

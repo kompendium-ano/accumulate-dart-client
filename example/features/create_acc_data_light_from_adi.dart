@@ -93,12 +93,12 @@ void runLightDataCreation() async {
   // Create ADI
 
   identityUrl = "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor() }.acme";
-  final identitySigner = Ed25519KeypairSigner.generate();
+  final keyForAdi = Ed25519KeypairSigner.generate();
   final bookUrl = identityUrl + "/cosm-book";
 
   CreateIdentityParam createIdentity = CreateIdentityParam();
   createIdentity.url = identityUrl;
-  createIdentity.keyHash = identitySigner.publicKeyHash();
+  createIdentity.keyHash = keyForAdi.publicKeyHash();
   createIdentity.keyBookUrl = bookUrl;
 
   print("======== CREATE ADI =============================");
@@ -136,7 +136,7 @@ void runLightDataCreation() async {
   // keyPageParam.keys = [newKey.publicKeyHash()];
   //
   // // NB: is "/1" keypage created by default?
-  // res = await client.createKeyPage(keyPageUrl, keyPageParam, TxSigner(bookUrl+"/1", identitySigner));
+  // res = await client.createKeyPage(keyPageUrl, keyPageParam, TxSigner(bookUrl+"/1", keyForAdi));
   // sleep(Duration(seconds: 25));
   // print(res);
 
@@ -155,13 +155,14 @@ void runLightDataCreation() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Construct Transactions Signer
 
-  identityKeyPageTxSigner = TxSigner(keyPageUrl, identitySigner);
+  identityKeyPageTxSigner = TxSigner(keyPageUrl, keyForAdi);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Create Light Data Account
 
-  final lightDataAccountUrl = identityUrl + "/cosm-data-light";
+  final lightDataAccountUrl = identityUrl + "/datalight1";
   print("lightDataAccountUrl $lightDataAccountUrl");
+
   CreateLiteDataAccountParam lightDataAccountParams = CreateLiteDataAccountParam();
   lightDataAccountParams.url = lightDataAccountUrl;
 
@@ -171,7 +172,7 @@ void runLightDataCreation() async {
   print("Create light data account $txId");
   sleep(Duration(seconds: 20));
 
-  res = await client.queryUrl(lightDataAccountUrl);
+  res = await client.queryUrl(txId);
   sleep(Duration(seconds: 10));
   print(res);
 
