@@ -8,22 +8,20 @@ import 'package:accumulate_api6/src/lite_identity.dart';
 import 'package:accumulate_api6/src/payload/add_credits.dart';
 import 'package:accumulate_api6/src/payload/create_data_account.dart';
 import 'package:accumulate_api6/src/payload/create_identity.dart';
-import 'package:accumulate_api6/src/payload/create_key_page.dart';
-import 'package:accumulate_api6/src/payload/create_lite_data_account.dart';
 import 'package:accumulate_api6/src/payload/write_data.dart';
 import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
 import 'package:accumulate_api6/src/tx_signer.dart';
 import 'package:accumulate_api6/src/utils.dart';
 
-final endPoint = "http://127.0.1.1:26660/v2";
-//final endPoint = "https://testnet.accumulatenetwork.io/v2";
+//final endPoint = "http://127.0.1.1:26660/v2";
+final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);
 
 Future<void> main() async {
-  runLightDataCreation();
+  testDataAccountCreation();
 }
 
-void runLightDataCreation() async {
+void testDataAccountCreation() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Re-Usable Variable
   String txId = "";
@@ -108,7 +106,7 @@ void runLightDataCreation() async {
   txId = res["result"]["txid"];
   print("create ADI call:\n     tx: $txId ");
 
-  sleep(Duration(seconds: 30));
+  sleep(Duration(seconds: 60));
 
   print("======== ADI INFO =============================");
   QueryPagination qp = QueryPagination();
@@ -166,6 +164,7 @@ void runLightDataCreation() async {
 
   CreateDataAccountParam dataAccountParams = CreateDataAccountParam();
   dataAccountParams.url = dataAccountUrl;
+  dataAccountParams.scratch = false;
 
   res = await client.createDataAccount(identityUrl, dataAccountParams, identityKeyPageTxSigner);
 
@@ -189,6 +188,6 @@ void runLightDataCreation() async {
   await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
 
   res = await client.queryData(dataAccountUrl);
-  print("Light Data account write $res");
+  print("Data account write $res");
 
 }

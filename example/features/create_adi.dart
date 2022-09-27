@@ -7,11 +7,7 @@ import 'package:accumulate_api6/src/api_types.dart';
 import 'package:accumulate_api6/src/lite_identity.dart';
 import 'package:accumulate_api6/src/payload/add_credits.dart';
 import 'package:accumulate_api6/src/payload/create_identity.dart';
-import 'package:accumulate_api6/src/payload/create_key_page.dart';
-import 'package:accumulate_api6/src/payload/create_lite_data_account.dart';
-import 'package:accumulate_api6/src/payload/write_data.dart';
 import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
-import 'package:accumulate_api6/src/tx_signer.dart';
 import 'package:accumulate_api6/src/utils.dart';
 
 final endPoint = "http://127.0.1.1:26660/v2";
@@ -19,17 +15,16 @@ final endPoint = "http://127.0.1.1:26660/v2";
 ACMEClient client = ACMEClient(endPoint);
 
 Future<void> main() async {
-  testLiteDataAccountCreation();
+  testAdiCreation();
 }
 
-void testLiteDataAccountCreation() async {
+void testAdiCreation() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Re-Usable Variable
   String txId = "";
   dynamic res;
   int waitTimeInSeconds = 60;
   String identityUrl;
-  TxSigner identityKeyPageTxSigner;
   LiteIdentity lid;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,11 +34,10 @@ void testLiteDataAccountCreation() async {
   print("new account ${lid.acmeTokenAccount.toString()}");
   print("\n");
 
-
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Add Credits to allow actions
 
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 4; i++) {
     dynamic res = await client.faucet(lid.acmeTokenAccount);
     sleep(Duration(seconds: 10));
     print("faucet call: #$i");
@@ -54,10 +48,6 @@ void testLiteDataAccountCreation() async {
   res = await client.faucet(lid.acmeTokenAccount);
   txId = res["result"]["txid"];
   print("faucet txId $txId");
-
-  print("\n");
-  res = await client.queryUrl(lid.url);
-  print(res);
 
   print("\n");
   res = await client.queryUrl(lid.acmeTokenAccount);
@@ -92,7 +82,7 @@ void testLiteDataAccountCreation() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Create ADI
 
-  identityUrl = "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor() }.acme";
+  identityUrl = "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}.acme";
   final keyForAdi = Ed25519KeypairSigner.generate();
   final bookUrl = identityUrl + "/cosm-book";
 
@@ -101,7 +91,7 @@ void testLiteDataAccountCreation() async {
   createIdentity.keyHash = keyForAdi.publicKeyHash();
   createIdentity.keyBookUrl = bookUrl;
 
-  print("======== CREATE ADI =============================");
+  print("======== ADI CREATE =============================");
   res = await client.createIdentity(lid.url, createIdentity, lid);
 
   txId = res["result"]["txid"];
@@ -117,77 +107,4 @@ void testLiteDataAccountCreation() async {
   res = await client.queryDirectory(identityUrl, qp, null); // NB: now returns only ADI and KeyBook, no keypage
   sleep(Duration(seconds: 10));
   print(res);
-
-  print("======== KeyBook INFO =============================");
-  res = await client.queryUrl(bookUrl); // NB: but here
-  sleep(Duration(seconds: 10));
-  print(res);
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Add Credits to ADIs KeyPage to allow actions
-
-  print("======== KeyPage CREATE =============================");
-  // Protocol Automatically creates keypage with name "1"
-  final keyPageUrl = bookUrl + "/1";
-
-  // Create page with our keys
-  // final newKey = Ed25519KeypairSigner.generate();
-  // CreateKeyPageParam keyPageParam = CreateKeyPageParam();
-  // keyPageParam.keys = [newKey.publicKeyHash()];
-  //
-  // // NB: is "/1" keypage created by default?
-  // res = await client.createKeyPage(keyPageUrl, keyPageParam, TxSigner(bookUrl+"/1", keyForAdi));
-  // sleep(Duration(seconds: 25));
-  // print(res);
-
-  creditAmount = 90000 * 10;
-  addCreditsParam = AddCreditsParam();
-  addCreditsParam.recipient = keyPageUrl;
-  addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
-  addCreditsParam.oracle = oracle;
-
-  res = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
-  txId = res["result"]["txid"];
-  print("Add credits to page $keyPageUrl txId $txId");
-  sleep(Duration(seconds: waitTimeInSeconds));
-  print(res);
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Construct Transactions Signer
-
-  identityKeyPageTxSigner = TxSigner(keyPageUrl, keyForAdi);
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Create Light Data Account
-
-  final lightDataAccountUrl = identityUrl + "/datalight1";
-  print("lightDataAccountUrl $lightDataAccountUrl");
-
-  CreateLiteDataAccountParam lightDataAccountParams = CreateLiteDataAccountParam();
-  lightDataAccountParams.url = lightDataAccountUrl;
-
-  res = await client.createLiteDataAccount(identityUrl, lightDataAccountParams, identityKeyPageTxSigner);
-
-  txId = res["result"]["txid"];
-  print("Create light data account $txId");
-  sleep(Duration(seconds: 20));
-
-  res = await client.queryUrl(txId);
-  sleep(Duration(seconds: 10));
-  print(res);
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////
-  // Add Data to Light Data Account
-
-  // WriteDataParam writeDataParam = WriteDataParam();
-  // writeDataParam.data = [utf8.encode("Cosmos is endless").asUint8List()];
-  //
-  // res = await client.writeData(lightDataAccountUrl, writeDataParam, identityKeyPageTxSigner);
-  // txId = res["result"]["txid"];
-  // print("Data write $txId");
-  // await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
-  //
-  // res = await client.queryData(lightDataAccountUrl);
-  // print("Light Data account write $res");
-
 }
