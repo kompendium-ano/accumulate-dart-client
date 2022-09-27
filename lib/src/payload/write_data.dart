@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
-import '../utils.dart';
+import '../utils/utils.dart';
 
 import "../encoding.dart";
 import "../tx_types.dart";
@@ -95,10 +95,6 @@ class WriteData extends BasePayload {
     }
 
     return bytesMarshalBinary(forConcat.asUint8List());
-  }
-
-  Uint8List sha256Update(Uint8List data) {
-    return sha256.convert(data).bytes.asUint8List();
   }
 
   Uint8List hashTree(List<Uint8List> items) {

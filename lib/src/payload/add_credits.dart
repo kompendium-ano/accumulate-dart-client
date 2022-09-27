@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import "../acc_url.dart";
 import "../encoding.dart";
 import "../tx_types.dart";
-import '../utils.dart';
+import '../utils/utils.dart';
 import "base_payload.dart";
 
 class AddCreditsParam {

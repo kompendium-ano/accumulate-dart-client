@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import '../utils.dart';
+import '../utils/utils.dart';
 
 import "../encoding.dart";
 import "../tx_types.dart";

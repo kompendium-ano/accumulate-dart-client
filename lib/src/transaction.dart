@@ -8,7 +8,7 @@ import "package:crypto/crypto.dart";
 import "payload.dart";
 import "signer.dart";
 import "tx_signer.dart";
-import 'utils.dart';
+import 'utils/utils.dart';
 import 'encoding.dart';
 
 class HeaderOptions {
@@ -66,7 +66,6 @@ class Header {
     binary.addAll(uvarintMarshalBinary(timestamp, 6));
 
     _initiator = sha256.convert(binary).bytes.asUint8List();
-
 
     return _initiator;
   }

@@ -2,7 +2,7 @@ import 'dart:convert';
 import "dart:typed_data";
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:bip39/bip39.dart' as bip39;
-import '../utils.dart';
+import '../utils/utils.dart';
 
 class Keypair {
   late Uint8List publicKey;

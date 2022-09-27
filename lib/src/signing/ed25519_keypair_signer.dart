@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import '../utils.dart';
+import '../utils/utils.dart';
 import "package:crypto/crypto.dart";
 import 'package:hex/hex.dart';
 import '../signature_type.dart';

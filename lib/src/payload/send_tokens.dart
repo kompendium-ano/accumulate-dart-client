@@ -1,7 +1,7 @@
 import "dart:typed_data";
 import 'token_recipient.dart';
 
-import '../utils.dart';
+import '../utils/utils.dart';
 import "../acc_url.dart";
 import "../encoding.dart";
 import "../tx_types.dart";
