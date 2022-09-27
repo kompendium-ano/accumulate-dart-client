@@ -1,14 +1,17 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:accumulate_api6/src/utils/utils.dart';
+import 'package:crypto/crypto.dart';
 
 class MerkleRootBuilder {
   late int count;
   late List<Uint8List> pending = [];
   late List<Uint8List> hashList = [];
+  Uint8List emptyUint8List = Uint8List.fromList([]);
 
-  MerkleRootBuilder(){
-     count = 0;
+  MerkleRootBuilder() {
+    count = 0;
   }
 
   Uint8List addToMerkleTree(Uint8List sourceHash) {
@@ -18,40 +21,42 @@ class MerkleRootBuilder {
     padPending();
     for (int i = 0; i < pending.length; i++) {
       Uint8List v = pending.elementAt(i);
-      if (v == Uint8List.fromList([])) {
+      if (compareUint8Lists(v, emptyUint8List)) {
         pending[i] = hash;
         return hash;
       }
 
-      hash = sha256Update(concatUint8(v, hash));
-      pending[i] = Uint8List.fromList([]); // same as `null`
+      Uint8List data = concatTwoUint8Lists(v, hash);
+      var digest = sha256.convert(data.toList());
+      hash = digest.bytes.asUint8List();
+
+      pending[i] = emptyUint8List;
     }
     return hash;
   }
 
   void padPending() {
-    if (pending.isEmpty || (pending.elementAt(pending.length - 1) != Uint8List.fromList([]))) {
-      pending.add(Uint8List.fromList([]));
+    if (pending.isEmpty || !compareUint8Lists(pending.elementAt(pending.length - 1), emptyUint8List)) {
+      pending.add(emptyUint8List);
     }
   }
 
   Uint8List getMDRoot() {
-    Uint8List mdRoot = Uint8List.fromList([]);
+    Uint8List mdRoot = emptyUint8List;
     if (count == 0) {
       return mdRoot;
     }
 
     for (Uint8List pendingHash in pending) {
-      if (pendingHash == null) continue;
+      if (compareUint8Lists(pendingHash, emptyUint8List)) continue;
 
-      if (mdRoot.length == 0) {
-         mdRoot = pendingHash;
+      if (mdRoot.isEmpty) {
+        mdRoot = concatTwoUint8Lists(mdRoot, pendingHash);
       } else {
-         mdRoot = sha256Update(concatUint8(pendingHash, mdRoot));
+        mdRoot = sha256Update(concatTwoUint8Lists(pendingHash, mdRoot));
       }
     }
 
     return mdRoot;
   }
-
 }

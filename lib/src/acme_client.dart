@@ -7,7 +7,7 @@ import 'dart:typed_data';
 import 'payload/update_account_auth.dart';
 
 import 'payload/create_lite_data_account.dart';
-import 'payload/factom.dart';
+import 'payload/factom_data_entry.dart';
 
 import 'payload/update_key_page.dart';
 
@@ -616,8 +616,8 @@ class ACMEClient {
 
 
   Future<Map<String, dynamic>> factom(
-      dynamic principal, FactomParam factomParam, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), Factom(factomParam), signer);
+      dynamic principal, FactomDataEntryParam factomParam, TxSigner signer) {
+    return _execute(AccURL.toAccURL(principal), FactomDataEntry(factomParam), signer);
   }
 
   Future<Map<String, dynamic>> createLiteDataAccount(dynamic principal,

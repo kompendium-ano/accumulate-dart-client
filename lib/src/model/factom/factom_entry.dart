@@ -2,34 +2,40 @@ import 'dart:core';
 import 'dart:typed_data';
 
 import 'package:accumulate_api6/src/acc_url.dart';
-import 'package:accumulate_api6/src/utils/hash_builder.dart';
 import 'package:accumulate_api6/src/model/factom/factom_ext_ref.dart';
-import 'package:accumulate_api6/src/utils/utils.dart';
-import 'package:crypto/crypto.dart';
+import 'package:accumulate_api6/src/utils/hash_builder.dart';
+import 'package:hex/hex.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable()
 class FactomEntry {
+  Uint8List data = Uint8List.fromList([]);
+  List<FactomExtRef> extRefs = [];
 
-  late List<Uint8List> data;
-  late List<FactomExtRef> extRefs;
+  FactomEntry.empty() {
+    data = Uint8List.fromList([]);
+  }
 
-  List<Uint8List> calculateChainId(){
+  FactomEntry(Uint8List init) {
+    data = init;
+  }
+
+  void addExtRef(String val) {
+    extRefs.add(FactomExtRef.fromString(val));
+  }
+
+  Uint8List calculateChainId() {
     var hashBuilder = HashBuilder();
 
     for (FactomExtRef extRef in extRefs!) {
-      hashBuilder.addValue(extRef.data);
+      hashBuilder.addBytes(extRef.data);
     }
 
-    //final byte[] chainId = new byte[32];
-    //System.arraycopy(hashBuilder.getCheckSum(), 0, chainId, 0, 32);
-    //return chainId;
-    return [];
+    var chainId = hashBuilder.getCheckSum();
+    return chainId;
   }
 
-  AccURL getUrl(){
-    return AccURL.parse("acc://"); // Url.parse(Hex.encodeHexString(calculateChainId()));
+  AccURL getUrl() {
+    return AccURL.parse(HEX.encode(calculateChainId())); // Url.parse(Hex.encodeHexString(calculateChainId()));
   }
 }
-
-
