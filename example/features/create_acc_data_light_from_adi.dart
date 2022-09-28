@@ -12,7 +12,7 @@ import 'package:accumulate_api6/src/payload/create_lite_data_account.dart';
 import 'package:accumulate_api6/src/payload/write_data.dart';
 import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
 import 'package:accumulate_api6/src/tx_signer.dart';
-import 'package:accumulate_api6/src/utils.dart';
+import 'package:accumulate_api6/src/utils/utils.dart';
 
 final endPoint = "http://127.0.1.1:26660/v2";
 //final endPoint = "https://testnet.accumulatenetwork.io/v2";

@@ -24,6 +24,14 @@ class FactomEntry {
     extRefs.add(FactomExtRef.fromString(val));
   }
 
+  List<Uint8List> getExtRefs(){
+    List<Uint8List> ll = [];
+    for(FactomExtRef fref in extRefs){
+      ll.add(fref.data);
+    }
+    return ll;
+  }
+
   Uint8List calculateChainId() {
     var hashBuilder = HashBuilder();
 
