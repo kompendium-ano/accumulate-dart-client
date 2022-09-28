@@ -24,7 +24,7 @@ void main() {
     factomDataEntryParam.data = fe.data;
     factomDataEntryParam.extIds = fe.getExtRefs();
     factomDataEntryParam.accountId = fe.calculateChainId();
-    
+
     expect(kp1.publicKey, kp2.publicKey);
   });
 

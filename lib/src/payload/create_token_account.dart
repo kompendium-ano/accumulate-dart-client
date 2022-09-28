@@ -1,11 +1,11 @@
 import "dart:typed_data";
-import '../utils/utils.dart';
 
 import "../acc_url.dart";
 import "../encoding.dart";
-import "../tx_types.dart";
-import "base_payload.dart";
 import '../receipt.dart';
+import "../tx_types.dart";
+import '../utils/utils.dart';
+import "base_payload.dart";
 import 'create_token.dart';
 
 class CreateTokenAccountParam {
@@ -20,7 +20,6 @@ class CreateTokenAccountParam {
 class TokenIssuerProofParam {
   dynamic transaction;
   late Receipt receipt;
-
 }
 
 class CreateTokenAccount extends BasePayload {
@@ -29,8 +28,7 @@ class CreateTokenAccount extends BasePayload {
   List<AccURL>? _authorities;
   TokenIssuerProofParam? _proof;
 
-  CreateTokenAccount(CreateTokenAccountParam createTokenAccountParam)
-      : super() {
+  CreateTokenAccount(CreateTokenAccountParam createTokenAccountParam) : super() {
     _url = AccURL.toAccURL(createTokenAccountParam.url);
     _tokenUrl = AccURL.toAccURL(createTokenAccountParam.tokenUrl);
     _authorities = createTokenAccountParam.authorities;
@@ -43,12 +41,9 @@ class CreateTokenAccount extends BasePayload {
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
 
-    forConcat
-        .addAll(uvarintMarshalBinary(TransactionType.createTokenAccount, 1));
+    forConcat.addAll(uvarintMarshalBinary(TransactionType.createTokenAccount, 1));
     forConcat.addAll(stringMarshalBinary(_url.toString(), 2));
     forConcat.addAll(stringMarshalBinary(_tokenUrl.toString(), 3));
-
-
 
     if (_authorities != null) {
       for (AccURL accURL in _authorities!) {
@@ -63,18 +58,16 @@ class CreateTokenAccount extends BasePayload {
     return forConcat.asUint8List();
   }
 
-  Uint8List _marshalBinaryProof(TokenIssuerProofParam proof){
-    List<int>  forConcat = [];
+  Uint8List _marshalBinaryProof(TokenIssuerProofParam proof) {
+    List<int> forConcat = [];
 
-  final txMarshalBinary =
-      proof.transaction is CreateToken
-  ? proof.transaction.marshalBinary()
-      : CreateToken(proof.transaction).marshalBinary();
+    final txMarshalBinary = proof.transaction is CreateToken
+        ? proof.transaction.marshalBinary()
+        : CreateToken(proof.transaction).marshalBinary();
 
-  forConcat.addAll(bytesMarshalBinary(txMarshalBinary, 1));
-  forConcat.addAll(bytesMarshalBinary(Receipt.marshalBinaryReceipt(proof.receipt), 2));
+    forConcat.addAll(bytesMarshalBinary(txMarshalBinary, 1));
+    forConcat.addAll(bytesMarshalBinary(Receipt.marshalBinaryReceipt(proof.receipt), 2));
 
     return forConcat.asUint8List();
-}
-
+  }
 }
