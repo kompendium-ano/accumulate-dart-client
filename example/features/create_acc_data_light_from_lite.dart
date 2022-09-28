@@ -5,10 +5,12 @@ import 'dart:math';
 import 'package:accumulate_api6/src/acme_client.dart';
 import 'package:accumulate_api6/src/api_types.dart';
 import 'package:accumulate_api6/src/lite_identity.dart';
+import 'package:accumulate_api6/src/model/factom/factom_entry.dart';
 import 'package:accumulate_api6/src/payload/add_credits.dart';
 import 'package:accumulate_api6/src/payload/create_identity.dart';
 import 'package:accumulate_api6/src/payload/create_key_page.dart';
 import 'package:accumulate_api6/src/payload/create_lite_data_account.dart';
+import 'package:accumulate_api6/src/payload/factom_data_entry.dart';
 import 'package:accumulate_api6/src/payload/write_data.dart';
 import 'package:accumulate_api6/src/payload/write_data_to.dart';
 import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
@@ -88,14 +90,18 @@ void testLiteDataAccountCreation() async {
   res = await client.queryTx(txId);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Create Light Data Account
+  // Create Lite Data Account
 
-  var newDataAcc = "acc://2c1b046a34c40e08739ba5ac00bea740024f16999ed5c6fb889cd11133be8f97"; //test value must compute from FactomEntry.calculateChainId(
-  WriteDataToParam writeDataToParam = WriteDataToParam();
-  writeDataToParam.recepient = newDataAcc; //destination
-  writeDataToParam.data = [utf8.encode("FA2CKnvUpPnNpMwiYEcF44oBG24vQ5eCe9gHximhxqVpCN8A7NH2").asUint8List()];
+  FactomEntry fe = FactomEntry(utf8.encode("TheData").asUint8List());
+  fe.addExtRef("Kompendium");
+  fe.addExtRef("Test val");
 
-  res = await client.writeDataTo(lid.acmeTokenAccount, writeDataToParam, lid);
+  FactomDataEntryParam factomDataEntryParam = FactomDataEntryParam();
+  factomDataEntryParam.data = fe.data;
+  factomDataEntryParam.extIds = fe.getExtRefs();
+  factomDataEntryParam.accountId = fe.calculateChainId();
+
+  res = await client.factom(lid.acmeTokenAccount, factomDataEntryParam, lid);
   txId = res["result"]["txid"];
   print("Lite Data write $txId");
   sleep(Duration(seconds: waitTimeInSeconds));
