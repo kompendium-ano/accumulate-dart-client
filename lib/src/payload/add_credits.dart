@@ -1,10 +1,9 @@
 import 'dart:typed_data';
-import 'package:hex/hex.dart';
 
-import '../utils.dart';
 import "../acc_url.dart";
 import "../encoding.dart";
 import "../tx_types.dart";
+import '../utils/utils.dart';
 import "base_payload.dart";
 
 class AddCreditsParam {
@@ -22,12 +21,8 @@ class AddCredits extends BasePayload {
 
   AddCredits(AddCreditsParam addCreditsParam) : super() {
     _recipient = AccURL.toAccURL(addCreditsParam.recipient);
-    _amount = addCreditsParam.amount is int
-        ? addCreditsParam.amount
-        : int.parse(addCreditsParam.amount);
-    _oracle = addCreditsParam.oracle is int
-        ? addCreditsParam.oracle
-        : int.parse(addCreditsParam.oracle);
+    _amount = addCreditsParam.amount is int ? addCreditsParam.amount : int.parse(addCreditsParam.amount);
+    _oracle = addCreditsParam.oracle is int ? addCreditsParam.oracle : int.parse(addCreditsParam.oracle);
 
     super.memo = addCreditsParam.memo;
     super.metadata = addCreditsParam.metadata;
@@ -45,9 +40,6 @@ class AddCredits extends BasePayload {
       forConcat.addAll(uvarintMarshalBinary(_oracle, 4));
     }
 
-
     return forConcat.asUint8List();
   }
-
-
 }

@@ -1,5 +1,5 @@
 import "dart:typed_data";
-import '../utils.dart';
+import '../utils/utils.dart';
 import "package:crypto/crypto.dart";
 import '../signature_type.dart';
 import "ed25519_keypair.dart";

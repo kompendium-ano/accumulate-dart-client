@@ -1,13 +1,14 @@
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
-import '../utils.dart';
+import '../utils/utils.dart';
 
 import "../encoding.dart";
 import "../tx_types.dart";
 import "base_payload.dart";
 
 class WriteDataToParam {
+  String? recepient;
   late List<Uint8List> data;
   bool? scratch;
   bool? writeToState;
@@ -17,6 +18,7 @@ class WriteDataToParam {
 
 class WriteDataTo extends BasePayload {
   late List<Uint8List> _data;
+  late String _recepient;
   late bool _scratch;
   late bool _writeToState;
   Uint8List? _dataHash;
@@ -26,6 +28,7 @@ class WriteDataTo extends BasePayload {
     _data = writeDataToParam.data;
     _scratch = writeDataToParam.scratch ?? false;
     _writeToState = writeDataToParam.writeToState ?? false;
+    _recepient = writeDataToParam.recepient!;
     super.memo = writeDataToParam.memo;
     super.metadata = writeDataToParam.metadata;
   }
@@ -45,19 +48,9 @@ class WriteDataTo extends BasePayload {
   Uint8List _marshalBinary({bool withoutEntry = false}) {
     List<int> forConcat = [];
 
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.writeData, 1));
-
-    if (!withoutEntry) {
-      forConcat.addAll(fieldMarshalBinary(2, marshalDataEntry(this._data)));
-    }
-
-    if (this._scratch) {
-      forConcat.addAll(booleanMarshalBinary(this._scratch, 3));
-    }
-    if (this._writeToState) {
-      forConcat.addAll(booleanMarshalBinary(this._writeToState, 4));
-    }
-
+    forConcat.addAll(uvarintMarshalBinary(TransactionType.writeDataTo, 1));
+    forConcat.addAll(stringMarshalBinary(this._recepient, 2));
+    //forConcat.addAll(stringMarshalBinary(marshalDataEntry(this._data), 3));
 
     return forConcat.asUint8List();
   }

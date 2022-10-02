@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'utils.dart';
+import 'utils/utils.dart';
 
 class ValueOutOfRangeException implements Exception {
   late int field;
