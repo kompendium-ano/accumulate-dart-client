@@ -1,10 +1,10 @@
-name: accumulate_api
-description: JSON RPC Dart client for Accumulate blockchain, defines basic models and API calls to work with network, supports all types of accounts.
+name: accumulate_api6
+description: Dart client for Accumulate blockchain, defines basic models and API calls to work with network, supports all types of accounts.
 repository: https://github.com/kompendium-ano/accumulate-dart-client
-version: 0.2.1
+version: 0.2.9
 
 environment:
-  sdk: '>=2.7.0 <3.0.0'
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   crypto: ^3.0.1
@@ -12,11 +12,11 @@ dependencies:
   ed25519_edwards: ^0.3.1
   hex: ^0.2.0
   http: ^0.13.4
-  tuple: ^2.0.0
-  decimal: ^2.1.0
   json_annotation: ^4.4.0
   dartz: ^0.10.0
+  bs58: ^1.0.2
 
 dev_dependencies:
   lints: ^1.0.0
   test: ^1.16.0
+  test_html_builder: ^3.0.1

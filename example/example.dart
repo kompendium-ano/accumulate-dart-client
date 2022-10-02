@@ -1,199 +1,586 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:accumulate_api/accumulate_api.dart';
-import 'package:accumulate_api/src/model/address.dart';
-import 'package:accumulate_api/src/model/adi.dart';
+//import '../lib/src/lite_identity.dart';
+import 'package:crypto/crypto.dart';
+
+import '../lib/src/model/receipt_model.dart';
+
+import '../lib/src/api_types.dart';
+import '../lib/src/receipt.dart';
+import '../lib/src/transaction.dart' as trans;
+
+import '../lib/src/tx_types.dart';
+
+import '../lib/src/payload/create_key_page.dart';
+
+
+import '../lib/src/payload/update_account_auth.dart';
+
+import '../lib/src/payload/create_key_book.dart';
+import '../lib/src/payload/update_key.dart';
+import '../lib/src/payload/update_key_page.dart';
+
+import '../lib/src/acc_url.dart';
+
+import '../lib/src/encoding.dart';
+
+import '../lib/src/payload/burn_tokens.dart';
+import '../lib/src/payload/create_token.dart';
+import '../lib/src/payload/create_token_account.dart';
+import '../lib/src/payload/issue_tokens.dart';
+
+import '../lib/src/payload/create_data_account.dart';
+import '../lib/src/payload/write_data.dart';
+
+import '../lib/src/payload/add_credits.dart';
+import '../lib/src/payload/create_identity.dart';
+import '../lib/src/payload/send_tokens.dart';
+import '../lib/src/payload/token_recipient.dart';
+import '../lib/src/signer.dart';
+import '../lib/src/signing/ed25519_keypair_signer.dart';
+import '../lib/src/signing/ed25519_keypair.dart';
+import '../lib/src/tx_signer.dart';
+import 'package:hex/hex.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:hex/hex.dart';
+import '../lib/src/utils.dart';
 
-final testnetAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
+import '../lib/accumulate_api6.dart';
+
+final endPoint = "https://testnet.accumulatenetwork.io/v2";
+ACMEClient client = ACMEClient(endPoint);
 
 Future<void> main() async {
-  // Example on how tp create new ADI
-  final String respA = await makeAdiTest();
+  print(endPoint);
+/*
+  LiteIdentity lid,lid2;
+
+  lid = LiteIdentity(Ed25519KeypairSigner.generate());
+  String mnemonic = lid.mnemonic;
+  String privateKey = HEX.encode(lid.secretKey);
+  print("new account ${lid.acmeTokenAccount.toString()}");
+  print("\n");
+
+  Ed25519KeypairSigner signer = Ed25519KeypairSigner.fromMnemonic(mnemonic);
+  lid2 = LiteIdentity(signer);
+  print("import account mnemonic ${lid2.acmeTokenAccount}");
+  print("\n");
+
+  Uint8List secretKey = HEX.decode(privateKey).asUint8List();
+  Ed25519Keypair ed25519keypair = Ed25519Keypair.fromSecretKey(secretKey);
+  Ed25519KeypairSigner ed25519keypairSigner =
+  Ed25519KeypairSigner(ed25519keypair);
+
+  lid2 = LiteIdentity(ed25519keypairSigner);
+
+  print("import account private key ${lid2.acmeTokenAccount}");
+  print("\n");
+*/
+
+  testFeatures();
 }
 
-Future<String> makeFaucetTest() async {
-  // Generate some random data for private keys
-  String mnemonic = bip39.generateMnemonic();
-  Uint8List seed = bip39.mnemonicToSeed(mnemonic);
+void testFeatures() async {
 
-  // Additional setup goes here.
-  // 1. initiate public/private keypage
-  var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32)); // Uint8List.fromList(List.generate(32, (index) => 0)));
-  var publicKey = ed.public(privateKey);
+  int waitTimeInSeconds = 60;
 
-  // 2. Create New unique ACME url based on Protocol definition
-  Address liteAccount = Address("", "ACME Account", "");
-  AccumulateURL currentURL = liteAccount.generateAddressViaProtocol(publicKey.bytes, "ACME");
-  liteAccount.address = currentURL.getPath();
-  liteAccount.URL = currentURL;
+  LiteIdentity lid;
+  String identityUrl;
+  TxSigner identityKeyPageTxSigner;
 
-  print(liteAccount.address);
+  final oracle = await client.valueFromOracle();
 
-  // 3. Initiate API class instance and register address on the network with faucet
-  final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
-  final resp = await acmeAPI.callFaucet(liteAccount);
-  return resp;
-}
+  lid = LiteIdentity(Ed25519KeypairSigner.generate());
 
-Future<String> makeCreditsTest() async {
-  // 1. Generate some random data for private keys
-  String mnemonic = bip39.generateMnemonic();
-  Uint8List seed = bip39.mnemonicToSeed(mnemonic);
+  print("new account ${lid.acmeTokenAccount.toString()}");
+  print("\n");
+  await Future.wait([
+      client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 10)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 10)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 10)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 10)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 10)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 10)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 10)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 10)),
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 10)),
 
-  // 2. initiate public/private keypage
-  var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32)); // Uint8List.fromList(List.generate(32, (index) => 0)));
-  var publicKey = ed.public(privateKey);
 
-  // 3. Create New unique ACME url based on Protocol definition
-  Address liteAccount = Address("", "ACME Account", "");
-  AccumulateURL currentURL = liteAccount.generateAddressViaProtocol(publicKey.bytes, "ACME");
-  liteAccount.address = currentURL.getPath();
-  liteAccount.URL = currentURL;
+  ]);
+  dynamic res = await client.faucet(lid.acmeTokenAccount);
+  print(res);
+  print("\n");
+  sleep(Duration(seconds: 10));
+  String txId = res["result"]["txid"];
+  print("faucet txId $txId");
 
-  //   3.1 Store associated private key data along with Address structure
-  //       internal methods will use it to sign payloads
-  liteAccount.puk = HEX.encode(publicKey.bytes);
-  liteAccount.pik = privateKey.bytes;
-  liteAccount.pikHex = HEX.encode(privateKey.bytes);
+  //bool status = await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
+  //print("transaction $status");
+ // sleep(Duration(seconds: 60));
 
-  print(liteAccount.address);
 
-  // 4. Initiate API class instance and register address on the network with faucet
-  final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
-  final respFaucet = await acmeAPI.callFaucet(liteAccount);
-  print('faucet - ${respFaucet}');
+  print("\n");
+  res = await client.queryUrl(lid.url);
+  print(res);
 
-  // 5. Wait at least 4 seconds for a transaction to settle on the network
-  final sleep = await Future.delayed(Duration(seconds: 5));
-  final resptx = await acmeAPI.callGetTokenTransaction(respFaucet);
+  print("\n");
+  res = await client.queryUrl(lid.acmeTokenAccount);
+  print(res);
+  print("\n");
+  int creditAmount = 50000*10;
+  AddCreditsParam addCreditsParam = AddCreditsParam();
+  addCreditsParam.recipient = lid.url;
+  addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
+  addCreditsParam.oracle = oracle;
+  addCreditsParam.memo = "Add credits memo test";
+  addCreditsParam.metadata = utf8.encode("Add credits metadata test").asUint8List();
+print(addCreditsParam.amount);
+  res = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
+  print("addCredits res $res");
 
-  // 6. Credits are converted from ACME token
-  //   6.1 Get current timestamp in microseconds it works as Nonce
-  int timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
+  txId = res["result"]["txid"];
+  print("addCredits txId $txId");
+  sleep(Duration(seconds: waitTimeInSeconds));
+  res = await client.queryTx(txId);
 
-  //   6.2 Execute actual credits call
-  final respCredits = await acmeAPI.callAddCredits(liteAccount, 1000, timestamp);
-  print('credits - ${respCredits}');
 
-  //   6.3 Check that balance indeed updated
-  final respAccount = await acmeAPI.callQuery(liteAccount.address);
-  print(respAccount.creditBalance.toString());
 
-  return respAccount.url;
-}
+  identityUrl = "acc://adi-${DateTime.now().millisecondsSinceEpoch}.acme";
+  final identitySigner = Ed25519KeypairSigner.generate();
+  final bookUrl = identityUrl + "/jimmy-book";
+  CreateIdentityParam createIdentity = CreateIdentityParam();
 
-Future<String> makeAdiTest() async {
-  // 1. Generate some random data for private keys
-  String mnemonic = bip39.generateMnemonic();
-  Uint8List seed = bip39.mnemonicToSeed(mnemonic);
+  // Create identity
 
-  // 2. initiate public/private keypage
-  var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32)); // Uint8List.fromList(List.generate(32, (index) => 0)));
-  var publicKey = ed.public(privateKey);
+  createIdentity.url = identityUrl;
+  createIdentity.keyHash = identitySigner.publicKeyHash();
+  createIdentity.keyBookUrl = bookUrl;
 
-  // 3. Create New unique ACME url based on Protocol definition
-  Address liteAccount = Address("", "ACME Account", "");
-  AccumulateURL currentURL = liteAccount.generateAddressViaProtocol(publicKey.bytes, "ACME");
-  liteAccount.address = currentURL.getPath();
-  liteAccount.URL = currentURL;
+  res = await client.createIdentity(lid.url, createIdentity, lid);
+  txId = res["result"]["txid"];
+  print("createIdentity txId $txId");
 
-  //   3.1 Store associated private key data along with Address structure
-  //       internal methods will use it to sign payloads
-  liteAccount.puk = HEX.encode(publicKey.bytes);
-  liteAccount.pik = privateKey.bytes;
-  liteAccount.pikHex = HEX.encode(privateKey.bytes);
+  sleep(Duration(seconds: waitTimeInSeconds));
 
-  print(liteAccount.address);
+  //await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
+ // print("transaction complete");
 
-  // 4. Initialize API class
-  final acmeAPI = ACMEApiV2("https://testnet.accumulatenetwork.io/", "v2");
+  //res = await client.queryUrl(identityUrl);
 
-  // 5. Add ACME tokens from faucet, at least 3 times because fee is high
-  //      - must maintain 4s delay for tx to settle, otherwise it may stall account chain
-  final respFaucet = await acmeAPI.callFaucet(liteAccount);
-  final sleep = await Future.delayed(Duration(seconds: 15));
-  final respFaucet2 = await acmeAPI.callFaucet(liteAccount);
-  final sleep2 = await Future.delayed(Duration(seconds: 15));
-  final respFaucet3 = await acmeAPI.callFaucet(liteAccount);
-  final sleep3 = await Future.delayed(Duration(seconds: 15));
-  print('Faucets - ${respFaucet}');
 
-  final respAccountL = await acmeAPI.callQuery(liteAccount.address);
-  print('Lite Account ${respAccountL.url}:\n ACME - ${respAccountL.balance}, Credits - ${respAccountL.creditBalance}');
+  final keyPageUrl = bookUrl + "/1";
 
-  // 6. Credits are converted from ACME token
-  //   6.1 Get current timestamp in microseconds it works as Nonce
-  int timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
+  creditAmount = 90000*10;
 
-  //   6.2 Execute actual credits call
-  //       ADI very expensive, needs 5000 credits
-  final respCredits = await acmeAPI.callAddCredits(liteAccount, 3000 * 100, timestamp);
-  final sleep6 = await Future.delayed(Duration(seconds: 15));
-  print('Faucets - ${respCredits}');
+  addCreditsParam = AddCreditsParam();
+  addCreditsParam.recipient = keyPageUrl;
+  addCreditsParam.amount = (creditAmount * pow(10, 8))~/ oracle;
+  addCreditsParam.oracle = oracle;
 
-  // Collect info about Balances
-  final respAccountL2 = await acmeAPI.callQuery(liteAccount.address);
-  print(
-      'Lite Account ${respAccountL2.url}:\n ACME - ${respAccountL2.balance}, Credits - ${respAccountL2.creditBalance}');
+  res  = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
+  txId = res["result"]["txid"];
+  print("Add credits to page $keyPageUrl txId $txId");
+  sleep(Duration(seconds: waitTimeInSeconds));
 
-  // we need more credits
-  final respFaucet4 = await acmeAPI.callFaucet(liteAccount);
-  final sleep4 = await Future.delayed(Duration(seconds: 15));
-  final respFaucet5 = await acmeAPI.callFaucet(liteAccount);
-  final sleep5 = await Future.delayed(Duration(seconds: 15));
 
-  timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
-  final respCredits2 = await acmeAPI.callAddCredits(liteAccount, 2000 * 100, timestamp);
-  final sleep62 = await Future.delayed(Duration(seconds: 15));
+  final tokenUrl = identityUrl + "/JTok";
+  CreateTokenParam createTokenParam = CreateTokenParam();
+  createTokenParam.url = tokenUrl;
+  createTokenParam.symbol = "JT";
+  createTokenParam.precision = 0;
 
-  // Collect info about Balances
-  final respAccountL3 = await acmeAPI.callQuery(liteAccount.address);
-  print(
-      'Lite Account ${respAccountL3.url}:\n ACME - ${respAccountL3.balance}, Credits - ${respAccountL3.creditBalance}');
+  identityKeyPageTxSigner = TxSigner(keyPageUrl, identitySigner);
 
-  // 6. Generate ADI
-  // 6.1 Every ADI is unique, in order to avoid name clash, create random number
-  //var rng = new Random();
-  //var num = new List.generate(12, (_) => rng.nextInt(100)).reduce((value, element) => value + element);
+  res = await client.createToken(identityUrl, createTokenParam, identityKeyPageTxSigner);
+  txId = res["result"]["txid"];
+  print("CustomToken txId $txId");
+  sleep(Duration(seconds: waitTimeInSeconds));
+/*
+  var recipient = LiteIdentity(Ed25519KeypairSigner.generate()).url.append(tokenUrl);
+  print("recipient $recipient");
+  var amount = 123;
+  IssueTokensParam issueTokensParam = IssueTokensParam();
+  TokenRecipientParam tokenRecipientParam = TokenRecipientParam();
+  tokenRecipientParam.url = recipient;
+  tokenRecipientParam.amount = amount;
+  issueTokensParam.to = [tokenRecipientParam];
 
-  // OR use timestamp
+  res = await client.issueTokens(tokenUrl, issueTokensParam, identityKeyPageTxSigner);
+  txId = res["result"]["txid"];
+  print("issueTokens txId $txId");
+  sleep(Duration(seconds: waitTimeInSeconds));
 
-  // 7. Add timestamp
-  //    Every tx should maintain unique Nonce, thus calling it again
-  //    otherwise tx will fail
-  int timestampForAdi = DateTime.now().toUtc().millisecondsSinceEpoch;
 
-  // 6.2 Prepare ADI structure that we'll forward to API
-  //    - here we reuse keys from lite account but new can be created and supplied
-  //    - sponsor defines who will pay the creation fee
-  IdentityADI newADI = IdentityADI("", "acc://cosmonaut-" + timestampForAdi.toString(), "");
-  newADI
-    ..sponsor = liteAccount.address
-    ..puk = liteAccount.puk
-    ..pik = liteAccount.pik
-    ..countKeybooks = 1
-    ..countAccounts = 0;
+  BurnTokensParam burnTokensParam = BurnTokensParam();
+  burnTokensParam.amount = 100;
 
-  print('ADI - ${newADI.path}');
+  res = await client.burnTokens(lid.acmeTokenAccount, burnTokensParam, identityKeyPageTxSigner);
 
-  // 8. Execute specific API method and provide arguments
-  String txhash = "";
-  try {
-    final resp = await acmeAPI.callCreateAdi(liteAccount, newADI, timestampForAdi, "book0", "page0");
-    txhash = resp;
-  } catch (e) {
-    e.toString();
-    print(e.toString());
-    return "";
+  txId = res["result"]["txid"];
+  print("burnTokens txId $txId");
+  sleep(Duration(seconds: waitTimeInSeconds));
+*/
+
+  identityKeyPageTxSigner = TxSigner(keyPageUrl, identitySigner);
+/*
+  AccountAuthOperation accountAuthOperation = AccountAuthOperation();
+  accountAuthOperation.authority = identityKeyPageTxSigner.url;
+  accountAuthOperation.type = AccountAuthOperationType.Disable;
+
+  UpdateAccountAuthParam updateAccountAuthParam = UpdateAccountAuthParam();
+  updateAccountAuthParam.operations = [accountAuthOperation];
+
+  res  = await client.updateAccountAuth(identityKeyPageTxSigner.url, updateAccountAuthParam, identityKeyPageTxSigner);
+
+  txId = res["result"]["txid"];
+  print("updateAccountAuth txId $txId");
+
+  sleep(Duration(seconds: waitTimeInSeconds));
+*/
+
+
+/*
+
+  final tokenAccountUrl = identityUrl + "/ACME";
+  CreateTokenAccountParam createTokenAccountParam = CreateTokenAccountParam();
+  createTokenAccountParam.url = tokenAccountUrl;
+  createTokenAccountParam.tokenUrl = ACME_TOKEN_URL;
+
+  res = await client.createTokenAccount(
+      identityUrl,
+      createTokenAccountParam,
+      identityKeyPageTxSigner
+  );
+  sleep(Duration(seconds: waitTimeInSeconds));
+
+  txId = res["result"]["txid"];
+  print("Create token account txId $txId");
+
+*/
+
+  /*
+  final page1Signer = Ed25519KeypairSigner.generate();
+  final newKeyBookUrl = identityUrl + "/" + "${DateTime.now().millisecondsSinceEpoch}";
+  CreateKeyBookParam createKeyBookParam = CreateKeyBookParam();
+  createKeyBookParam.url = newKeyBookUrl;
+  createKeyBookParam.publicKeyHash = page1Signer.publicKeyHash();
+
+
+  res = await client.createKeyBook(identityUrl, createKeyBookParam, identityKeyPageTxSigner);
+  txId = res["result"]["txid"];
+  print("Create keybook txId $txId");
+  //await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
+  sleep(Duration(seconds: waitTimeInSeconds));
+
+  final page1Url = newKeyBookUrl + "/1";
+
+  creditAmount = 20000;
+  addCreditsParam = AddCreditsParam();
+  addCreditsParam.recipient = page1Url;
+  addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
+  addCreditsParam.oracle = oracle;
+
+  res  = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
+  txId = res["result"]["txid"];
+  print("Add credits to page $page1Url txId $txId");
+  sleep(Duration(seconds: waitTimeInSeconds));
+
+  var keyPage1TxSigner = TxSigner(page1Url, page1Signer);
+  var version = await client.querySignerVersion(keyPage1TxSigner,keyPage1TxSigner.publicKeyHash);
+
+  // Add new key to keypage
+  final newKey = Ed25519KeypairSigner.generate();
+  UpdateKeyPageParam updateKeyPageParam = UpdateKeyPageParam();
+  KeyOperation keyOperation = KeyOperation();
+  keyOperation.type = KeyPageOperationType.Add;
+  KeySpec keySpec = KeySpec();
+  keySpec.keyHash = newKey.publicKeyHash();
+  keyOperation.key = keySpec;
+  updateKeyPageParam.operations = [keyOperation];
+
+  res = await client.updateKeyPage(page1Url, updateKeyPageParam, keyPage1TxSigner);
+
+  txId = res["result"]["txid"];
+  print("Add new key to page $page1Url txId $txId");
+  sleep(Duration(seconds: 60));
+
+
+
+  version = await client.querySignerVersion(keyPage1TxSigner,keyPage1TxSigner.publicKeyHash);
+  keyPage1TxSigner = TxSigner.withNewVersion(keyPage1TxSigner, version);
+  var page2Signer = Ed25519KeypairSigner.generate();
+  CreateKeyPageParam createKeyPageParam = CreateKeyPageParam();
+  createKeyPageParam.keys = [page2Signer.publicKey()];
+
+
+  res = await client.createKeyPage(newKeyBookUrl, createKeyPageParam, keyPage1TxSigner);
+  txId = res["result"]["txid"];
+  print("createKeyPage txId $txId");
+  sleep(Duration(seconds: 60));
+
+
+  var page2Url = newKeyBookUrl + "/jimpage";
+
+  // Update allowed
+  updateKeyPageParam = UpdateKeyPageParam();
+  keyOperation = KeyOperation();
+  keyOperation.type = KeyPageOperationType.UpdateAllowed;
+  keyOperation.allow = [TransactionType.updateKeyPage];
+  updateKeyPageParam.operations = [keyOperation];
+
+  res = await client.updateKeyPage(page2Url, updateKeyPageParam, keyPage1TxSigner);
+  txId = res["result"]["txid"];
+  print("updateKeyPage $page2Url txId $txId");
+  sleep(Duration(seconds: waitTimeInSeconds));
+
+  creditAmount = 20000;
+  addCreditsParam = AddCreditsParam();
+  addCreditsParam.recipient = page2Url;
+  addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
+  addCreditsParam.oracle = oracle;
+
+  res  = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
+  txId = res["result"]["txid"];
+  print("Add credits to page $page2Url txId $txId");
+  sleep(Duration(seconds: waitTimeInSeconds));
+*/
+
+  /*
+  //Send Token
+  recipient =
+      LiteIdentity(Ed25519KeypairSigner.generate()).acmeTokenAccount;
+
+   amount = 12000;
+
+  SendTokensParam sendTokensParam = SendTokensParam();
+  tokenRecipientParam = TokenRecipientParam();
+  tokenRecipientParam.url = recipient;
+  tokenRecipientParam.amount = amount;
+  sendTokensParam.to = [tokenRecipientParam];
+
+  res = await client.sendTokens(lid.acmeTokenAccount, sendTokensParam, lid);
+
+  txId = res["result"]["txid"];
+  print("Send Token $txId");
+
+  res = await client.queryTx(txId);
+sleep(Duration(seconds: 60));*/
+
+/*
+  // Create data account
+  final dataAccountUrl = identityUrl + "/jimmy-data";
+  print("dataAccountUrl $dataAccountUrl");
+  CreateDataAccountParam createDataAccountParam = CreateDataAccountParam();
+  createDataAccountParam.url = dataAccountUrl;
+
+
+  res = await client.createDataAccount(
+      identityUrl,
+      createDataAccountParam,
+      identityKeyPageTxSigner
+  );
+
+  txId = res["result"]["txid"];
+  print("Create data account $txId");
+  await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
+
+  //res = await client.queryUrl(dataAccountUrl);
+
+  sleep(Duration(seconds: 60));
+
+  // Write data
+  WriteDataParam writeDataParam = WriteDataParam();
+
+  writeDataParam.data = [utf8.encode("Jimmy").asUint8List()];
+
+
+  res = await client.writeData(dataAccountUrl, writeDataParam, identityKeyPageTxSigner);
+  txId = res["result"]["txid"];
+  print("Data write $txId");
+  await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
+
+  res = await client.queryData(dataAccountUrl);
+  print("Data account write $res");
+
+  sleep(Duration(seconds: 60));*/
+
+
+
+  var txn0url = '${tokenUrl}#txn/0';
+
+  QueryOptions queryOptions = QueryOptions();
+  queryOptions.prove = true;
+  res = await client.queryUrl(txn0url, queryOptions);
+  print("\n");
+  print("$txn0url $res");
+
+  ReceiptModel receiptModel = ReceiptModel.fromMap(res);
+  List<Receipts> receipts = receiptModel.result!.receipts!;
+  Transaction transaction = receiptModel.result!.transaction!;
+  // Get a chain proof (from any chain, ends in a BVN anchor)
+  if (receiptModel.result!.receipts!.length == 0) {
+    print("No proof found");
+    return;
   }
-  final sleep7 = await Future.delayed(Duration(seconds: 10));
+  Proof proof2 = receipts[0].proof!;
 
-  // 9. Check created ADI
-  final respAccountAdi = await acmeAPI.callQuery(newADI.path);
-  print('ADI: ${respAccountAdi.url}');
+  // Convert the response to a Transaction
+  if (transaction.body!.type != "createToken") {
+    print('Expected first transaction of ${tokenUrl} to be createToken but got ${transaction.body!.type}');
+  }
 
-  return txhash;
+  trans.HeaderOptions headerOptions = trans.HeaderOptions();
+  headerOptions.initiator = HEX.decode(transaction.header!.initiator!).asUint8List();
+  dynamic header = trans.Header(transaction.header!.principal!,headerOptions);
+  createTokenParam = CreateTokenParam();
+  createTokenParam.url = transaction.body!.url!;
+  createTokenParam.symbol = transaction.body!.symbol!;
+  createTokenParam.precision = 0;
+
+  CreateToken body = CreateToken(createTokenParam);
+  trans.Transaction txn = trans.Transaction(body, header);
+
+  // Prove that the body is part of the transaction
+  Receipt receipt = Receipt();
+  receipt.start = body.hash();
+
+  receipt.startIndex = 0;
+  receipt.end =  body.hash();
+  receipt.endIndex= 0;
+  receipt.anchor =  txn.hash();
+
+  ReceiptEntry entry = ReceiptEntry();
+  entry.hash = sha256.convert(header.marshalBinary()).bytes;
+  entry.right = false;
+
+  receipt.entries= [entry];
+
+  Receipt proof1 = receipt;
+
+  print("anchorRes ${proof2.anchor!}");
+  // Prove the BVN anchor
+  dynamic anchorRes = await client.queryAnchor(proof2.anchor!);
+  Proof proof3 = Proof.fromMap(anchorRes["result"]["receipt"]["proof"]);
+
+  Receipt receipt2 = Receipt();
+  receipt2.start = proof2.start;
+  receipt2.startIndex = proof2.startIndex;
+  receipt2.end = proof2.end;
+  receipt2.endIndex = proof2.endIndex;
+  receipt2.anchor = proof2.anchor;
+  List<ReceiptEntry> entries2 = [];
+  for(Entry entry in proof2.entries!){
+    ReceiptEntry receiptEntry2 = ReceiptEntry();
+    receiptEntry2.right = entry.right;
+    receiptEntry2.hash = entry.hash;
+  }
+  receipt2.entries = entries2;
+
+
+  Receipt receipt3 = Receipt();
+  receipt3.start = proof3.start;
+  receipt3.startIndex = proof3.startIndex;
+  receipt3.end = proof3.end;
+  receipt3.endIndex = proof3.endIndex;
+  receipt3.anchor = proof3.anchor;
+  List<ReceiptEntry> entries3 = [];
+  for(Entry entry in proof3.entries!){
+    ReceiptEntry receiptEntry2 = ReceiptEntry();
+    receiptEntry2.right = entry.right;
+    receiptEntry2.hash = entry.hash;
+  }
+  receipt3.entries = entries3;
+
+  // Assemble the full proof
+  dynamic receiptFinal = combineReceipts(combineReceipts(proof1, receipt2), receipt3);
+
+
+  // Create a token account for the TEST token
+  var tokenAccountUrl = identityUrl + "/JimTokenAcc";
+  CreateTokenAccountParam createTokenAccountParam = CreateTokenAccountParam();
+  createTokenAccountParam.url = tokenAccountUrl;
+  createTokenAccountParam.tokenUrl = tokenUrl;
+  TokenIssuerProofParam tokenIssuerProofParam = TokenIssuerProofParam();
+
+
+  tokenIssuerProofParam.receipt = receiptFinal;
+  tokenIssuerProofParam.transaction = body;
+  createTokenAccountParam.proof = tokenIssuerProofParam;
+
+  res = await client.createTokenAccount(identityUrl, createTokenAccountParam, identityKeyPageTxSigner);
+
+  txId = res["result"]["txid"];
+  print("Create Custom Token Account $txId");
+  sleep(Duration(seconds: 60));
+
+  res = await client.queryUrl(tokenAccountUrl);
+
+
+  print("DONE");
 }
+
+Receipt combineReceipts(Receipt r1,Receipt r2){
+
+  dynamic anchorStr = ((r1.anchor is Uint8List) || (r1.anchor is List<int>)) ? HEX.encode(r1.anchor) : r1.anchor;
+  dynamic startStr =
+    ((r2.start is Uint8List) || (r2.start is List<int>)) ? HEX.encode(r2.start) : r2.start;
+
+if (anchorStr != startStr) {
+  print("Receipts cannot be combined, anchor ${anchorStr} doesn't match root merkle tree ${startStr}");
+  }
+
+  Receipt result = cloneReceipt(r1);
+  result.anchor = copyHash(r2.anchor);
+
+  r2.entries.forEach((e) => result.entries.add(copyReceiptEntry(e)));
+
+  return result;
+}
+
+Receipt cloneReceipt(Receipt receipt){
+  Receipt newReceipt = Receipt();
+  newReceipt.start = copyHash(receipt.start);
+  newReceipt.startIndex = receipt.startIndex;
+  newReceipt.end = copyHash(receipt.end);
+  newReceipt.endIndex =  receipt.endIndex;
+  newReceipt.anchor =  copyHash(receipt.anchor);
+  newReceipt.entries =  receipt.entries.map(copyReceiptEntry).toList();
+
+return newReceipt;
+}
+
+ReceiptEntry copyReceiptEntry(ReceiptEntry re) {
+  ReceiptEntry result = ReceiptEntry();
+  result.hash = copyHash(re.hash);
+
+if (re.right != null && re.right!) {
+   result.right = true;
+   }
+return result;
+}
+
+Uint8List copyHash(dynamic hash){
+  if((hash is Uint8List)){
+    return hash;
+
+  }
+
+  if((hash is List<int>)){
+    return hash.asUint8List();
+
+  }
+return utf8.encode(hash).asUint8List();
+}
+

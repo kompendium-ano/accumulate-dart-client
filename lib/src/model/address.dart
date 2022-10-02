@@ -1,10 +1,15 @@
 import 'dart:convert' show utf8;
 import 'dart:core';
 
+import '../acc_url.dart';
+import '../utils/utils.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import "package:hex/hex.dart";
 import 'package:json_annotation/json_annotation.dart';
+
+
+import '../../accumulate_api6.dart';
 
 // // URL is an Accumulate URL.
 // type URL struct {
@@ -16,11 +21,12 @@ import 'package:json_annotation/json_annotation.dart';
 // }
 @JsonSerializable()
 class AccumulateURL {
-  String _userInfo;
-  String _authority;
-  String _path;
-  String _query;
-  String _fragment;
+  String? _userInfo;
+  String? _authority;
+  String? _path;
+  String? _query;
+  String? _fragment;
+  AccURL? _accURL;
 
   AccumulateURL() {
   }
@@ -30,6 +36,7 @@ class AccumulateURL {
         _authority = json['authority'],
         _path = json['path'],
         _query = json['query'],
+  _accURL = json['url'],
         _fragment = json['fragment'];
 
   Map<String, dynamic> toJson() => {
@@ -38,11 +45,11 @@ class AccumulateURL {
         'path': _path,
         'query': _query,
         'fragment': _fragment,
+    'url':_accURL,
       };
 
-  String getPath() {
-    return "acc://" + _authority + _path;
-  }
+  String getPath() => _accURL.toString();
+
 
   // Hostname returns the hostname from the authority component.
   //   func (u *URL) Hostname() string {
@@ -50,7 +57,7 @@ class AccumulateURL {
   //     return s
   // }
   String hostname() {
-    return authority.split(":").first;
+    return authority!.split(":").first;
   }
 
   // ResourceChain constructs a chain identifier from the lower case hostname and
@@ -69,7 +76,7 @@ class AccumulateURL {
   //    return chain(u.Hostname() + ensurePath(u.Path))
   //  }
   List<int> resourceChain() {
-    String combo = hostname() + ensurePath(path);
+    String combo =  _accURL.toString();   //hostname() + ensurePath(path)!;
     Digest chainHash = sha256.convert(utf8.encode(combo.toLowerCase()));
     return chainHash.bytes.sublist(0, 32);
   }
@@ -81,8 +88,8 @@ class AccumulateURL {
   // }
   // return "/" + s
   // }
-  String ensurePath(String input) {
-    if (input == "" || input.startsWith('/', 0)) {
+  String? ensurePath(String? input) {
+    if (input == "" || input!.startsWith('/', 0)) {
       return input;
     } else {
       return "/" + input;
@@ -90,34 +97,40 @@ class AccumulateURL {
   }
 
   //////////////////////////////////////////////////////
-  String get userInfo => _userInfo;
+  String? get userInfo => _userInfo;
 
-  set userInfo(String value) {
+  set userInfo(String? value) {
     _userInfo = value;
   }
 
-  String get authority => _authority;
+  String? get authority => _authority;
 
-  set authority(String value) {
+  set authority(String? value) {
     _authority = value;
   }
 
-  String get path => _path;
+  String? get path => _path;
 
-  set path(String value) {
+  set path(String? value) {
     _path = value;
   }
 
-  String get query => _query;
+  String? get query => _query;
 
-  set query(String value) {
+  set query(String? value) {
     _query = value;
   }
 
-  String get fragment => _fragment;
+  String? get fragment => _fragment;
 
-  set fragment(String value) {
+  set fragment(String? value) {
     _fragment = value;
+  }
+
+  AccURL? get accURL => _accURL;
+
+  set accURL(AccURL? value){
+    _accURL = value;
   }
 }
 
@@ -157,6 +170,7 @@ class AccumulateURL {
 // }
 ///
 Either<String, AccumulateURL> parseStringToAccumulateURL(String input) {
+
   Uri parsedUri = Uri.parse(input);
   if (parsedUri.scheme == "") {
     // unidentified scheme, try to make it accumulate scheme
@@ -169,69 +183,78 @@ Either<String, AccumulateURL> parseStringToAccumulateURL(String input) {
     return (Left(""));
   }
 
+  AccURL accURL = AccURL.parse(input);
+
   AccumulateURL accumulateURL = new AccumulateURL();
-  accumulateURL.authority = parsedUri.host;
-  accumulateURL.path = parsedUri.path;
-  accumulateURL.query = parsedUri.query;
-  accumulateURL.fragment = parsedUri.fragment;
+  accumulateURL.authority = accURL.authority;
+  accumulateURL.path = accURL.path;
+  accumulateURL.query = accURL.query;
+  accumulateURL.fragment = accURL.fragment;
+  accumulateURL.accURL = accURL;
 
   return Right(accumulateURL);
 }
 
 @JsonSerializable()
 class Address {
-  String _nickname;
-  String _spendingpass;
-  String _address;
-  AccumulateURL _URL;
-  int _amount;
-  int _amountCredits;
-  String _puk;
-  List<int> _pik;
-  String _pikHex;
-  String _mnemonic;
-  List<String> _mnemonicList;
-  String _parentAdi;
-  String _affiliatedKeybook; // path to controlling keybook
+  String? _nickname;
+  String? _spendingpass;
+  late String _address;
+  AccumulateURL? _URL;
+  int? _amount;
+  int? _amountCredits;
+  String? _puk;
+  List<int>? _pik;
+  String? _pikHex;
+  String? _mnemonic;
+  List<String>? _mnemonicList;
+  String? _parentAdi;
+  String? _affiliatedKeybook; // path to controlling keybook
+  LiteIdentity? _lid;
 
   /////////////////////////////////////////////////////
 
   String get address => _address;
 
-  int get amount => _amount;
+  int? get amount => _amount;
 
-  String get nickname => _nickname;
+  String? get nickname => _nickname;
 
-  String get spendingpass => _spendingpass;
+  String? get spendingpass => _spendingpass;
 
-  String get puk => _puk;
+  String? get puk => _puk;
 
-  String get pikHex => _pikHex;
+  String? get pikHex => _pikHex;
 
-  List<int> get pik => _pik;
+  List<int>? get pik => _pik;
 
-  int get amountCredits => _amountCredits;
+  int? get amountCredits => _amountCredits;
 
-  set amountCredits(int value) {
+  set amountCredits(int? value) {
     _amountCredits = value;
   }
 
-  set pik(List<int> value) {
+  set pik(List<int>? value) {
     _pik = value;
   }
 
-  String get parentAdi => _parentAdi;
+  String? get parentAdi => _parentAdi;
 
-  set parentAdi(String value) {
+  set parentAdi(String? value) {
     _parentAdi = value;
   }
 
-  List<String> get mnemonicList => _mnemonicList;
+  List<String>? get mnemonicList => _mnemonicList;
 
-  AccumulateURL get URL => _URL;
+  AccumulateURL? get URL => _URL;
 
-  set URL(AccumulateURL value) {
+  set URL(AccumulateURL? value) {
     _URL = value;
+  }
+  LiteIdentity? get lid => _lid;
+
+  set lid(LiteIdentity? value) {
+    _lid = value;
   }
 
   Address(String addr, String nick, String pass) {
@@ -251,6 +274,7 @@ class Address {
         _pikHex = json['pikHex'],
         _pik = json['pik'],
         _parentAdi = json['parentAdi'],
+  _lid = json['lid'],
         _affiliatedKeybook = json['affiliatedKeybook'];
 
   Map<String, dynamic> toJson() => {
@@ -264,14 +288,15 @@ class Address {
         'pikHex': _pikHex,
         'pik': _pik,
         'parentAdi': _parentAdi,
+    'lid':_lid,
         'affiliatedKeybook': _affiliatedKeybook
       };
 
-  set nickname(String value) {
+  set nickname(String? value) {
     _nickname = value;
   }
 
-  set spendingpass(String value) {
+  set spendingpass(String? value) {
     _spendingpass = value;
   }
 
@@ -279,31 +304,31 @@ class Address {
     _address = value;
   }
 
-  set amount(int value) {
+  set amount(int? value) {
     _amount = value;
   }
 
-  set puk(String value) {
+  set puk(String? value) {
     _puk = value;
   }
 
-  set pikHex(String value) {
+  set pikHex(String? value) {
     _pikHex = value;
   }
 
-  set mnemonicList(List<String> value) {
+  set mnemonicList(List<String>? value) {
     _mnemonicList = value;
   }
 
-  String get mnemonic => _mnemonic;
+  String? get mnemonic => _mnemonic;
 
-  set mnemonic(String value) {
+  set mnemonic(String? value) {
     _mnemonic = value;
   }
 
-  String get affiliatedKeybook => _affiliatedKeybook;
+  String? get affiliatedKeybook => _affiliatedKeybook;
 
-  set affiliatedKeybook(String value) {
+  set affiliatedKeybook(String? value) {
     _affiliatedKeybook = value;
   }
 
@@ -358,8 +383,9 @@ class Address {
     if (res.isLeft())
       return new AccumulateURL();
     else {
-      final AccumulateURL tokenUrl = res.toOption().toNullable();
+      final AccumulateURL tokenUrl = res.toOption().toNullable()!;
       tokenUrl.authority;
+
 
       // 1. Get the hash of the public key
       Digest keyHash = sha256.convert(pubKey); // keyHash := sha256.Sum256(pubKey)
@@ -372,91 +398,27 @@ class Address {
       /// 2. Fill out anon address url
       ///
       AccumulateURL anonUrl = new AccumulateURL();
-      String keyHashCrop20 = keyHash.toString().substring(0, 20);
-      List<int> keyHashLeft = keyHash.bytes.sublist(0, 20);
-      int lengthKeyHashCropLength = keyHashCrop20.length;
-      int lengthKeyHashLeft = keyHashLeft.length;
-
-      print("keyhash crop: $keyHashCrop20");
-      print("  length  $lengthKeyHashCropLength");
-      print("keyhash left: $keyHashLeft");
-      print("  length  $lengthKeyHashLeft");
-
-      var keyStr = HEX.encode(keyHashLeft).toLowerCase(); // fmt.Sprintf("%x", keyHash[:20])
-      print("encoded keyhash crop $keyStr");
-
-      anonUrl.authority = keyStr;
-      anonUrl.path = "/" + tokenUrl.authority + tokenUrl.path;
-
-      // 3. Calculate checksum
-      Digest checkSum = sha256.convert(utf8.encode(keyStr)); //checkSum := sha256.Sum256([]byte(keyStr))
-      String checkStr = HEX
-          .encode(checkSum.bytes.sublist(28, checkSum.bytes.length))
-          .toLowerCase(); //checkStr := fmt.Sprintf("%x", checkSum[28:])
-
-      anonUrl.authority = keyStr + checkStr; // anonUrl.Authority = keyStr + checkStr
+      AccURL accURL = LiteIdentity.computeUrl(pubKey.asUint8List());
+      anonUrl.authority = accURL.authority;
+      anonUrl.path = accURL.path;
+      anonUrl.accURL = accURL;
 
       return anonUrl; //"acc://" + anonUrl.authority + anonUrl.path;
     }
   }
 
-  // // GenerateAcmeAddress
-  // // Given a public key, create a Ascii representation that can be used
-  // // for the Anonymous token chain.
-  //   func GenerateAcmeAddress(pubKey []byte) string {
-  //   keyHash := sha256.Sum256(pubKey[:])                               // Get the hash of the public key
-  //   encAddress := hex.EncodeToString(keyHash[:20])                    // Compute base36 to give fewer characters
-  //   encAddress = strings.ToLower(encAddress)                          // Lowercase for usability
-  //   address := string(append([]byte("acme-"), []byte(encAddress)...)) // Add the "acme" prefix
-  //   cs := sha256.Sum256([]byte(address))                              // compute checksum of address (including prefix)
-  //   checksum := strings.ToLower(hex.EncodeToString(cs[28:]))          // compute lowercase hex checksum (last 4 bytes)
-  //   bAcmeAddress := append([]byte(address)[:], []byte(checksum)...)   // append checksum to end
-  //   AcmeAddress := string(bAcmeAddress)                               // Get the string version, for the debugger
-  //   return AcmeAddress                                                // Return it.
-  // }
-  String generateAcmeAddress(List<int> pubKey) {
-    // 1. Get the hash of the public key
-    var keyHash = sha256.convert(pubKey);
 
-    int lengthKeyHash = keyHash.toString().length;
-    String str = keyHash.toString();
-    print("keyhash $str");
-    print("length  $lengthKeyHash");
-
-    /// 2.Compute base36 to give fewer characters
-    var encAddress = HEX.encode(keyHash.bytes.sublist(0, 20)).toLowerCase();
-    print("encoded  $encAddress");
-
-    /// 3. Add acme prefix
-    String addr = "acme-" + encAddress;
-    print("addr  $addr");
-
-    /// 4. compute checksum
-    var cs = sha256.convert(utf8.encode(addr));
-    int csl = cs.bytes.length;
-    print("cs  $cs");
-
-    /// 5. compute lowercase hex checksum (last 4 bytes)
-    var checksum = HEX.encode(cs.bytes.sublist(28, csl)).toLowerCase();
-    print("checksum  $checksum");
-
-    /// 6.  append checksum to end
-    var bAcmeAddress = addr + checksum;
-    var bLen = bAcmeAddress.length;
-    print("final ACME addr:   $bAcmeAddress");
-    print("final ACME length:   $bLen");
-    return bAcmeAddress;
-  }
 
   bool isACMEAddress(String input) {
     if (input.length != 53) {
       return false;
     }
     // 1. get hash of the address including prefix
+    return true;
   }
 
   @override
   String toString() {
-    return "path: " + address + "\n - balance: " + amount.toString() + "\n - credits: " + amountCredits.toString();
+    return lid!.acmeTokenAccount.toString();
   }
 }

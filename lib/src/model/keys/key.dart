@@ -4,25 +4,25 @@ import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable()
 class Key {
-  String _nickname;
-  String _puk;
-  List<int> _pik;
-  String _pikHex;
-  String _mnemonic;
-  List<String> _mnemonicList;
-  String _parentKeyPage;
+  String? _nickname;
+  String? _puk;
+  List<int>? _pik;
+  String? _pikHex;
+  String? _mnemonic;
+  List<String>? _mnemonicList;
+  String? _parentKeyPage;
 
   /////////////////////////////////////////////////////
 
-  String get nickname => _nickname;
+  String? get nickname => _nickname;
 
-  String get puk => _puk;
+  String? get puk => _puk;
 
-  String get pikHex => _pikHex;
+  String? get pikHex => _pikHex;
 
-  List<int> get pik => _pik;
+  List<int>? get pik => _pik;
 
-  set pik(List<int> value) {
+  set pik(List<int>? value) {
     _pik = value;
   }
 
@@ -42,15 +42,15 @@ class Key {
   Map<String, dynamic> toJson() =>
       {'nickname': _nickname, 'puk': _puk, 'pikHex': _pikHex, 'pik': _pik, 'parentKeyPage': _parentKeyPage};
 
-  set nickname(String value) {
+  set nickname(String? value) {
     _nickname = value;
   }
 
-  set puk(String value) {
+  set puk(String? value) {
     _puk = value;
   }
 
-  set pikHex(String value) {
+  set pikHex(String? value) {
     _pikHex = value;
   }
 
@@ -58,15 +58,15 @@ class Key {
     _mnemonicList = value;
   }
 
-  String get mnemonic => _mnemonic;
+  String? get mnemonic => _mnemonic;
 
-  set mnemonic(String value) {
+  set mnemonic(String? value) {
     _mnemonic = value;
   }
 
-  String get parentKeyPage => _parentKeyPage;
+  String? get parentKeyPage => _parentKeyPage;
 
-  set parentKeyPage(String value) {
+  set parentKeyPage(String? value) {
     _parentKeyPage = value;
   }
 }
