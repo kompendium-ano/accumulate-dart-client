@@ -23,6 +23,10 @@ class Ed25519KeypairSigner implements Signer {
     return Ed25519KeypairSigner(Ed25519Keypair.fromMnemonic(mnemonic));
   }
 
+  static Ed25519KeypairSigner fromKey(String pik) {
+    return Ed25519KeypairSigner(Ed25519Keypair.fromSecretKey(HEX.decode(pik).asUint8List()));
+  }
+
   @override
   int get type => SignatureType.signatureTypeED25519;
 

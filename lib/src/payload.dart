@@ -5,5 +5,4 @@ abstract class Payload{
   Uint8List hash();
   String? memo;
   Uint8List? metadata;
-
 }
