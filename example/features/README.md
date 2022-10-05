@@ -9,3 +9,4 @@ feature correct execution.
 | 2   | create_acc_data_light_from_adi.dart  | workflow for creating Lite Data Account from Adi        |   
 | 3   | create_acc_data_light_from_lite.dart | workflow for creating Lite Data Account from Lite Token |  
 | 4   | create_acc_token.dart                | workflow for creating Custom Toke, Custom Token Account |  
+| 5   | crud_authority.dart                  | CRUD actions for authority                              |  
