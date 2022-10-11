@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:accumulate_api6/src/payload/base_payload.dart';
-import 'package:accumulate_api6/src/utils.dart';
+import 'package:accumulate_api6/src/utils/utils.dart';
 import 'package:test/test.dart';
 
 class TestPayload extends BasePayload {

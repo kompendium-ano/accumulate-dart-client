@@ -111,7 +111,9 @@ void testAuthorityActions() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // ADD AUTHORITY
 
-  AddAthorityParam addAthorityParam = AddAuthorityParams();
-  
+  //AddAthorityParam addAthorityParam = AddAuthorityParams();
+
+
+
 
 }

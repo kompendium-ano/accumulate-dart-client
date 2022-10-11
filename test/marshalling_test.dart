@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:accumulate_api6/src/encoding.dart';
-import 'package:accumulate_api6/src/utils.dart';
+import 'package:accumulate_api6/src/utils/utils.dart';
 import 'package:test/test.dart';
 
 void main() {

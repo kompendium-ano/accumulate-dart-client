@@ -6,7 +6,7 @@ import 'dart:typed_data';
 //import '../lib/src/lite_identity.dart';
 import 'package:crypto/crypto.dart';
 
-import '../lib/src/model/receipt_model.dart';
+import '../lib/src/model/receipt_model.dart' as ReceiptM;
 
 import '../lib/src/api_types.dart';
 import '../lib/src/receipt.dart';
@@ -46,7 +46,6 @@ import '../lib/src/tx_signer.dart';
 import 'package:hex/hex.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:bip39/bip39.dart' as bip39;
-import '../lib/src/utils.dart';
 
 import '../lib/accumulate_api6.dart';
 
@@ -426,15 +425,15 @@ sleep(Duration(seconds: 60));*/
   print("\n");
   print("$txn0url $res");
 
-  ReceiptModel receiptModel = ReceiptModel.fromMap(res);
-  List<Receipts> receipts = receiptModel.result!.receipts!;
-  Transaction transaction = receiptModel.result!.transaction!;
+  ReceiptM.ReceiptModel receiptModel = ReceiptM.ReceiptModel.fromMap(res);
+  List<ReceiptM.Receipts> receipts = receiptModel.result!.receipts!;
+  ReceiptM.Transaction transaction = receiptModel.result!.transaction!;
   // Get a chain proof (from any chain, ends in a BVN anchor)
   if (receiptModel.result!.receipts!.length == 0) {
     print("No proof found");
     return;
   }
-  Proof proof2 = receipts[0].proof!;
+  ReceiptM.Proof proof2 = receipts[0].proof!;
 
   // Convert the response to a Transaction
   if (transaction.body!.type != "createToken") {
@@ -472,7 +471,7 @@ sleep(Duration(seconds: 60));*/
   print("anchorRes ${proof2.anchor!}");
   // Prove the BVN anchor
   dynamic anchorRes = await client.queryAnchor(proof2.anchor!);
-  Proof proof3 = Proof.fromMap(anchorRes["result"]["receipt"]["proof"]);
+  ReceiptM.Proof proof3 = ReceiptM.Proof.fromMap(anchorRes["result"]["receipt"]["proof"]);
 
   Receipt receipt2 = Receipt();
   receipt2.start = proof2.start;
@@ -481,7 +480,7 @@ sleep(Duration(seconds: 60));*/
   receipt2.endIndex = proof2.endIndex;
   receipt2.anchor = proof2.anchor;
   List<ReceiptEntry> entries2 = [];
-  for(Entry entry in proof2.entries!){
+  for(ReceiptM.Entry entry in proof2.entries!){
     ReceiptEntry receiptEntry2 = ReceiptEntry();
     receiptEntry2.right = entry.right;
     receiptEntry2.hash = entry.hash;
@@ -496,7 +495,7 @@ sleep(Duration(seconds: 60));*/
   receipt3.endIndex = proof3.endIndex;
   receipt3.anchor = proof3.anchor;
   List<ReceiptEntry> entries3 = [];
-  for(Entry entry in proof3.entries!){
+  for(ReceiptM.Entry entry in proof3.entries!){
     ReceiptEntry receiptEntry2 = ReceiptEntry();
     receiptEntry2.right = entry.right;
     receiptEntry2.hash = entry.hash;
