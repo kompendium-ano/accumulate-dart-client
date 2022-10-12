@@ -20,3 +20,4 @@ export 'src/transaction.dart';
 export 'src/tx_signer.dart';
 export 'src/tx_types.dart';
 export 'src/utils/utils.dart';
+export 'src/rpc_client.dart';
