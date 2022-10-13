@@ -27,6 +27,11 @@ class Ed25519KeypairSigner implements Signer {
     return Ed25519KeypairSigner(Ed25519Keypair.fromSecretKey(HEX.decode(pik).asUint8List()));
   }
 
+  static Ed25519KeypairSigner fromKeyRaw(Uint8List pik) {
+    return Ed25519KeypairSigner(Ed25519Keypair.fromSecretKey(pik));
+  }
+
+
   @override
   int get type => SignatureType.signatureTypeED25519;
 

@@ -157,7 +157,7 @@ void testDataAccountCreation() async {
   identityKeyPageTxSigner = TxSigner(keyPageUrl, keyForAdi);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Create Light Data Account
+  // Create Data Account
 
   final dataAccountUrl = identityUrl + "/data-${(DateTime.now().millisecondsSinceEpoch / 1000).floor() }";
   print("dataAccountUrl $dataAccountUrl");
