@@ -35,7 +35,7 @@ class FactomEntry {
   Uint8List calculateChainId() {
     var hashBuilder = HashBuilder();
 
-    for (FactomExtRef extRef in extRefs!) {
+    for (FactomExtRef extRef in extRefs) {
       hashBuilder.addBytes(extRef.data);
     }
 

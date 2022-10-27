@@ -36,8 +36,9 @@ class RpcClient {
   }
 
   Future<Map<String, dynamic>> call(String function,
-      [Map<String, dynamic>? params]) async {
+      [Map<String, dynamic>? params, bool? suppressLog]) async {
     params ??= {};
+    suppressLog ??= false;
 
     Map<String, dynamic> requestPayload = {
       'jsonrpc': '2.0',
@@ -55,8 +56,10 @@ class RpcClient {
     );
 
     print(json.encode(requestPayload));
-    print("\n");
-    print(response.body);
+    if(!suppressLog) {
+      print("\n");
+      print(response.body);
+    }
 
     final data = json.decode(response.body) as Map<String, dynamic>;
 

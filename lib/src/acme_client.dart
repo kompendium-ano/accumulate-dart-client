@@ -41,8 +41,8 @@ class ACMEClient {
   }
 
   Future<Map<String, dynamic>> call(String method,
-      [Map<String, dynamic>? params]) {
-    return _rpcClient.call(method, params);
+      [Map<String, dynamic>? params, bool? supressLog]) {
+    return _rpcClient.call(method, params, supressLog);
   }
 
   Future<Map<String, dynamic>> _execute(
@@ -125,7 +125,7 @@ class ACMEClient {
     if (options != null) {
       params.addAll(options.toMap);
     }
-    return call("query-tx-history", params);
+    return call("query-tx-history", params, true);
   }
 
 
@@ -387,6 +387,10 @@ class ACMEClient {
     });
   }
 
+  Future<Map<String, dynamic>> faucetSimple(String url) {
+    return call("faucet", {"url": url,});
+  }
+
   Future<Map<String, dynamic>> status() {
     return call("status");
   }
@@ -586,6 +590,23 @@ class ACMEClient {
             String? txid = tx["txid"];
             int? amount = tx["data"]["amount"];
             String? token = tx["data"]["token"];
+
+            txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "acc://$token");
+            txs.add(txl);
+            break;
+          case "createTokenAccount":
+            String? txid = tx["txid"];
+            int? amount = 0; // tx["data"]["amount"];
+            String? token = tx["data"]["tokenUrl"];
+
+            txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, token);
+            txs.add(txl);
+            break;
+          case "burnTokens":
+            String? txid = tx["txid"];
+            String? prod = tx["produced"][0];
+            int? amount = int.parse(tx["data"]["amount"]);
+            String? token = prod!.split("@").last;
 
             txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "acc://$token");
             txs.add(txl);

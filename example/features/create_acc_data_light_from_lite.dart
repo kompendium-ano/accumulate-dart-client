@@ -10,8 +10,8 @@ import 'package:accumulate_api6/src/payload/factom_data_entry.dart';
 import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
 import 'package:accumulate_api6/src/utils/utils.dart';
 
-final endPoint = "http://127.0.1.1:26660/v2";
-//final endPoint = "https://testnet.accumulatenetwork.io/v2";
+//final endPoint = "http://127.0.1.1:26660/v2";
+final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);
 
 Future<void> main() async {
@@ -23,7 +23,7 @@ void testLiteDataAccountCreation() async {
   // Re-Usable Variable
   String txId = "";
   dynamic res;
-  int waitTimeInSeconds = 60;
+  int waitTimeInSeconds = 20;
   LiteIdentity lid;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ void testLiteDataAccountCreation() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Add Credits to allow actions
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 2; i++) {
     dynamic res = await client.faucet(lid.acmeTokenAccount);
     sleep(Duration(seconds: 10));
     print("faucet call: #$i");
@@ -84,14 +84,15 @@ void testLiteDataAccountCreation() async {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Create Lite Data Account
+  print("======== Lite Data CREATE =============================");
 
-  FactomEntry fe = FactomEntry(utf8.encode("TheData").asUint8List());
-  fe.addExtRef("Kompendium");
-  fe.addExtRef("Test val");
+  FactomEntry fe = FactomEntry(utf8.encode(lid.acmeTokenAccount.toString()).asUint8List());
+  //fe.addExtRef("Kompendium");
+  //fe.addExtRef("Test val");
 
   FactomDataEntryParam factomDataEntryParam = FactomDataEntryParam();
   factomDataEntryParam.data = fe.data;
-  factomDataEntryParam.extIds = fe.getExtRefs();
+  //factomDataEntryParam.extIds = fe.getExtRefs();
   factomDataEntryParam.accountId = fe.calculateChainId();
 
   res = await client.factom(lid.acmeTokenAccount, factomDataEntryParam, lid);

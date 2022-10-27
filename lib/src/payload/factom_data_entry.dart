@@ -14,30 +14,34 @@ class FactomDataEntryParam {
 
 @JsonSerializable()
 class FactomDataEntry extends BasePayload {
-  Uint8List accountId = Uint8List.fromList([]);
-  Uint8List data = Uint8List.fromList([]);
-  List<Uint8List> extIds = [];
+  Uint8List? _accountId;
+  Uint8List? _data;
+  List<Uint8List> _extIds = [];
 
   FactomDataEntry(FactomDataEntryParam param) {
-    data = param.data!;
+    _accountId = param.accountId!;
+    _data = param.data!;
+    _extIds = param.extIds!;
   }
 
   @override
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
-    Uint8List refsBinary = marshallExtIds();
 
-    forConcat.addAll(bytesMarshalBinary(accountId));
-    forConcat.addAll(uvarintMarshalBinary(refsBinary.length));
-    forConcat.addAll(bytesMarshalBinary(refsBinary));
-    forConcat.addAll(bytesMarshalBinary(data));
+    forConcat.addAll(bytesMarshalBinary(_accountId!, 1));
+    //forConcat.addAll(uvarintMarshalBinary(_data!.length, 2));
+    //forConcat.addAll(bytesMarshalBinary(_data!, 3));
+    if(_extIds.length > 0) {
+      Uint8List refsBinary = marshallExtIds();
+      //forConcat.addAll(bytesMarshalBinary(refsBinary, 3));
+    }
 
     return forConcat.asUint8List();
   }
 
   Uint8List marshallExtIds() {
     List<int> forConcat = [];
-    for (Uint8List e in extIds) {
+    for (Uint8List e in _extIds) {
       forConcat.addAll(uvarintMarshalBinary(e.length));
       forConcat.addAll(bytesMarshalBinary(e));
     }
