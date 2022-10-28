@@ -1,3 +1,4 @@
+import 'dart:convert';
 import "dart:typed_data";
 import 'signature_type.dart';
 import 'package:hex/hex.dart';
@@ -7,13 +8,14 @@ import "package:crypto/crypto.dart";
 import "payload.dart";
 import "signer.dart";
 import "tx_signer.dart";
-import 'utils.dart';
+import 'utils/utils.dart';
 import 'encoding.dart';
 
 class HeaderOptions {
   int? timestamp;
   String? memo;
   Uint8List? metadata;
+  Uint8List? initiator;
 }
 
 class Header {
@@ -31,9 +33,13 @@ class Header {
     _principal = AccURL.toAccURL(principal);
     _timestamp = options?.timestamp ?? DateTime.now().microsecondsSinceEpoch;
 
+    if (options?.initiator != null) {
+      _initiator = options!.initiator!;
+    }
+
     _memo = options?.memo;
 
-    if (options?.metadata! != null) {
+    if (options?.metadata != null) {
       _metadata = options!.metadata!.asUint8List();
     }
   }
@@ -157,15 +163,15 @@ class Transaction {
     txRequest.origin = _header.principal.toString();
     txRequest.signer = {
       "url": signerInfo!.url.toString(),
-      "publicKey": HEX.encode(signerInfo!.publicKey!.toList()),
+      "publicKey": HEX.encode(signerInfo.publicKey!.toList()),
       "version": signerInfo.version,
       "timestamp": _header.timestamp,
-      "signatureType": "${SignatureType().marshalJSON(signerInfo!.type!)}",
+      "signatureType": "${SignatureType().marshalJSON(signerInfo.type!)}",
       "useSimpleHash": true
     };
     txRequest.signature = HEX.encode(_signature!.signature!.toList());
     txRequest.txHash = HEX.encode(_hash!.toList());
-    txRequest.payload = HEX.encode(_payloadBinary!.toList());
+    txRequest.payload = HEX.encode(_payloadBinary.toList());
     if (_header._memo != null) {
       txRequest.memo = _header._memo!;
     }
@@ -204,6 +210,8 @@ class TxRequest {
     value.addAll({"origin": origin});
     value.addAll({"signer": signer});
     value.addAll({"signature": signature});
+
+
 
     if (txHash != null) {
       value.addAll({"txHash": txHash!});

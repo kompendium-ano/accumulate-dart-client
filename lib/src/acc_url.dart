@@ -1,5 +1,39 @@
-class AccURL  {
+import 'dart:core';
 
+/**
+ * The URL of the ACME token
+ */
+final ACME_TOKEN_URL = AccURL.parse("acc://ACME");
+
+/**
+ * The URL of the DN
+ */
+final DN_URL = AccURL.parse("acc://dn.acme");
+
+/**
+ * The URL of the anchors
+ */
+final ANCHORS_URL = DN_URL.append("anchors");
+
+class InvalidProtocolException implements Exception {
+  late String scheme;
+
+  InvalidProtocolException(this.scheme);
+
+  @override
+  String toString() {
+    return 'Invalid protocol: ${scheme}';
+  }
+}
+
+class MissingAuthorityException implements Exception {
+  @override
+  String toString() {
+    return 'Missing authority';
+  }
+}
+
+class AccURL {
   late String authority;
 
   late String path;
@@ -13,10 +47,10 @@ class AccURL  {
     Uri parsedUri = Uri.parse(url);
 
     if (parsedUri.scheme != "acc") {
-      throw Exception('Invalid protocol: ${parsedUri.scheme}');
+      throw InvalidProtocolException(parsedUri.scheme);
     }
     if (parsedUri.host.isEmpty) {
-      throw Exception("Missing authority");
+      throw MissingAuthorityException();
     }
     orgURL = url;
     authority = parsedUri.host;
@@ -26,6 +60,25 @@ class AccURL  {
     query = parsedUri.query;
 
     fragment = parsedUri.fragment;
+  }
+
+  AccURL append(dynamic path) {
+    final pathStr = path.toString();
+
+    String url = orgURL.toString();
+
+    if (pathStr.length > 0) {
+      if (pathStr.startsWith("acc://")) {
+        url += pathStr.substring(5);
+      } else if (pathStr[0] == "/") {
+        url += pathStr;
+      } else {
+        url += '/${pathStr}';
+      }
+    }
+
+
+    return AccURL.parse(url);
   }
 
   static AccURL toAccURL(dynamic arg) {
@@ -40,5 +93,4 @@ class AccURL  {
   String toString() {
     return "acc://$authority$path";
   }
-
 }

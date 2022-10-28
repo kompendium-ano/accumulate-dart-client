@@ -1,16 +1,17 @@
 import 'dart:typed_data';
-import 'package:hex/hex.dart';
 
-import '../utils.dart';
 import "../acc_url.dart";
 import "../encoding.dart";
 import "../tx_types.dart";
+import '../utils/utils.dart';
 import "base_payload.dart";
 
 class AddCreditsParam {
   dynamic recipient;
   dynamic amount;
   dynamic oracle;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class AddCredits extends BasePayload {
@@ -20,12 +21,11 @@ class AddCredits extends BasePayload {
 
   AddCredits(AddCreditsParam addCreditsParam) : super() {
     _recipient = AccURL.toAccURL(addCreditsParam.recipient);
-    _amount = addCreditsParam.amount is int
-        ? addCreditsParam.amount
-        : int.parse(addCreditsParam.amount);
-    _oracle = addCreditsParam.oracle is int
-        ? addCreditsParam.oracle
-        : int.parse(addCreditsParam.oracle);
+    _amount = addCreditsParam.amount is int ? addCreditsParam.amount : int.parse(addCreditsParam.amount);
+    _oracle = addCreditsParam.oracle is int ? addCreditsParam.oracle : int.parse(addCreditsParam.oracle);
+
+    super.memo = addCreditsParam.memo;
+    super.metadata = addCreditsParam.metadata;
   }
 
   @override

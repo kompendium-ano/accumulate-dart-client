@@ -1,26 +1,20 @@
 import "dart:typed_data";
-import '../utils.dart';
+import 'token_recipient.dart';
+
+import '../utils/utils.dart';
 import "../acc_url.dart";
 import "../encoding.dart";
 import "../tx_types.dart";
 import "base_payload.dart";
 
-class TokenRecipientParam {
-  dynamic url;
-  dynamic amount;
-}
 
-class TokenRecipient {
-  late AccURL url;
-  late int amount;
-
-  TokenRecipient(this.url, this.amount);
-}
 
 class SendTokensParam {
   late List<TokenRecipientParam> to;
   Uint8List? hash;
   Uint8List? meta;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class SendTokens extends BasePayload {
@@ -38,6 +32,8 @@ class SendTokens extends BasePayload {
         .toList();
     _hash = sendTokensParam.hash;
     _meta = sendTokensParam.meta;
+    super.memo = sendTokensParam.memo;
+    super.metadata = sendTokensParam.metadata;
   }
 
   @override
@@ -56,19 +52,12 @@ class SendTokens extends BasePayload {
       forConcat.addAll(bytesMarshalBinary(_meta!, 3));
     }
 
-    for (var recipient in _to) {
+    for (TokenRecipient recipient in _to) {
       forConcat.addAll(
-          fieldMarshalBinary(4, marshalBinaryTokenRecipient(recipient)));
+          fieldMarshalBinary(4, TokenRecipient.marshalBinaryTokenRecipient(recipient)));
     }
 
     return forConcat.asUint8List();
   }
 
-  Uint8List marshalBinaryTokenRecipient(TokenRecipient tr) {
-    List<int> forConcat = [];
-    forConcat.addAll(stringMarshalBinary(tr.url.toString(), 1));
-    forConcat.addAll(bigNumberMarshalBinary(tr.amount, 2));
-
-    return bytesMarshalBinary(forConcat.asUint8List());
-  }
 }

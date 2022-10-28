@@ -1,6 +1,6 @@
 import "dart:typed_data";
 import '../tx_types.dart';
-import '../utils.dart';
+import '../utils/utils.dart';
 
 import "../acc_url.dart";
 import "../encoding.dart";
@@ -11,6 +11,8 @@ class CreateIdentityParam {
   Uint8List? keyHash;
   dynamic keyBookUrl;
   List<AccURL>? authorities;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class CreateIdentity extends BasePayload {
@@ -27,6 +29,9 @@ class CreateIdentity extends BasePayload {
     }
 
     _authorities = createIdentityParam.authorities;
+
+    super.memo = createIdentityParam.memo;
+    super.metadata = createIdentityParam.metadata;
   }
 
   @override

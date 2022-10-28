@@ -1,5 +1,5 @@
 import "dart:typed_data";
-import '../utils.dart';
+import '../utils/utils.dart';
 import 'package:crypto/crypto.dart';
 
 import "../payload.dart";
@@ -7,6 +7,25 @@ import "../payload.dart";
 abstract class BasePayload implements Payload {
   Uint8List? _binary;
   Uint8List? _payloadHash;
+  String? _memo;
+  Uint8List? _metadata;
+
+  @override
+  set memo(String? _memoItem) {
+      _memo = _memoItem;
+  }
+
+  @override
+  String? get memo => _memo;
+
+  @override
+  set metadata(Uint8List? _metadataItem) {
+    _metadata = _metadataItem;
+  }
+
+  @override
+  Uint8List? get metadata => _metadata;
+
 
   @override
   Uint8List marshalBinary() {

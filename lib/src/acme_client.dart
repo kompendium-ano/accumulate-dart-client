@@ -1,16 +1,15 @@
 import "dart:async";
 import 'dart:collection';
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
-import 'model/address.dart';
-import 'model/data.dart';
+import 'payload/update_account_auth.dart';
+import 'payload/create_lite_data_account.dart';
+import 'payload/factom_data_entry.dart';
+import 'payload/update_key_page.dart';
 import 'model/query_transaction_response_model.dart' as query_trx_res_model;
 import 'package:hex/hex.dart';
-
-import "acc_url.dart" show AccURL;
-import "acme.dart";
+import "acc_url.dart";
 import "api_types.dart";
 import "payload.dart";
 import "payload/add_credits.dart";
@@ -25,13 +24,10 @@ import "payload/create_token_account.dart";
 import "payload/issue_tokens.dart";
 import "payload/remove_validator.dart";
 import "payload/send_tokens.dart";
-
-//import "payload/update_account_auth.dart" show AccountAuthOperation, UpdateAccountAuth;
 import "payload/update_key.dart";
-
-//import "payload/update_key_page.dart" show KeyPageOperation, UpdateKeyPage;
 import "payload/update_validator_key.dart";
 import "payload/write_data.dart";
+import "payload/write_data_to.dart";
 import "rpc_client.dart";
 import "transaction.dart";
 import "tx_signer.dart";
@@ -45,13 +41,28 @@ class ACMEClient {
   }
 
   Future<Map<String, dynamic>> call(String method,
-      [Map<String, dynamic>? params]) {
-    return _rpcClient.call(method, params);
+      [Map<String, dynamic>? params, bool? supressLog]) {
+    return _rpcClient.call(method, params, supressLog);
   }
 
   Future<Map<String, dynamic>> _execute(
       AccURL principal, Payload payload, TxSigner signer) async {
-    final header = Header(principal);
+    HeaderOptions? options;
+    if(payload.memo != null){
+      options = HeaderOptions();
+      options.memo = payload.memo;
+
+    }
+
+    if(payload.metadata != null){
+      if(options == null){
+        options = HeaderOptions();
+      }
+      options.metadata = payload.metadata;
+
+    }
+
+    final header = Header(principal,options);
     final tx = Transaction(payload, header);
     await tx.sign(signer);
 
@@ -63,16 +74,21 @@ class ACMEClient {
   }
 
   Future<Map<String, dynamic>> queryAcmeOracle() {
-    return queryData(ACMEOracleUrl);
+    return call("describe");
   }
 
   Future<Map<String, dynamic>> queryData(dynamic url, [String? entryHash]) {
     Map<String, dynamic> params = {};
     params.addAll({"url": url.toString()});
-    if (entryHash != null && entryHash!.isNotEmpty) {
+    if (entryHash != null && entryHash.isNotEmpty) {
       params.addAll({"entryHash": entryHash});
     }
     return call("query-data", params);
+  }
+
+  Future<Map<String, dynamic>> queryAnchor(String anchor){
+
+  return this.queryUrl(ANCHORS_URL.toString()+('/#anchor/$anchor'));
   }
 
   Future<Map<String, dynamic>> queryUrl(dynamic url, [QueryOptions? options]) {
@@ -86,8 +102,14 @@ class ACMEClient {
   }
 
   Future<Map<String, dynamic>> queryTx(String txId, [TxQueryOptions? options]) {
+
+    String paramName = txId.startsWith("acc://") ? "txIdUrl" : "txid";
+    paramName = "txid";
     Map<String, dynamic> params = {};
-    params.addAll({"txid": txId});
+    if(txId.startsWith("acc://")){
+      txId = txId.substring(6).split("@")[0];
+    }
+    params.addAll({paramName: txId});
     if (options != null) {
       params.addAll(options.toMap);
     }
@@ -96,12 +118,16 @@ class ACMEClient {
   }
 
   Future<Map<String, dynamic>> queryTxHistory(
-      dynamic url, QueryPagination pagination) {
+      dynamic url, QueryPagination pagination,TxHistoryQueryOptions? options) {
     Map<String, dynamic> params = {};
     params.addAll({"url": url.toString()});
     params.addAll(pagination.toMap);
-    return call("query-tx-history", params);
+    if (options != null) {
+      params.addAll(options.toMap);
+    }
+    return call("query-tx-history", params, true);
   }
+
 
   Future<Map<String, dynamic>> queryDataSet(
       dynamic url, QueryPagination pagination, QueryOptions? options) {
@@ -134,7 +160,7 @@ class ACMEClient {
     return call("query-minor-blocks", params);
   }
 
-  Future<Map<String, dynamic>> querySignerVersion(
+  Future<int> querySignerVersion(
       dynamic signer, Uint8List? publicKeyHash) async {
     AccURL signerUrl;
     Uint8List pkh;
@@ -149,9 +175,9 @@ class ACMEClient {
       pkh = signer.publicKeyHash;
     }
 
-    Map<String, dynamic> keyPage = await queryKeyPageIndex(signerUrl, pkh);
-
-    return queryUrl(keyPage["url"]);
+    Map<String, dynamic> res = await queryKeyPageIndex(signerUrl, pkh);
+    res = await queryUrl(res["result"]["data"]["keyPage"]);
+    return res["result"]["data"]["version"];
   }
 
   Future<Map<String, dynamic>> queryDirectory(
@@ -184,7 +210,14 @@ class ACMEClient {
             queryTransactionResponseModel.result!;
         if (result.status != null) {
           if (result.status!.delivered!) {
-            log("${result.syntheticTxids}");
+            if (result.status!.failed != null) {
+              if (result.status!.failed!) {
+                print("${result.status?.toJson()}");
+                completer.complete(false);
+              }
+            }
+
+            log("${result.status!.delivered!} ${result.syntheticTxids}");
             if (ignoreSyntheticTxs) {
               completer.complete(true);
             } else {
@@ -240,6 +273,7 @@ class ACMEClient {
         sleep(Duration(milliseconds: pollInterval));
         completer.complete(await waitOnTx(startTime, txId));
       } else {
+        print("last complete");
         completer.complete(false);
       }
     }
@@ -316,24 +350,25 @@ class ACMEClient {
     return _execute(AccURL.toAccURL(principal), SendTokens(sendTokens), signer);
   }
 
-  /*
+
   Future<Map<String, dynamic>> updateAccountAuth(dynamic principal,
-      List<AccountAuthOperation> operation, TxSigner signer) {
+      UpdateAccountAuthParam updateAccountAuthParam, TxSigner signer) {
     return _execute(
-        AccURL.toAccURL(principal), UpdateAccountAuth(operation), signer);
+        AccURL.toAccURL(principal), UpdateAccountAuth(updateAccountAuthParam), signer);
   }
-*/
+
   Future<Map<String, dynamic>> updateKey(
       dynamic principal, UpdateKeyParam updateKey, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), UpdateKey(updateKey), signer);
   }
 
-/*
+
   Future<Map<String, dynamic>> updateKeyPage(
-      dynamic principal, List<KeyPageOperation> operation, TxSigner signer) {
+      dynamic principal, UpdateKeyPageParam updateKeyPageParam, TxSigner signer) {
     return _execute(
-        AccURL.toAccURL(principal), UpdateKeyPage(operation), signer);
-  }*/
+        AccURL.toAccURL(principal), UpdateKeyPage(updateKeyPageParam), signer);
+  }
+
 
   Future<Map<String, dynamic>> updateValidatorKey(dynamic principal,
       UpdateValidatorKeyParam updateValidatorKey, TxSigner signer) {
@@ -350,6 +385,10 @@ class ACMEClient {
     return call("faucet", {
       "url": url.toString(),
     });
+  }
+
+  Future<Map<String, dynamic>> faucetSimple(String url) {
+    return call("faucet", {"url": url,});
   }
 
   Future<Map<String, dynamic>> status() {
@@ -373,9 +412,7 @@ class ACMEClient {
 
   Future<int> valueFromOracle() async{
     final oracle = await queryAcmeOracle();
-    String priceHex = oracle["result"]["data"]["entry"]["data"][0];
-    dynamic priceInfo = jsonDecode(utf8.decode(HEX.decode(priceHex)));
-    int price = priceInfo["price"];
+    int price = oracle["result"]["values"]["oracle"]["price"];
     return price;
   }
 
@@ -497,7 +534,11 @@ class ACMEClient {
     queryPagination.start = 0;
     queryPagination.count = 100;
 
-    final res = await queryTxHistory(path,queryPagination);
+    TxHistoryQueryOptions txHistoryQueryOptions = TxHistoryQueryOptions();
+
+
+
+    final res = await queryTxHistory(path,queryPagination,txHistoryQueryOptions);
 
 
     // Collect transaction iteratively
@@ -553,6 +594,23 @@ class ACMEClient {
             txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "acc://$token");
             txs.add(txl);
             break;
+          case "createTokenAccount":
+            String? txid = tx["txid"];
+            int? amount = 0; // tx["data"]["amount"];
+            String? token = tx["data"]["tokenUrl"];
+
+            txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, token);
+            txs.add(txl);
+            break;
+          case "burnTokens":
+            String? txid = tx["txid"];
+            String? prod = tx["produced"][0];
+            int? amount = int.parse(tx["data"]["amount"]);
+            String? token = prod!.split("@").last;
+
+            txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "acc://$token");
+            txs.add(txl);
+            break;
           default:
             String? txid = tx["txid"];
             int? amount = tx["data"]["amount"];
@@ -566,6 +624,23 @@ class ACMEClient {
     }
 
     return txs;
+  }
+
+
+  Future<Map<String, dynamic>> factom(
+      dynamic principal, FactomDataEntryParam factomParam, TxSigner signer) {
+    return _execute(AccURL.toAccURL(principal), FactomDataEntry(factomParam), signer);
+  }
+
+  Future<Map<String, dynamic>> createLiteDataAccount(dynamic principal,
+      CreateLiteDataAccountParam createLiteDataAccountParam, TxSigner signer) {
+    return _execute(AccURL.toAccURL(principal),
+        CreateLiteDataAccount(createLiteDataAccountParam), signer);
+  }
+
+  Future<Map<String, dynamic>> writeDataTo(
+      dynamic principal, WriteDataToParam writeDataToParam, TxSigner signer) {
+    return _execute(AccURL.toAccURL(principal), WriteDataTo(writeDataToParam), signer);
   }
 
 

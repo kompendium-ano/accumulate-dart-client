@@ -28,16 +28,17 @@ class RPCResponse {
 class RpcClient {
   late String _endpoint;
 
-  late int _idCounter; //Random().nextInt(5000);
+  late int _idCounter;
 
   RpcClient(String endpoint) {
     _endpoint = endpoint;
-    _idCounter = 0; //DateTime.now().millisecondsSinceEpoch;
+    _idCounter = 0;
   }
 
   Future<Map<String, dynamic>> call(String function,
-      [Map<String, dynamic>? params]) async {
+      [Map<String, dynamic>? params, bool? suppressLog]) async {
     params ??= {};
+    suppressLog ??= false;
 
     Map<String, dynamic> requestPayload = {
       'jsonrpc': '2.0',
@@ -54,8 +55,11 @@ class RpcClient {
       body: json.encode(requestPayload),
     );
 
-    //print(json.encode(requestPayload));
-    //print(response.body);
+    print(json.encode(requestPayload));
+    if(!suppressLog) {
+      print("\n");
+      print(response.body);
+    }
 
     final data = json.decode(response.body) as Map<String, dynamic>;
 

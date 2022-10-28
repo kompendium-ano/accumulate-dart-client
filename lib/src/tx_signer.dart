@@ -2,7 +2,7 @@ import "dart:typed_data";
 import "acc_url.dart";
 import "signer.dart";
 import "transaction.dart";
-import 'utils.dart';
+import 'utils/utils.dart';
 
 class TxSigner{
   late AccURL _url;
@@ -24,6 +24,9 @@ class TxSigner{
   Signer get signer => _signer;
 
   AccURL get url => _url;
+  set url(AccURL value) {
+    _url = value;
+  }
 
   Uint8List get publicKey => _signer.publicKey();
   Uint8List get secretKey => _signer.secretKey();

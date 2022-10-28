@@ -191,18 +191,21 @@ class Signature {
 class Status {
   Status({
     this.delivered,
+    this.failed,
     this.result,
     this.initiator,
     this.signers,
   });
 
   bool? delivered;
+  bool? failed;
   StatusResult? result;
   String? initiator;
   List<Signer>? signers;
 
   factory Status.fromJson(Map<String, dynamic> json) => Status(
     delivered: json["delivered"],
+    failed: json["failed"],
     result: StatusResult.fromJson(json["result"]),
     initiator: json["initiator"],
     signers: List<Signer>.from(json["signers"].map((x) => Signer.fromJson(x))),
@@ -210,6 +213,7 @@ class Status {
 
   Map<String, dynamic> toJson() => {
     "delivered": delivered,
+    "failed":failed,
     "result": result!.toJson(),
     "initiator": initiator,
     "signers": List<dynamic>.from(signers!.map((x) => x.toJson())),

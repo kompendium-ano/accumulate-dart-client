@@ -1,5 +1,5 @@
 import "dart:typed_data";
-import '../utils.dart';
+import '../utils/utils.dart';
 
 import "../acc_url.dart";
 import "../encoding.dart";
@@ -13,6 +13,8 @@ class CreateTokenParam {
   dynamic properties;
   dynamic supplyLimit;
   List<AccURL>? authorities;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class CreateToken extends BasePayload {
@@ -27,13 +29,15 @@ class CreateToken extends BasePayload {
     _url = AccURL.toAccURL(createTokenParam.url);
     _symbol = createTokenParam.symbol;
     _precision = createTokenParam.precision;
-    _properties = createTokenParam.properties
+    _properties = createTokenParam.properties != null
         ? AccURL.toAccURL(createTokenParam.properties)
         : null;
-    _supplyLimit = createTokenParam.supplyLimit
-        ? int.parse(createTokenParam.supplyLimit)
+    _supplyLimit = createTokenParam.supplyLimit  != null
+        ? (createTokenParam.supplyLimit is int ? createTokenParam.supplyLimit : int.parse(createTokenParam.supplyLimit))
         : null;
     _authorities = createTokenParam.authorities;
+    super.memo = createTokenParam.memo;
+    super.metadata = createTokenParam.metadata;
   }
 
   @override

@@ -1,25 +1,34 @@
 import "dart:typed_data";
-import '../utils.dart';
+import 'package:accumulate_api6/src/payload/send_tokens.dart';
+
+import '../utils/utils.dart';
 
 import "../acc_url.dart";
 import "../encoding.dart";
 import "../tx_types.dart";
 import "base_payload.dart";
+import 'token_recipient.dart';
 
 class IssueTokensParam {
-  dynamic recipient;
-  dynamic amount;
+  late List<TokenRecipientParam> to;
+  String? memo;
+  Uint8List? metadata;
 }
 
 class IssueTokens extends BasePayload {
-  late AccURL _recipient;
-  late int _amount;
+  List<TokenRecipient> _to = [];
 
   IssueTokens(IssueTokensParam issueTokensParam) : super() {
-    _recipient = AccURL.toAccURL(issueTokensParam.recipient);
-    _amount = issueTokensParam.amount is int
-        ? issueTokensParam.amount
-        : int.parse(issueTokensParam.amount);
+    for (TokenRecipientParam tokenRecipientParam in issueTokensParam.to) {
+      AccURL url = AccURL.toAccURL(tokenRecipientParam.url);
+      int amount = tokenRecipientParam.amount is int
+          ? tokenRecipientParam.amount
+          : int.parse(tokenRecipientParam.amount);
+      _to.add(TokenRecipient(url, amount));
+    }
+
+    super.memo = issueTokensParam.memo;
+    super.metadata = issueTokensParam.metadata;
   }
 
   @override
@@ -27,8 +36,10 @@ class IssueTokens extends BasePayload {
     List<int> forConcat = [];
 
     forConcat.addAll(uvarintMarshalBinary(TransactionType.issueTokens, 1));
-    forConcat.addAll(stringMarshalBinary(_recipient.toString(), 2));
-    forConcat.addAll(bigNumberMarshalBinary(_amount, 3));
+    for (TokenRecipient tokenRecipient in _to) {
+      forConcat.addAll(fieldMarshalBinary(
+          4, TokenRecipient.marshalBinaryTokenRecipient(tokenRecipient)));
+    }
 
     return forConcat.asUint8List();
   }
