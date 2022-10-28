@@ -2,8 +2,6 @@ import 'dart:convert';
 import "dart:typed_data";
 
 import 'package:hex/hex.dart';
-
-
 import "acc_url.dart";
 import "package:crypto/crypto.dart";
 import "signer.dart";

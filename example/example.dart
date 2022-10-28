@@ -3,51 +3,16 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
-//import '../lib/src/lite_identity.dart';
+import 'package:accumulate_api6/accumulate_api6.dart';
+import 'package:accumulate_api6/src/model/receipt_model.dart' as ReceiptM;
+import 'package:accumulate_api6/src/payload/add_credits.dart';
+import 'package:accumulate_api6/src/payload/create_identity.dart';
+import 'package:accumulate_api6/src/payload/create_token.dart';
+import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
+import 'package:accumulate_api6/src/transaction.dart' as trans;
+import 'package:accumulate_api6/src/tx_signer.dart';
 import 'package:crypto/crypto.dart';
-
-import '../lib/src/model/receipt_model.dart' as ReceiptM;
-
-import '../lib/src/api_types.dart';
-import '../lib/src/receipt.dart';
-import '../lib/src/transaction.dart' as trans;
-
-import '../lib/src/tx_types.dart';
-
-import '../lib/src/payload/create_key_page.dart';
-
-
-import '../lib/src/payload/update_account_auth.dart';
-
-import '../lib/src/payload/create_key_book.dart';
-import '../lib/src/payload/update_key.dart';
-import '../lib/src/payload/update_key_page.dart';
-
-import '../lib/src/acc_url.dart';
-
-import '../lib/src/encoding.dart';
-
-import '../lib/src/payload/burn_tokens.dart';
-import '../lib/src/payload/create_token.dart';
-import '../lib/src/payload/create_token_account.dart';
-import '../lib/src/payload/issue_tokens.dart';
-
-import '../lib/src/payload/create_data_account.dart';
-import '../lib/src/payload/write_data.dart';
-
-import '../lib/src/payload/add_credits.dart';
-import '../lib/src/payload/create_identity.dart';
-import '../lib/src/payload/send_tokens.dart';
-import '../lib/src/payload/token_recipient.dart';
-import '../lib/src/signer.dart';
-import '../lib/src/signing/ed25519_keypair_signer.dart';
-import '../lib/src/signing/ed25519_keypair.dart';
-import '../lib/src/tx_signer.dart';
 import 'package:hex/hex.dart';
-import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
-import 'package:bip39/bip39.dart' as bip39;
-
-import '../lib/accumulate_api6.dart';
 
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);
