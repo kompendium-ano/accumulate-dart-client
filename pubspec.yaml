@@ -1,20 +1,17 @@
 name: accumulate_api6
 description: Dart client for Accumulate blockchain, defines basic models and API calls to work with network, supports all types of accounts.
 repository: https://github.com/kompendium-ano/accumulate-dart-client
-version: 0.2.11
+version: 0.3.0
 
 environment:
   sdk: '>=2.13.4 <3.0.0'
 
 dependencies:
   crypto: ^3.0.2
-  #dart_bip32_bip44: ^0.2.0
   bitcoin_bip44:
-    path: ../bitcoin_bip44
-    #git:
-    #  url: https://github.com/redDwarf03/bitcoin_bip44.git
-    #  ref: master
-
+    git:
+      url: https://github.com/sigrlami/bitcoin_bip44.git
+      ref: master
   bip39: ^1.0.6
   bs58: ^1.0.2
   ed25519_edwards: ^0.3.1
