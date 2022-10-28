@@ -24,6 +24,9 @@ class TxSigner{
   Signer get signer => _signer;
 
   AccURL get url => _url;
+  set url(AccURL value) {
+    _url = value;
+  }
 
   Uint8List get publicKey => _signer.publicKey();
   Uint8List get secretKey => _signer.secretKey();

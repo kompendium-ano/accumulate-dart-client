@@ -1,9 +1,10 @@
 import "dart:typed_data";
-import '../utils/utils.dart';
+
+import 'package:accumulate_api6/src/signature_type.dart';
+import 'package:accumulate_api6/src/signing/ed25519_keypair.dart';
+import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
+import 'package:accumulate_api6/src/utils/utils.dart';
 import "package:crypto/crypto.dart";
-import '../signature_type.dart';
-import "ed25519_keypair.dart";
-import "ed25519_keypair_signer.dart";
 
 class RCD1KeypairSigner extends Ed25519KeypairSigner {
   late Uint8List? _rcd1Hash;
@@ -23,6 +24,7 @@ class RCD1KeypairSigner extends Ed25519KeypairSigner {
         .convert(sha256.convert(hashList).bytes.asUint8List())
         .bytes
         .asUint8List();
+
     return _rcd1Hash!;
   }
 
@@ -34,4 +36,5 @@ class RCD1KeypairSigner extends Ed25519KeypairSigner {
   int get type {
     return SignatureType.signatureTypeRCD1;
   }
+
 }

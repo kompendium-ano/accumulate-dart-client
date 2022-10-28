@@ -1,12 +1,12 @@
 import 'dart:typed_data';
 
-import '../utils/utils.dart';
+import 'package:accumulate_api6/src/signature_type.dart';
+import 'package:accumulate_api6/src/signer.dart';
+import 'package:accumulate_api6/src/signing/ed25519_keypair.dart';
+import 'package:accumulate_api6/src/utils/utils.dart';
 import "package:crypto/crypto.dart";
-import 'package:hex/hex.dart';
-import '../signature_type.dart';
-import "../signer.dart";
-import "ed25519_keypair.dart";
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
+import 'package:hex/hex.dart';
 
 class Ed25519KeypairSigner implements Signer {
   late Ed25519Keypair _keypair;
