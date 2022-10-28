@@ -4,6 +4,7 @@
 
 ![Pub Version](https://img.shields.io/pub/v/accumulate_api)
 ![GitHub](https://img.shields.io/github/license/kompendium-ano/accumulate-dart-client)
+![CI](https://github.com/kompendium-ano/accumulate-dart-client/actions/workflows/dart.yml/badge.svg)
 
 Dart client for [Accumulate](https://github.com/AccumulateNetwork/accumulate) blockchain, a novel blockchain network designed to be hugely scalable while maintaining security.
 This library supports all API class and basic data types that reflect network types and structures and utility functions to ease up creation of specific requests.
@@ -97,10 +98,10 @@ await client.createIdentity(lid.url, createIdentityParam, lid);
 ```
 
 
-
 ## Contributions
-The Library developed by Kompendium, LLC in partnership with Kelecorix, Inc and Sergey Bushnyak. Contributions are welcome, open new PR or submit new issue.
+The Library developed by Kompendium, LLC in partnership with [Kelecorix, Inc](https://github.com/kelecorix) and [Sergey Bushnyak](https://github.com/sigrlami). Contributions are welcome, open new PR or submit new issue.
 
 #### Library developers:
-* Jimmy Jose <theguywhomakesapp@gmail.com>
 * Sergey Bushnyak <sergey.bushnyak@kelecorix.com>
+* Jimmy Jose <theguywhomakesapp@gmail.com>
+
