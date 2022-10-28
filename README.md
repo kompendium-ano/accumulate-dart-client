@@ -4,7 +4,7 @@
 
 ![Pub Version](https://img.shields.io/pub/v/accumulate_api)
 ![GitHub](https://img.shields.io/github/license/kompendium-ano/accumulate-dart-client)
-![CI](https://github.com/kompendium-ano/accumulate-dart-client/actions/workflows/dart.yml/badge.svg)
+[![Tests](https://github.com/kompendium-ano/accumulate-dart-client/actions/workflows/dart.yml/badge.svg)](https://github.com/kompendium-ano/accumulate-dart-client/actions/workflows/dart.yml)
 
 Dart client for [Accumulate](https://github.com/AccumulateNetwork/accumulate) blockchain, a novel blockchain network designed to be hugely scalable while maintaining security.
 This library supports all API class and basic data types that reflect network types and structures and utility functions to ease up creation of specific requests.
