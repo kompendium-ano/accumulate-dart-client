@@ -92,6 +92,13 @@ LiteIdentity getLiteIdentityFromFactoidFs(String fs){
   return lid;
 }
 
+LiteIdentity getLiteIdentityFromFactoidFs_Ext(String fs){
+  Factoid factoidInfo = getFactoidAddressRcdHashPkeyFromPrivateFs(fs);
+  RCD1KeypairSigner rcdKeyPairSigner = RCD1KeypairSigner(factoidInfo.keypair!);
+  LiteIdentity lid = LiteIdentity(rcdKeyPairSigner);
+  return lid;
+}
+
 String getFactoidAddressFromRCDHash(Uint8List rcd1Hash) {
 
   if (rcd1Hash.length != 32) {
