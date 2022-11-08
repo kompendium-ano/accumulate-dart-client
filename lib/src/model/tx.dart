@@ -12,9 +12,17 @@ class Transaction {
   String? _to;
   int? _amount;
   String? _tokenUrl; //
-  int? _created;     // when tx was actually created
+  int? _created;
+  String? _status;
 
-  Transaction(String? type, String subtype, String? txid, String? from, String? to, int? amount, String? tokenUrl) {
+
+  String? get status => _status;
+
+  set status(String? value) {
+    _status = value;
+  }
+
+  Transaction(String? type, String subtype, String? txid, String? from, String? to, int? amount, String? tokenUrl, [String? status]) {
     this._type = type;
     this._subtype = subtype;
     this._txid = txid;
@@ -22,6 +30,7 @@ class Transaction {
     this._to = to;
     this._amount = amount;
     this._tokenUrl = tokenUrl;
+    this._status = status;
   }
 
   Transaction.fromJson(Map<String, dynamic> json)
@@ -100,4 +109,5 @@ class Transaction {
   set created(int? value) {
     _created = value;
   }
+
 }
