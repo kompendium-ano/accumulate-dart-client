@@ -84,3 +84,10 @@ bool compareUint8Lists(Uint8List bytes1, Uint8List bytes2) {
 
   return true;
 }
+
+String toHexString(String original) {
+  return original.codeUnits
+      .map((c) => c.toRadixString(16).padLeft(2, '0'))
+      .toList()
+      .join('');
+}

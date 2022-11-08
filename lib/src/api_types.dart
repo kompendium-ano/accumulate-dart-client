@@ -12,6 +12,20 @@ class QueryPagination {
   }
 }
 
+class QueryPaginationForBlocks {
+  late int start;
+  late int limit;
+
+  Map<String, dynamic> get toMap {
+    Map<String, dynamic> value = {};
+
+    value.addAll({"start": start});
+    value.addAll({"count": limit});
+
+    return value;
+  }
+}
+
 class QueryOptions {
   bool? expand;
   int? height;
@@ -94,18 +108,24 @@ Map<String, dynamic> get toMap {
 
 class MinorBlocksQueryOptions {
   int? txFetchMode;
-  bool? filterSynthAnchorsOnlyBlocks;
+  int? blockFilterMode;
 
   Map<String, dynamic> get toMap {
     Map<String, dynamic> value = {};
 
     if (txFetchMode != null) {
-      value.addAll({"txFetchMode": txFetchMode!});
+      if(txFetchMode==0) {
+        value.addAll({"TxFetchMode": "Expand"});
+      }
     }
 
-    if (filterSynthAnchorsOnlyBlocks != null) {
-      value.addAll(
-          {"filterSynthAnchorsOnlyBlocks": filterSynthAnchorsOnlyBlocks!});
+    if (blockFilterMode != null) {
+      if(blockFilterMode == 0) {
+        value.addAll(
+            {"BlockFilterMode": "ExcludeNone"});
+      } else {
+        value.addAll({"BlockFilterMode": "ExcludeEmpty"});
+      }
     }
 
     return value;
