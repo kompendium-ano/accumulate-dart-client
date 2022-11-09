@@ -3,7 +3,7 @@ import 'dart:core';
 /**
  * The URL of the ACME token
  */
-final ACME_TOKEN_URL = AccURL.parse("acc://ACME");
+final ACME_TOKEN_URL = AccURL.parse("acc://acme");
 
 /**
  * The URL of the DN
