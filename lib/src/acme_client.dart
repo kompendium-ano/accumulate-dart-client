@@ -390,6 +390,14 @@ class ACMEClient {
     return price;
   }
 
+  Future<List<int>> getAdiSlidingFee() async {
+    final networkParameters = await describe();
+    List<int> adiSlidingFeeTable = [];
+    var ds = networkParameters["result"]["values"]["globals"]["feeSchedule"]["createIdentitySliding"] ;
+    adiSlidingFeeTable = List<int>.from(ds);
+    return adiSlidingFeeTable;
+  }
+
   ///
   /// "query-tx":         m.QueryTx,
   Future<txModel.Transaction?> callGetTokenTransaction(String? txhash, [String? addr]) async {
