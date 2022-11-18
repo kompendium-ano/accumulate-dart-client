@@ -1,68 +1,54 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
-import '../utils/utils.dart';
+import 'package:accumulate_api6/src/encoding.dart';
+import 'package:accumulate_api6/src/tx_types.dart';
+import 'package:accumulate_api6/src/utils/utils.dart';
 
-import '../encoding.dart';
-import '../tx_types.dart';
 import 'base_payload.dart';
 
-class AccountAuthOperationType {
+class UpdateAccountAuthActionType {
   static const Enable = 1;
   static const Disable = 2;
   static const AddAuthority = 3;
   static const RemoveAuthority = 4;
-
 }
 
-
-class AccountAuthOperation{
- late int type;
- dynamic authority;
-
+class UpdateAccountAuthOperation {
+  late int type;
+  dynamic authority;
 }
 
 class UpdateAccountAuthParam {
-  late List<AccountAuthOperation> operations;
+  late List<UpdateAccountAuthOperation> operations;
   String? memo;
   Uint8List? metadata;
 }
 
+class UpdateAccountAuth extends BasePayload {
+  late List<UpdateAccountAuthOperation> _operations;
 
-class UpdateAccountAuth extends BasePayload{
-
- late List<AccountAuthOperation> _operations;
-
- UpdateAccountAuth(UpdateAccountAuthParam updateAccountAuthParam) : super() {
-   _operations = updateAccountAuthParam.operations;
-   super.memo = updateAccountAuthParam.memo;
-   super.metadata = updateAccountAuthParam.metadata;
- }
+  UpdateAccountAuth(UpdateAccountAuthParam updateAccountAuthParam) : super() {
+    _operations = updateAccountAuthParam.operations;
+    super.memo = updateAccountAuthParam.memo;
+    super.metadata = updateAccountAuthParam.metadata;
+  }
 
   @override
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
 
     forConcat.addAll(uvarintMarshalBinary(TransactionType.updateAccountAuth, 1));
-
-    this._operations
-        .map(marshalBinaryAccountAuthOperation)
-        .forEach((b) => forConcat.addAll(bytesMarshalBinary(b, 2)));
+    _operations.map(marshalBinaryAccountAuthOperation).forEach((b) => forConcat.addAll(bytesMarshalBinary(b, 2)));
 
     return forConcat.asUint8List();
   }
 
- Uint8List marshalBinaryAccountAuthOperation(AccountAuthOperation operation){
-   List<int> forConcat = [];
+  Uint8List marshalBinaryAccountAuthOperation(UpdateAccountAuthOperation operation) {
+    List<int> forConcat = [];
 
-   forConcat.addAll(uvarintMarshalBinary(operation.type, 1));
-   forConcat.addAll(stringMarshalBinary(operation.authority.toString(), 2));
+    forConcat.addAll(uvarintMarshalBinary(operation.type, 1));
+    forConcat.addAll(stringMarshalBinary(operation.authority.toString(), 2));
 
-
-   return forConcat.asUint8List();
- }
-
-
-
-
+    return forConcat.asUint8List();
+  }
 }
