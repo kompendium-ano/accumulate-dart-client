@@ -111,7 +111,9 @@ Uint8List stringMarshalBinary(String val, [int? field]) {
 }
 
 Uint8List bytesMarshalBinary(Uint8List val, [int? field]) {
-  final length = uvarintMarshalBinaryAlt(val.length);
+
+  final length = uvarintMarshalBinary(val.length);
+
   List<int> forConcat = [];
   forConcat.addAll(length);
   forConcat.addAll(val);
