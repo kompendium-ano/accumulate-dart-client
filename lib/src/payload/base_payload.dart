@@ -26,7 +26,6 @@ abstract class BasePayload implements Payload {
   @override
   Uint8List? get metadata => _metadata;
 
-
   @override
   Uint8List marshalBinary() {
     if (_binary != null) {

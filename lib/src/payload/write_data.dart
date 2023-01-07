@@ -1,10 +1,8 @@
 import 'dart:typed_data';
-import 'package:crypto/crypto.dart';
-
-import '../utils/utils.dart';
 
 import "../encoding.dart";
 import "../tx_types.dart";
+import '../utils/utils.dart';
 import "base_payload.dart";
 
 class WriteDataParam {
@@ -48,16 +46,16 @@ class WriteData extends BasePayload {
     forConcat.addAll(uvarintMarshalBinary(TransactionType.writeData, 1));
 
     if (!withoutEntry) {
-      forConcat.addAll(fieldMarshalBinary(2, marshalDataEntry(this._data)));
+        forConcat.addAll(fieldMarshalBinary(2, marshalDataEntry(this._data)));
     }
 
     if (this._scratch) {
       forConcat.addAll(booleanMarshalBinary(this._scratch, 3));
     }
+
     if (this._writeToState) {
       forConcat.addAll(booleanMarshalBinary(this._writeToState, 4));
     }
-
 
     return forConcat.asUint8List();
   }
@@ -87,11 +85,24 @@ class WriteData extends BasePayload {
   Uint8List marshalDataEntry(List<Uint8List> data) {
     List<int> forConcat = [];
 
-    // AccumulateDataEntry DataEntryType 2
     forConcat.addAll(uvarintMarshalBinary(2, 1));
-    // Data
+
     for (Uint8List val in data) {
       forConcat.addAll(bytesMarshalBinary(val, 2));
+    }
+
+    return bytesMarshalBinary(forConcat.asUint8List());
+  }
+
+  Uint8List marshalDataEntryUpd(List<Uint8List> data) {
+    List<int> forConcat = [];
+
+    // AccumulateDataEntry DataEntryType 2
+    forConcat.addAll(uvarintMarshalBinary(2, 1));
+
+    // Data
+    for (Uint8List entry in data) {
+      forConcat.addAll(bytesMarshalBinary(entry,2));
     }
 
     return bytesMarshalBinary(forConcat.asUint8List());

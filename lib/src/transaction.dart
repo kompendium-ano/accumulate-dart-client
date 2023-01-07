@@ -73,7 +73,7 @@ class Header {
   Uint8List marshalBinary() {
     if (_initiator.isEmpty) {
       throw Exception(
-          "Initiator hash missing. Must be initilized by calling computeInitiator");
+          "Initiator hash missing. Must be initialized by calling computeInitiator");
     }
     List<int> forConcat = [];
 

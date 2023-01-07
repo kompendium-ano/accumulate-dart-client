@@ -71,6 +71,18 @@ class ACMEClient {
     return call("execute", tx.toTxRequest().toMap);
   }
 
+  // Future<Map<String, dynamic>> signPending(AccURL principal, TxSigner signer, String txHash) async {
+  //   HeaderOptions? options;
+  //
+  //   final header = Header(principal, options);
+  //   final tx = Transaction(payload, header);
+  //   await tx.sign(signer);
+  //
+  //   return execute(tx);
+  // }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
   Future<Map<String, dynamic>> queryAcmeOracle() {
     return call("describe");
   }
@@ -520,6 +532,34 @@ class ACMEClient {
           tx = txModel.Transaction("Incoming", "system_genesis", txid, "acc://ACME", origin, 0, "acc://");
           tx.created = blockTimeD.millisecondsSinceEpoch;
           break;
+
+        case "updateAccountAuth":
+          String? txid = res['result']["txid"];
+          String? sponsor = res['result']["sponsor"];
+          String? origin = res['result']["origin"];
+          LinkedHashMap sigs = res['result']["signatures"][0];
+          int? dateNonce = sigs["timestamp"];
+          String? status = res['result']["status"]["code"];
+
+          tx = txModel.Transaction("Outgoing", "update-account-auth", txid, sponsor, origin, 0, "ACME");
+          tx.created = dateNonce;
+          tx.status = status;
+          break;
+
+        case "createTokenAccount":
+          print("  create token account");
+          String? txid = res['result']["txid"];
+          String? sponsor = res['result']["sponsor"];
+          String? origin = res['result']["origin"];
+          LinkedHashMap sigs = res['result']["signatures"][0];
+          int? dateNonce = sigs["timestamp"];
+          int? dateNonce2 = DateTime.fromMicrosecondsSinceEpoch(dateNonce!).millisecondsSinceEpoch;
+          String? status = res['result']["status"]["code"];
+
+          tx = txModel.Transaction("Outgoing", "token-account-create", txid, sponsor, origin, 0, "ACME");
+          tx.created = dateNonce;
+          tx.status = status;
+          break;
         default:
           print("  default handler");
           String? txid = res['result']["data"]["txid"];
@@ -580,7 +620,7 @@ class ACMEClient {
             if(ts! == 1){
               txl.created = 1667304000 * 1000;
             } else {
-              txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+              txl.created = DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
             }
             txs.add(txl);
             break;
@@ -621,14 +661,6 @@ class ACMEClient {
             String? token = tx["data"]["token"];
 
             txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "$token");
-            txs.add(txl);
-            break;
-          case "createTokenAccount":
-            String? txid = tx["txid"];
-            int? amount = 0; // tx["data"]["amount"];
-            String? token = tx["data"]["tokenUrl"];
-
-            txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, token);
             txs.add(txl);
             break;
           case "burnTokens":
@@ -703,9 +735,31 @@ class ACMEClient {
               txl.created = blockTimeD.millisecondsSinceEpoch;
 
             } else {
-              txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+              txl.created = DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
             }
 
+            txs.add(txl);
+            break;
+          case "updateAccountAuth":
+            String? txid = tx["txid"];
+            LinkedHashMap sigs = tx["signatures"][0];
+            int? ts = sigs["timestamp"];
+            String? sponsor = tx["sponsor"];
+            String? origin = tx["origin"];
+
+            txModel.Transaction txl = txModel.Transaction("Outgoing", "update-account-auth", txid, sponsor, origin, 0, "ACME");
+            txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+            txs.add(txl);
+            break;
+          case "createTokenAccount":
+            String? txid = tx["txid"];
+            LinkedHashMap sigs = tx["signatures"][0];
+            int? ts = sigs["timestamp"];
+            String? sponsor = tx["sponsor"];
+            String? origin = tx["origin"];
+
+            txModel.Transaction txl = txModel.Transaction("Outgoing", "token-account-create", txid, sponsor, origin, 0, "ACME");
+            txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
             txs.add(txl);
             break;
           default:

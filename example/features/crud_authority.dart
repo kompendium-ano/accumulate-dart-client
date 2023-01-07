@@ -57,7 +57,7 @@ void testAuthorityActions() async {
   print("\n");
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Add Credits to Light Account to allow actions
+  // Add Credits to Lite Account to allow actions
 
   // Get conversion value from Oracle
   final oracle = await client.valueFromOracle();
@@ -79,6 +79,7 @@ void testAuthorityActions() async {
   txId = res["result"]["txid"];
   print("addCredits txId $txId");
   sleep(Duration(seconds: 10));
+
   res = await client.queryTx(txId);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,7 +149,25 @@ void testAuthorityActions() async {
   sleep(Duration(seconds: 2));
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  // ADD LOCAL AUTHORITY (ADI2 BOOK to ADI1)
+  // ADD  AUTHORITY
+
+  UpdateAccountAuthOperation accountAuthOperation0 = UpdateAccountAuthOperation();
+  accountAuthOperation0.authority = lid.acmeTokenAccount;
+  accountAuthOperation0.type = UpdateAccountAuthActionType.AddAuthority;
+
+  UpdateAccountAuthParam updateAccountAuthParam0 = UpdateAccountAuthParam();
+  updateAccountAuthParam0.operations = [accountAuthOperation0];
+
+  res = await client.updateAccountAuth(identityUrl, updateAccountAuthParam0, identityKeyPageTxSigner);
+
+  txId = res["result"]["txid"];
+  print("updateAccountAuth txId: $txId");
+
+  sleep(Duration(seconds: 2));
+
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // ADD LOCAL AUTHORITY (ADI1 BOOK to ADI1)
 
   UpdateAccountAuthOperation accountAuthOperation = UpdateAccountAuthOperation();
   accountAuthOperation.authority = newKeyBookUrl;
