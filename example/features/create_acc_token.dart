@@ -3,8 +3,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:accumulate_api6/src/acme_client.dart';
-import 'package:accumulate_api6/src/api_types.dart';
-import 'package:accumulate_api6/src/lite_identity.dart';
+import 'package:accumulate_api6/src/model/api_types.dart';
+import 'package:accumulate_api6/src/client/lite_identity.dart';
 import 'package:accumulate_api6/src/payload/add_credits.dart';
 import 'package:accumulate_api6/src/payload/create_identity.dart';
 import 'package:accumulate_api6/src/payload/create_token.dart';
@@ -12,7 +12,7 @@ import 'package:accumulate_api6/src/payload/create_token_account.dart';
 import 'package:accumulate_api6/src/payload/issue_tokens.dart';
 import 'package:accumulate_api6/src/payload/token_recipient.dart';
 import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
-import 'package:accumulate_api6/src/tx_signer.dart';
+import 'package:accumulate_api6/src/client/tx_signer.dart';
 import 'package:accumulate_api6/src/utils/utils.dart';
 
 //final endPoint = "http://127.0.1.1:26660/v2";

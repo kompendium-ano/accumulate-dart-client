@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:accumulate_api6/src/utils/utils.dart';
 
-import 'encoding.dart';
+import '../encoding.dart';
 
 class ReceiptEntry {
   bool? right;

@@ -1,7 +1,7 @@
 import 'dart:convert' show utf8;
 import 'dart:core';
 
-import '../acc_url.dart';
+import '../client/acc_url.dart';
 import '../utils/utils.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';

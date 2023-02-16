@@ -1,13 +1,13 @@
 import 'dart:convert';
 import "dart:typed_data";
-import 'signature_type.dart';
+import 'client/signature_type.dart';
 import 'package:hex/hex.dart';
 
-import "acc_url.dart";
+import 'client/acc_url.dart';
 import "package:crypto/crypto.dart";
-import "payload.dart";
-import "signer.dart";
-import "tx_signer.dart";
+import 'payload.dart';
+import 'client/signer.dart';
+import 'client/tx_signer.dart';
 import 'utils/utils.dart';
 import 'encoding.dart';
 

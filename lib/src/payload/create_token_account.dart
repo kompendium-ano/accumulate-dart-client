@@ -1,9 +1,9 @@
 import "dart:typed_data";
 
-import "../acc_url.dart";
-import "../encoding.dart";
-import '../receipt.dart';
-import "../tx_types.dart";
+import '../client/acc_url.dart';
+import '../encoding.dart';
+import '../model/receipt.dart';
+import '../client/tx_types.dart';
 import '../utils/utils.dart';
 import "base_payload.dart";
 import 'create_token.dart';

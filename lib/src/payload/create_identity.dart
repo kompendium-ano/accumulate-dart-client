@@ -1,9 +1,9 @@
 import "dart:typed_data";
-import '../tx_types.dart';
+import '../client/tx_types.dart';
 import '../utils/utils.dart';
 
-import "../acc_url.dart";
-import "../encoding.dart";
+import '../client/acc_url.dart';
+import '../encoding.dart';
 import "base_payload.dart";
 
 class CreateIdentityParam {

@@ -2,7 +2,7 @@ import "dart:typed_data";
 import '../utils/utils.dart';
 import 'package:crypto/crypto.dart';
 
-import "../payload.dart";
+import '../payload.dart';
 
 abstract class BasePayload implements Payload {
   Uint8List? _binary;

@@ -2,8 +2,8 @@ import 'dart:typed_data';
 
 import '../utils/utils.dart';
 
-import "../encoding.dart";
-import "../tx_types.dart";
+import '../encoding.dart';
+import '../client/tx_types.dart';
 import "base_payload.dart";
 
 class BurnTokensParam {

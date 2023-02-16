@@ -1,7 +1,7 @@
 import 'dart:core';
 import 'dart:typed_data';
 
-import 'package:accumulate_api6/src/acc_url.dart';
+import 'package:accumulate_api6/src/client/acc_url.dart';
 import 'package:accumulate_api6/src/model/factom/factom_ext_ref.dart';
 import 'package:accumulate_api6/src/utils/hash_builder.dart';
 import 'package:hex/hex.dart';

@@ -10,7 +10,7 @@ import 'package:accumulate_api6/src/payload/create_identity.dart';
 import 'package:accumulate_api6/src/payload/create_token.dart';
 import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
 import 'package:accumulate_api6/src/transaction.dart' as trans;
-import 'package:accumulate_api6/src/tx_signer.dart';
+import 'package:accumulate_api6/src/client/tx_signer.dart';
 import 'package:crypto/crypto.dart';
 import 'package:hex/hex.dart';
 

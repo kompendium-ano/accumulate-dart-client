@@ -3,9 +3,9 @@ import 'package:accumulate_api6/src/payload/send_tokens.dart';
 
 import '../utils/utils.dart';
 
-import "../acc_url.dart";
-import "../encoding.dart";
-import "../tx_types.dart";
+import '../client/acc_url.dart';
+import '../encoding.dart';
+import '../client/tx_types.dart';
 import "base_payload.dart";
 import 'token_recipient.dart';
 

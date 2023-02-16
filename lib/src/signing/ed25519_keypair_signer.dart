@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:accumulate_api6/src/signature_type.dart';
-import 'package:accumulate_api6/src/signer.dart';
+import 'package:accumulate_api6/src/client/signature_type.dart';
+import 'package:accumulate_api6/src/client/signer.dart';
 import 'package:accumulate_api6/src/signing/ed25519_keypair.dart';
 import 'package:accumulate_api6/src/utils/utils.dart';
 import "package:crypto/crypto.dart";

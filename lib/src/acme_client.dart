@@ -6,15 +6,15 @@ import 'dart:typed_data';
 
 import 'package:hex/hex.dart';
 
-import "acc_url.dart";
-import "api_types.dart";
+import 'client/acc_url.dart';
+import 'model/api_types.dart';
 import 'model/query_transaction_response_model.dart' as query_trx_res_model;
 import 'model/tx.dart' as txModel;
 import "payload.dart";
 import "payload_b.dart";
-import "rpc_client.dart";
+import 'rpc_client.dart';
 import "transaction.dart";
-import "tx_signer.dart";
+import 'client/tx_signer.dart';
 
 class ACMEClient {
   late RpcClient _rpcClient;

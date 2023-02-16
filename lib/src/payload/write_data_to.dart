@@ -3,8 +3,8 @@ import 'package:crypto/crypto.dart';
 
 import '../utils/utils.dart';
 
-import "../encoding.dart";
-import "../tx_types.dart";
+import '../encoding.dart';
+import '../client/tx_types.dart';
 import "base_payload.dart";
 
 class WriteDataToParam {
@@ -57,7 +57,6 @@ class WriteDataTo extends BasePayload {
 
   @override
   Uint8List hash() {
-
     /*if (_dataHash != null) {
       return _dataHash!;
     }
@@ -68,15 +67,13 @@ class WriteDataTo extends BasePayload {
       return _customHash!;
     }
     List<int> forConcat = [];
-    Uint8List bodyHash = sha256Update(_marshalBinary(withoutEntry:true));
+    Uint8List bodyHash = sha256Update(_marshalBinary(withoutEntry: true));
     Uint8List dataHash = hashTree(_data);
     forConcat.addAll(bodyHash);
     forConcat.addAll(dataHash);
     _customHash = sha256Update(forConcat.asUint8List());
 
     return _customHash!;
-
-
   }
 
   Uint8List marshalDataEntry(List<Uint8List> data) {

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:accumulate_api6/src/acme_client.dart';
-import 'package:accumulate_api6/src/lite_identity.dart';
+import 'package:accumulate_api6/src/client/lite_identity.dart';
 import 'package:accumulate_api6/src/model/factom/factom_entry.dart';
 import 'package:accumulate_api6/src/payload/add_credits.dart';
 import 'package:accumulate_api6/src/payload/factom_data_entry.dart';

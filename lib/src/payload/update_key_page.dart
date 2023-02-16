@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import '../utils/utils.dart';
 
 import '../encoding.dart';
-import '../tx_types.dart';
+import '../client/tx_types.dart';
 import 'base_payload.dart';
 
 class KeyPageOperationType {
@@ -52,10 +52,7 @@ class UpdateKeyPage extends BasePayload {
 
     forConcat.addAll(uvarintMarshalBinary(TransactionType.updateKeyPage, 1));
 
-    this
-        ._operations
-        .map(marshalBinaryKeyPageOperation)
-        .forEach((b) => forConcat.addAll(bytesMarshalBinary(b, 2)));
+    this._operations.map(marshalBinaryKeyPageOperation).forEach((b) => forConcat.addAll(bytesMarshalBinary(b, 2)));
 
     return forConcat.asUint8List();
   }
@@ -92,8 +89,7 @@ class UpdateKeyPage extends BasePayload {
 
     forConcat.addAll(uvarintMarshalBinary(operation.type!, 1));
 
-    forConcat
-        .addAll(bytesMarshalBinary(marshalBinaryKeySpec(operation.key!), 2));
+    forConcat.addAll(bytesMarshalBinary(marshalBinaryKeySpec(operation.key!), 2));
 
     return forConcat.asUint8List();
   }
@@ -103,10 +99,8 @@ class UpdateKeyPage extends BasePayload {
 
     forConcat.addAll(uvarintMarshalBinary(operation.type!, 1));
 
-    forConcat
-        .addAll(bytesMarshalBinary(marshalBinaryKeySpec(operation.oldKey!), 2));
-    forConcat
-        .addAll(bytesMarshalBinary(marshalBinaryKeySpec(operation.newKey!), 3));
+    forConcat.addAll(bytesMarshalBinary(marshalBinaryKeySpec(operation.oldKey!), 2));
+    forConcat.addAll(bytesMarshalBinary(marshalBinaryKeySpec(operation.newKey!), 3));
 
     return forConcat.asUint8List();
   }
@@ -124,14 +118,13 @@ class UpdateKeyPage extends BasePayload {
     List<int> forConcat = [];
 
     forConcat.addAll(uvarintMarshalBinary(operation.type!, 1));
-    if(operation.allow != null){
+    if (operation.allow != null) {
       operation.allow!.forEach((a) => forConcat.addAll(uvarintMarshalBinary(a, 2)));
     }
 
-    if(operation.deny != null){
+    if (operation.deny != null) {
       operation.deny!.forEach((d) => forConcat.addAll(uvarintMarshalBinary(d, 3)));
     }
-
 
     return forConcat.asUint8List();
   }

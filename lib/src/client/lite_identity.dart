@@ -4,9 +4,9 @@ import "dart:typed_data";
 import "package:crypto/crypto.dart";
 import 'package:hex/hex.dart';
 
-import "acc_url.dart";
-import "signer.dart";
-import "tx_signer.dart";
+import 'acc_url.dart';
+import 'signer.dart';
+import 'tx_signer.dart';
 
 class LiteIdentity extends TxSigner {
   LiteIdentity(Signer signer) : super(LiteIdentity.computeUrl(signer.publicKeyHash()), signer);
