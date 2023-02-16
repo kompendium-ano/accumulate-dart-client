@@ -397,8 +397,13 @@ class ACMEClient {
   }
 
   Future<int> valueFromOracle() async {
-    final oracle = await queryAcmeOracle();
-    int price = oracle["result"]["values"]["oracle"]["price"];
+    int price = 0;
+    try {
+      final oracle = await queryAcmeOracle();
+      price = oracle["result"]["values"]["oracle"]["price"];
+    } catch (e){
+      print("Not reacheable =====>>> $e");
+    }
     return price;
   }
 
