@@ -10,10 +10,10 @@ class Keypair {
   late String mnemonic;
 }
 
-class Ed25519Keypair {
+class MultiHash {
   late Keypair _keypair;
 
-  Ed25519Keypair([Keypair? keypair]) {
+  MultiHash([Keypair? keypair]) {
     if (keypair != null) {
       _keypair = keypair;
     } else {
@@ -28,7 +28,7 @@ class Ed25519Keypair {
     }
   }
 
-  static Ed25519Keypair generate() {
+  static MultiHash generate() {
     String mnemonic = bip39.generateMnemonic();
     Uint8List seed = bip39.mnemonicToSeed(mnemonic);
 
@@ -39,10 +39,10 @@ class Ed25519Keypair {
     keypair.secretKey = privateKey.bytes.asUint8List();
     keypair.publicKey = publicKey.bytes.asUint8List();
     keypair.mnemonic = mnemonic;
-    return Ed25519Keypair(keypair);
+    return MultiHash(keypair);
   }
 
-  static Ed25519Keypair fromMnemonic(String mnemonic) {
+  static MultiHash fromMnemonic(String mnemonic) {
     Uint8List seed = bip39.mnemonicToSeed(mnemonic);
 
     var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32));
@@ -52,10 +52,10 @@ class Ed25519Keypair {
     keypair.secretKey = privateKey.bytes.asUint8List();
     keypair.publicKey = publicKey.bytes.asUint8List();
     keypair.mnemonic = mnemonic;
-    return Ed25519Keypair(keypair);
+    return MultiHash(keypair);
   }
 
-  static Ed25519Keypair fromSecretKey(Uint8List secretKey,
+  static MultiHash fromSecretKey(Uint8List secretKey,
       {bool skipValidation = true}) {
     var privateKey = ed.PrivateKey(secretKey);
     var publicKey = ed.public(privateKey);
@@ -75,10 +75,10 @@ class Ed25519Keypair {
     keypair.publicKey = publicKey.bytes.asUint8List();
     keypair.mnemonic = "";
 
-    return Ed25519Keypair(keypair);
+    return MultiHash(keypair);
   }
 
-  static Ed25519Keypair fromSeed(Uint8List seed) {
+  static MultiHash fromSeed(Uint8List seed) {
     var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32));
     var publicKey = ed.public(privateKey);
     Keypair keypair = Keypair();
@@ -86,7 +86,7 @@ class Ed25519Keypair {
     keypair.publicKey = publicKey.bytes.asUint8List();
     keypair.mnemonic = "";
 
-    return Ed25519Keypair(keypair);
+    return MultiHash(keypair);
   }
 
   Uint8List get publicKey {

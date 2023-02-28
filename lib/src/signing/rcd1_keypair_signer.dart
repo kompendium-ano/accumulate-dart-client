@@ -9,7 +9,7 @@ import "package:crypto/crypto.dart";
 class RCD1KeypairSigner extends Ed25519KeypairSigner {
   Uint8List? _rcd1Hash;
 
-  RCD1KeypairSigner(Ed25519Keypair ed25519keypair) : super(ed25519keypair);
+  RCD1KeypairSigner(MultiHash ed25519keypair) : super(ed25519keypair);
 
   @override
   Uint8List publicKeyHash() {
@@ -29,7 +29,7 @@ class RCD1KeypairSigner extends Ed25519KeypairSigner {
   }
 
   static RCD1KeypairSigner generate() {
-    return RCD1KeypairSigner(Ed25519Keypair());
+    return RCD1KeypairSigner(MultiHash());
   }
 
   @override

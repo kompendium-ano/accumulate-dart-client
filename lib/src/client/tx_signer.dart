@@ -1,8 +1,8 @@
 import "dart:typed_data";
 import 'acc_url.dart';
 import 'signer.dart';
-import '../transaction.dart';
-import '../utils/utils.dart';
+import 'package:accumulate_api6/src/transaction.dart';
+import 'package:accumulate_api6/src/utils/utils.dart';
 
 class TxSigner{
   late AccURL _url;

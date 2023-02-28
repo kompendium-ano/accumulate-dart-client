@@ -8,27 +8,27 @@ import "package:crypto/crypto.dart";
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:hex/hex.dart';
 
-class Ed25519KeypairSigner implements Signer {
+class MultihashKeypairSigner implements Signer {
   late MultiHash _keypair;
 
-  Ed25519KeypairSigner(MultiHash ed25519keypair) {
-    _keypair = ed25519keypair;
+  MultihashKeypairSigner(MultiHash multihash) {
+    _keypair = multihash;
   }
 
-  static Ed25519KeypairSigner generate() {
-    return Ed25519KeypairSigner(MultiHash());
+  static MultihashKeypairSigner generate() {
+    return MultihashKeypairSigner(MultiHash());
   }
 
-  static Ed25519KeypairSigner fromMnemonic(String mnemonic) {
-    return Ed25519KeypairSigner(MultiHash.fromMnemonic(mnemonic));
+  static MultihashKeypairSigner fromMnemonic(String mnemonic) {
+    return MultihashKeypairSigner(MultiHash.fromMnemonic(mnemonic));
   }
 
-  static Ed25519KeypairSigner fromKey(String pik) {
-    return Ed25519KeypairSigner(MultiHash.fromSecretKey(HEX.decode(pik).asUint8List()));
+  static MultihashKeypairSigner fromKey(String pik) {
+    return MultihashKeypairSigner(MultiHash.fromSecretKey(HEX.decode(pik).asUint8List()));
   }
 
-  static Ed25519KeypairSigner fromKeyRaw(Uint8List pik) {
-    return Ed25519KeypairSigner(MultiHash.fromSecretKey(pik));
+  static MultihashKeypairSigner fromKeyRaw(Uint8List pik) {
+    return MultihashKeypairSigner(MultiHash.fromSecretKey(pik));
   }
 
 
