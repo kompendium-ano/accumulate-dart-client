@@ -31,6 +31,6 @@ void main() {
 
     var tx = Transaction(payload, header);
 
-    //expect(payload.extendedMarshalBinary(), [0]);
+    expect(payload.extendedMarshalBinary(), [0]);
   });
 }

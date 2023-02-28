@@ -44,7 +44,7 @@ void main() {
     print("----------------------------------------------");
     print("Reconstruct ED25519");
 
-    Ed25519Keypair ed25519keypair = Ed25519Keypair.fromSecretKey(factoidInfo.keypair!.secretKey);
+    MultiHash ed25519keypair = MultiHash.fromSecretKey(factoidInfo.keypair!.secretKey);
     Ed25519KeypairSigner ed25519keypairSigner = Ed25519KeypairSigner(ed25519keypair);
     LiteIdentity lid = LiteIdentity(ed25519keypairSigner);
 
@@ -98,7 +98,7 @@ void main() {
 
 
     var seed = bip39.mnemonicToSeed("carry bullet century olympic core drift between axis draw pilot pluck wash");
-    Ed25519Keypair ed25519keypair2 = Ed25519Keypair.fromSeed(seed);
+    MultiHash ed25519keypair2 = MultiHash.fromSeed(seed);
     var secret2 = getFactoidSecretFromPrivKey(ed25519keypair2.secretKey);
 
     print("CORRECT: Fs2yxj5FYs2VhYrpHT6VQ3n8fjaGJCCFA79n4ZKN8PiiczxHeXH7");
