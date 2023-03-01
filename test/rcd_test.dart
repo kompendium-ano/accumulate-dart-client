@@ -44,7 +44,7 @@ void main() {
     print("----------------------------------------------");
     print("Reconstruct ED25519");
 
-    MultiHash ed25519keypair = MultiHash.fromSecretKey(factoidInfo.keypair!.secretKey);
+    Ed25519Keypair ed25519keypair = Ed25519Keypair.fromSecretKey(factoidInfo.keypair!.secretKey);
     Ed25519KeypairSigner ed25519keypairSigner = Ed25519KeypairSigner(ed25519keypair);
     LiteIdentity lid = LiteIdentity(ed25519keypairSigner);
 
@@ -72,7 +72,7 @@ void main() {
 
     String mnemonic = "carry bullet century olympic core drift between axis draw pilot pluck wash";
     List<String> seedPhraseWords =
-        ["carry", "bullet", "century", "olympic", "core", "drift", "between", "axis", "draw", "pilot", "pluck", "wash"];
+    ["carry", "bullet", "century", "olympic", "core", "drift", "between", "axis", "draw", "pilot", "pluck", "wash"];
 
     // Add a scanner of your own:
     scanners = [FactomScanner()];
@@ -98,7 +98,7 @@ void main() {
 
 
     var seed = bip39.mnemonicToSeed("carry bullet century olympic core drift between axis draw pilot pluck wash");
-    MultiHash ed25519keypair2 = MultiHash.fromSeed(seed);
+    Ed25519Keypair ed25519keypair2 = Ed25519Keypair.fromSeed(seed);
     var secret2 = getFactoidSecretFromPrivKey(ed25519keypair2.secretKey);
 
     print("CORRECT: Fs2yxj5FYs2VhYrpHT6VQ3n8fjaGJCCFA79n4ZKN8PiiczxHeXH7");

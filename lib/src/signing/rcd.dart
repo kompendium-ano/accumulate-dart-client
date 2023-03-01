@@ -26,7 +26,7 @@ class RCD {
 class Factoid {
   String? faAddress;
   Uint8List? rcdHash;
-  MultiHash? keypair;
+  Ed25519Keypair? keypair;
 }
 
 Uint8List getRCDHashFromPublicKey(Uint8List pubkey, int version) {
@@ -86,7 +86,7 @@ String getAcmeLiteAccountFromFactoidAddress(String address){
 // Additional
 LiteIdentity getLiteIdentityFromFactoidFs(String fs){
   Factoid factoidInfo = getFactoidAddressRcdHashPkeyFromPrivateFs(fs);
-  MultiHash ed25519keypair = MultiHash.fromSecretKey(factoidInfo.keypair!.secretKey);
+  Ed25519Keypair ed25519keypair = Ed25519Keypair.fromSecretKey(factoidInfo.keypair!.secretKey);
   Ed25519KeypairSigner ed25519keypairSigner = Ed25519KeypairSigner(ed25519keypair);
   LiteIdentity lid = LiteIdentity(ed25519keypairSigner);
   return lid;
@@ -172,7 +172,7 @@ Factoid getFactoidAddressRcdHashPkeyFromPrivateFs(String fsAddress) {
   }
 
   var seed = decodedFS.sublist(2, 34);
-  var keyPair = MultiHash.fromSeed(seed);
+  var keyPair = Ed25519Keypair.fromSeed(seed);
   var rcdHash = getRCDHashFromPublicKey(keyPair.publicKey, 1);
   var faAddress = getFactoidAddressFromRCDHash(rcdHash);
 

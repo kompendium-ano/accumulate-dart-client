@@ -10,10 +10,10 @@ class Keypair {
   late String mnemonic;
 }
 
-class MultiHash {
+class Ed25519Keypair {
   late Keypair _keypair;
 
-  MultiHash([Keypair? keypair]) {
+  Ed25519Keypair([Keypair? keypair]) {
     if (keypair != null) {
       _keypair = keypair;
     } else {
@@ -28,7 +28,7 @@ class MultiHash {
     }
   }
 
-  static MultiHash generate() {
+  static Ed25519Keypair generate() {
     String mnemonic = bip39.generateMnemonic();
     Uint8List seed = bip39.mnemonicToSeed(mnemonic);
 
@@ -39,10 +39,10 @@ class MultiHash {
     keypair.secretKey = privateKey.bytes.asUint8List();
     keypair.publicKey = publicKey.bytes.asUint8List();
     keypair.mnemonic = mnemonic;
-    return MultiHash(keypair);
+    return Ed25519Keypair(keypair);
   }
 
-  static MultiHash fromMnemonic(String mnemonic) {
+  static Ed25519Keypair fromMnemonic(String mnemonic) {
     Uint8List seed = bip39.mnemonicToSeed(mnemonic);
 
     var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32));
@@ -52,17 +52,17 @@ class MultiHash {
     keypair.secretKey = privateKey.bytes.asUint8List();
     keypair.publicKey = publicKey.bytes.asUint8List();
     keypair.mnemonic = mnemonic;
-    return MultiHash(keypair);
+    return Ed25519Keypair(keypair);
   }
 
-  static MultiHash fromSecretKey(Uint8List secretKey,
+  static Ed25519Keypair fromSecretKey(Uint8List secretKey,
       {bool skipValidation = true}) {
     var privateKey = ed.PrivateKey(secretKey);
     var publicKey = ed.public(privateKey);
 
     if (!skipValidation) {
       final message =
-          utf8.encode("@accumulate/accumulate.js-validation-v1").asUint8List();
+      utf8.encode("@accumulate/accumulate.js-validation-v1").asUint8List();
       final sig = ed.sign(privateKey, message);
       bool valid = ed.verify(publicKey, message, sig);
       if (!valid) {
@@ -75,10 +75,10 @@ class MultiHash {
     keypair.publicKey = publicKey.bytes.asUint8List();
     keypair.mnemonic = "";
 
-    return MultiHash(keypair);
+    return Ed25519Keypair(keypair);
   }
 
-  static MultiHash fromSeed(Uint8List seed) {
+  static Ed25519Keypair fromSeed(Uint8List seed) {
     var privateKey = ed.newKeyFromSeed(seed.sublist(0, 32));
     var publicKey = ed.public(privateKey);
     Keypair keypair = Keypair();
@@ -86,7 +86,7 @@ class MultiHash {
     keypair.publicKey = publicKey.bytes.asUint8List();
     keypair.mnemonic = "";
 
-    return MultiHash(keypair);
+    return Ed25519Keypair(keypair);
   }
 
   Uint8List get publicKey {

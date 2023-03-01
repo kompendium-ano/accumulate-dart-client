@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:accumulate_api6/src/client/signature_type.dart';
-import 'package:accumulate_api6/src/client/signer.dart';
+import 'package:accumulate_api6/accumulate_api6.dart';
 import 'package:accumulate_api6/src/signing/ed25519_keypair.dart';
 import 'package:accumulate_api6/src/utils/utils.dart';
 import "package:crypto/crypto.dart";
@@ -9,26 +8,26 @@ import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 import 'package:hex/hex.dart';
 
 class Ed25519KeypairSigner implements Signer {
-  late MultiHash _keypair;
+  late Ed25519Keypair _keypair;
 
-  Ed25519KeypairSigner(MultiHash ed25519keypair) {
+  Ed25519KeypairSigner(Ed25519Keypair ed25519keypair) {
     _keypair = ed25519keypair;
   }
 
   static Ed25519KeypairSigner generate() {
-    return Ed25519KeypairSigner(MultiHash());
+    return Ed25519KeypairSigner(Ed25519Keypair());
   }
 
   static Ed25519KeypairSigner fromMnemonic(String mnemonic) {
-    return Ed25519KeypairSigner(MultiHash.fromMnemonic(mnemonic));
+    return Ed25519KeypairSigner(Ed25519Keypair.fromMnemonic(mnemonic));
   }
 
   static Ed25519KeypairSigner fromKey(String pik) {
-    return Ed25519KeypairSigner(MultiHash.fromSecretKey(HEX.decode(pik).asUint8List()));
+    return Ed25519KeypairSigner(Ed25519Keypair.fromSecretKey(HEX.decode(pik).asUint8List()));
   }
 
   static Ed25519KeypairSigner fromKeyRaw(Uint8List pik) {
-    return Ed25519KeypairSigner(MultiHash.fromSecretKey(pik));
+    return Ed25519KeypairSigner(Ed25519Keypair.fromSecretKey(pik));
   }
 
 

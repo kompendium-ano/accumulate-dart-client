@@ -8,13 +8,13 @@ import 'package:test/test.dart';
 
 void main() {
   test('should write Factom data', () {
-    final MultiHash kp1 = MultiHash.generate();
+    final Ed25519Keypair kp1 = Ed25519Keypair.generate();
     Keypair keypair = Keypair();
     keypair.secretKey = kp1.secretKey;
     keypair.publicKey = kp1.publicKey;
     keypair.mnemonic = kp1.mnemonic;
 
-    final kp2 = MultiHash(keypair); // Ed25519Keypair and Keypair different types
+    final kp2 = Ed25519Keypair(keypair); // Ed25519Keypair and Keypair different types
 
     FactomEntry fe = FactomEntry(utf8.encode("TheData").asUint8List());
     fe.addExtRef("Kompendium");
