@@ -52,7 +52,7 @@ class ReceiptModelResult {
   String? type;
   MainChain? mainChain;
   MainChain? merkleState;
-  Data? data;
+  RcpData? data;
   String? origin;
   String? sponsor;
   String? transactionHash;
@@ -67,7 +67,7 @@ class ReceiptModelResult {
     type: json["type"] == null ? null : json["type"],
     mainChain: json["mainChain"] == null ? null : MainChain.fromMap(json["mainChain"]),
     merkleState: json["merkleState"] == null ? null : MainChain.fromMap(json["merkleState"]),
-    data: json["data"] == null ? null : Data.fromMap(json["data"]),
+    data: json["data"] == null ? null : RcpData.fromMap(json["data"]),
     origin: json["origin"] == null ? null : json["origin"],
     sponsor: json["sponsor"] == null ? null : json["sponsor"],
     transactionHash: json["transactionHash"] == null ? null : json["transactionHash"],
@@ -96,8 +96,8 @@ class ReceiptModelResult {
   };
 }
 
-class Data {
-  Data({
+class RcpData {
+  RcpData({
     this.type,
     this.url,
     this.symbol,
@@ -107,7 +107,7 @@ class Data {
   String? url;
   String? symbol;
 
-  factory Data.fromMap(Map<String, dynamic> json) => Data(
+  factory RcpData.fromMap(Map<String, dynamic> json) => RcpData(
     type: json["type"] == null ? null : json["type"],
     url: json["url"] == null ? null : json["url"],
     symbol: json["symbol"] == null ? null : json["symbol"],
@@ -431,11 +431,11 @@ class RcpTransaction {
   });
 
   RcpHeader? header;
-  Data? body;
+  RcpData? body;
 
   factory RcpTransaction.fromMap(Map<String, dynamic> json) => RcpTransaction(
     header: json["header"] == null ? null : RcpHeader.fromMap(json["header"]),
-    body: json["body"] == null ? null : Data.fromMap(json["body"]),
+    body: json["body"] == null ? null : RcpData.fromMap(json["body"]),
   );
 
   Map<String, dynamic> toMap() => {

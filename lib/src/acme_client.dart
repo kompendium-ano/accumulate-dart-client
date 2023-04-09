@@ -52,6 +52,12 @@ class ACMEClient {
     return call("execute", tx.toTxRequest().toMap);
   }
 
+  Future<Map<String, dynamic>> executeDirect() {
+    return call(
+      "execute-direct",
+    );
+  }
+
   // Future<Map<String, dynamic>> signPending(AccURL principal, TxSigner signer, String txHash) async {
   //   HeaderOptions? options;
   //
@@ -91,13 +97,25 @@ class ACMEClient {
     return call("query", params);
   }
 
-  Future<Map<String, dynamic>> queryTx(String txId, [TxQueryOptions? options]) {
-    String paramName = txId.startsWith("acc://") ? "txIdUrl" : "txid";
+  Future<Map<String, dynamic>> queryTx(String txRef, [TxQueryOptions? options]) {
+    String paramName = txRef.startsWith("acc://") ? "txIdUrl" : "txid";
     paramName = "txid";
+    var txId = "";
     Map<String, dynamic> params = {};
-    if (txId.startsWith("acc://")) {
-      txId = txId.substring(6).split("@")[0];
+    if (txRef.startsWith("acc://")) {
+      txId = txRef.substring(6).split("@")[0];
     }
+    params.addAll({paramName: txId});
+    if (options != null) {
+      params.addAll(options.toMap);
+    }
+
+    return call("query-tx", params);
+  }
+
+  Future<Map<String, dynamic>> queryTxByUrl(String txId, [TxQueryOptions? options]) {
+    String paramName = "txIdUrl";
+    Map<String, dynamic> params = {};
     params.addAll({paramName: txId});
     if (options != null) {
       params.addAll(options.toMap);
@@ -382,7 +400,7 @@ class ACMEClient {
     try {
       final oracle = await queryAcmeOracle();
       price = oracle["result"]["values"]["oracle"]["price"];
-    } catch (e){
+    } catch (e) {
       print("Not reacheable =====>>> $e");
     }
     return price;
@@ -391,15 +409,22 @@ class ACMEClient {
   Future<List<int>> getAdiSlidingFee() async {
     final networkParameters = await describe();
     List<int> adiSlidingFeeTable = [];
-    var ds = networkParameters["result"]["values"]["globals"]["feeSchedule"]["createIdentitySliding"] ;
+    var ds = networkParameters["result"]["values"]["globals"]["feeSchedule"]["createIdentitySliding"];
     adiSlidingFeeTable = List<int>.from(ds);
     return adiSlidingFeeTable;
   }
 
   ///
   /// "query-tx":         m.QueryTx,
-  Future<txModel.Transaction?> callGetTokenTransaction(String? txhash, [String? addr]) async {
-    final res = await queryTx(txhash!);
+  Future<txModel.Transaction?> callGetTokenTransaction(String? txhash, [String? addr, bool? isLookupByUrl]) async {
+    var res;
+    if (isLookupByUrl != null) {
+      // NB: this is needed because Testnet not working
+      //     with hash anymore but
+      res = await queryTxByUrl(txhash!);
+    } else {
+      res = await queryTx(txhash!);
+    }
 
     txModel.Transaction? tx;
     if (res != null) {
@@ -496,7 +521,7 @@ class ACMEClient {
         case "systemGenesis":
           String? txid = res['result']["data"]["txid"];
           String? origin = res['result']["origin"];
-          if (addr != null){
+          if (addr != null && addr != "") {
             origin = addr;
           }
 
@@ -504,10 +529,9 @@ class ACMEClient {
           queryParams.start = 0;
           queryParams.limit = 1;
 
-          MinorBlocksQueryOptions queryFilter =
-          MinorBlocksQueryOptions()
-            ..txFetchMode=0
-            ..blockFilterMode=1;
+          MinorBlocksQueryOptions queryFilter = MinorBlocksQueryOptions()
+            ..txFetchMode = 0
+            ..blockFilterMode = 1;
 
           var majorBlocks = await queryMajorBlocks("acc://ACME", queryParams, queryFilter); // "acc://dn.acme"
           var blockInfo = majorBlocks["result"]["items"][0];
@@ -599,11 +623,10 @@ class ACMEClient {
             int? ts = sig["timestamp"];
 
             // if nothing that was a faucet
-            txModel.Transaction txl =
-                txModel.Transaction("Incoming", "", txid, "", "", int.parse(amount!), "$token");
+            txModel.Transaction txl = txModel.Transaction("Incoming", "", txid, "", "", int.parse(amount!), "$token");
 
             // NB: yes, can be
-            if(ts! == 1){
+            if (ts! == 1) {
               txl.created = 1667304000 * 1000;
             } else {
               txl.created = DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
@@ -668,10 +691,9 @@ class ACMEClient {
             queryParams.start = 0;
             queryParams.limit = 1;
 
-            MinorBlocksQueryOptions queryFilter =
-            MinorBlocksQueryOptions()
-              ..txFetchMode=0
-              ..blockFilterMode=1;
+            MinorBlocksQueryOptions queryFilter = MinorBlocksQueryOptions()
+              ..txFetchMode = 0
+              ..blockFilterMode = 1;
 
             var majorBlocks = await queryMajorBlocks("acc://dn.acme", queryParams, queryFilter);
             var blockInfo = majorBlocks["result"]["items"][0];
@@ -679,7 +701,8 @@ class ACMEClient {
             var blockTime = blockInfo["majorBlockTime"];
             var blockTimeD = DateTime.parse(blockTime);
 
-            txModel.Transaction txl = txModel.Transaction("Incoming", "system_genesis", txid, "acc://ACME", path, amount, "acc://ACME", status);
+            txModel.Transaction txl = txModel.Transaction(
+                "Incoming", "system_genesis", txid, "acc://ACME", path, amount, "acc://ACME", status);
             txl.created = blockTimeD.millisecondsSinceEpoch;
             txs.add(txl);
             break;
@@ -696,8 +719,9 @@ class ACMEClient {
 
             int amount = int.parse(amountIn!);
 
-            txModel.Transaction txl = txModel.Transaction("Incoming", "send_token", txid, from, path, amount, "$token", status);
-            if(ts! == 1){
+            txModel.Transaction txl =
+                txModel.Transaction("Incoming", "send_token", txid, from, path, amount, "$token", status);
+            if (ts! == 1) {
               // Get Timestamp as time from block
               int height = tx["status"]["received"];
               String bvnFrom = tx["status"]["sourceNetwork"];
@@ -708,18 +732,16 @@ class ACMEClient {
               queryParams.start = height;
               queryParams.limit = 10;
 
-              MinorBlocksQueryOptions queryFilter =
-                MinorBlocksQueryOptions()
-                  ..txFetchMode=0
-                  ..blockFilterMode=1;
+              MinorBlocksQueryOptions queryFilter = MinorBlocksQueryOptions()
+                ..txFetchMode = 0
+                ..blockFilterMode = 1;
 
-              var minorBlocks = await queryMinorBlocks(bvn, queryParams, queryFilter) ;
+              var minorBlocks = await queryMinorBlocks(bvn, queryParams, queryFilter);
               var blockInfo = minorBlocks["result"]["items"][0]; //our block start
               var blockTime = blockInfo["blockTime"];
               var blockTimeD = DateTime.parse(blockTime);
 
               txl.created = blockTimeD.millisecondsSinceEpoch;
-
             } else {
               txl.created = DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
             }
@@ -733,7 +755,8 @@ class ACMEClient {
             String? sponsor = tx["sponsor"];
             String? origin = tx["origin"];
 
-            txModel.Transaction txl = txModel.Transaction("Outgoing", "update-account-auth", txid, sponsor, origin, 0, "ACME");
+            txModel.Transaction txl =
+                txModel.Transaction("Outgoing", "update-account-auth", txid, sponsor, origin, 0, "ACME");
             txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
             txs.add(txl);
             break;
@@ -744,7 +767,8 @@ class ACMEClient {
             String? sponsor = tx["sponsor"];
             String? origin = tx["origin"];
 
-            txModel.Transaction txl = txModel.Transaction("Outgoing", "token-account-create", txid, sponsor, origin, 0, "ACME");
+            txModel.Transaction txl =
+                txModel.Transaction("Outgoing", "token-account-create", txid, sponsor, origin, 0, "ACME");
             txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
             txs.add(txl);
             break;
