@@ -7,6 +7,8 @@ export 'src/encoding.dart';
 export 'src/client/lite_identity.dart';
 export 'src/client/lite_identity.dart';
 export 'src/model/factom.dart';
+export 'src/model/receipt_model.dart';
+export 'src/model/receipt.dart';
 export 'src/payload.dart';
 export 'src/payload_b.dart';
 export 'src/payload_b.dart';

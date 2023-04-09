@@ -381,7 +381,7 @@ sleep(Duration(seconds: 60));*/
 
   ReceiptModel receiptModel = ReceiptModel.fromMap(res);
   List<Receipts> receipts = receiptModel.result!.receipts!;
-  Transaction transaction = receiptModel.result!.transaction!;
+  RcpTransaction transaction = receiptModel.result!.transaction!;
   // Get a chain proof (from any chain, ends in a BVN anchor)
   if (receiptModel.result!.receipts!.length == 0) {
     print("No proof found");

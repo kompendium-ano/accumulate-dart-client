@@ -57,8 +57,8 @@ class ReceiptModelResult {
   String? sponsor;
   String? transactionHash;
   String? txid;
-  Transaction? transaction;
-  List<Signature>? signatures;
+  RcpTransaction? transaction;
+  List<RcpSignature>? signatures;
   Status? status;
   List<Receipts>? receipts;
   List<SignatureBook>? signatureBooks;
@@ -72,8 +72,8 @@ class ReceiptModelResult {
     sponsor: json["sponsor"] == null ? null : json["sponsor"],
     transactionHash: json["transactionHash"] == null ? null : json["transactionHash"],
     txid: json["txid"] == null ? null : json["txid"],
-    transaction: json["transaction"] == null ? null : Transaction.fromMap(json["transaction"]),
-    signatures: json["signatures"] == null ? null : List<Signature>.from(json["signatures"].map((x) => Signature.fromMap(x))),
+    transaction: json["transaction"] == null ? null : RcpTransaction.fromMap(json["transaction"]),
+    signatures: json["signatures"] == null ? null : List<RcpSignature>.from(json["signatures"].map((x) => RcpSignature.fromMap(x))),
     status: json["status"] == null ? null : Status.fromMap(json["status"]),
     receipts: json["receipts"] == null ? null : List<Receipts>.from(json["receipts"].map((x) => Receipts.fromMap(x))),
     signatureBooks: json["signatureBooks"] == null ? null : List<SignatureBook>.from(json["signatureBooks"].map((x) => SignatureBook.fromMap(x))),
@@ -251,11 +251,11 @@ class Page {
   });
 
   PageSigner? signer;
-  List<Signature>? signatures;
+  List<RcpSignature>? signatures;
 
   factory Page.fromMap(Map<String, dynamic> json) => Page(
     signer: json["signer"] == null ? null : PageSigner.fromMap(json["signer"]),
-    signatures: json["signatures"] == null ? null : List<Signature>.from(json["signatures"].map((x) => Signature.fromMap(x))),
+    signatures: json["signatures"] == null ? null : List<RcpSignature>.from(json["signatures"].map((x) => RcpSignature.fromMap(x))),
   );
 
   Map<String, dynamic> toMap() => {
@@ -264,8 +264,8 @@ class Page {
   };
 }
 
-class Signature {
-  Signature({
+class RcpSignature {
+  RcpSignature({
     this.type,
     this.publicKey,
     this.signature,
@@ -283,7 +283,7 @@ class Signature {
   int? timestamp;
   String? transactionHash;
 
-  factory Signature.fromMap(Map<String, dynamic> json) => Signature(
+  factory RcpSignature.fromMap(Map<String, dynamic> json) => RcpSignature(
     type: json["type"] == null ? null : json["type"],
     publicKey: json["publicKey"] == null ? null : json["publicKey"],
     signature: json["signature"] == null ? null : json["signature"],
@@ -424,17 +424,17 @@ class SignerElement {
   };
 }
 
-class Transaction {
-  Transaction({
+class RcpTransaction {
+  RcpTransaction({
     this.header,
     this.body,
   });
 
-  Header? header;
+  RcpHeader? header;
   Data? body;
 
-  factory Transaction.fromMap(Map<String, dynamic> json) => Transaction(
-    header: json["header"] == null ? null : Header.fromMap(json["header"]),
+  factory RcpTransaction.fromMap(Map<String, dynamic> json) => RcpTransaction(
+    header: json["header"] == null ? null : RcpHeader.fromMap(json["header"]),
     body: json["body"] == null ? null : Data.fromMap(json["body"]),
   );
 
@@ -444,8 +444,8 @@ class Transaction {
   };
 }
 
-class Header {
-  Header({
+class RcpHeader {
+  RcpHeader({
     this.principal,
     this.initiator,
   });
@@ -453,7 +453,7 @@ class Header {
   String? principal;
   String? initiator;
 
-  factory Header.fromMap(Map<String, dynamic> json) => Header(
+  factory RcpHeader.fromMap(Map<String, dynamic> json) => RcpHeader(
     principal: json["principal"] == null ? null : json["principal"],
     initiator: json["initiator"] == null ? null : json["initiator"],
   );
