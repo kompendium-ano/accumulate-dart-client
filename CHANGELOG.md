@@ -1,3 +1,13 @@
+# 0.3.5
+- Major refactor
+- Adds support for API v3
+- Allows multihash and miltibase structures
+- Additional signers
+
+# 0.3.0
+- Major refactor
+- Adds support for new API implementation
+
 # 0.2.9
 - Major refactor
 - New function calls and parameters added
