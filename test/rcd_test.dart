@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:accumulate_api6/accumulate_api6.dart';
-import 'package:accumulate_api6/src/model/factom/factom_scanner.dart';
-import 'package:accumulate_api6/src/signing/rcd.dart';
-import 'package:accumulate_api6/src/utils/utils.dart';
+import 'package:accumulate_api/accumulate_api.dart';
+import 'package:accumulate_api/src/model/factom/factom_scanner.dart';
+import 'package:accumulate_api/src/signing/rcd.dart';
+import 'package:accumulate_api/src/utils/utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bitcoin_bip44/bitcoin_bip44.dart';
 import 'package:test/test.dart';

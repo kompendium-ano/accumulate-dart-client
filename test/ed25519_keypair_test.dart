@@ -1,4 +1,4 @@
-import 'package:accumulate_api6/src/signing/ed25519_keypair.dart';
+import 'package:accumulate_api/src/signing/ed25519_keypair.dart';
 import 'package:test/test.dart';
 
 void main() {

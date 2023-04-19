@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:accumulate_api6/src/utils/merkle_root_builder.dart';
-import 'package:accumulate_api6/src/utils/utils.dart';
+import 'package:accumulate_api/src/utils/merkle_root_builder.dart';
+import 'package:accumulate_api/src/utils/utils.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -1,4 +1,4 @@
-import 'package:accumulate_api6/src/client/acc_url.dart';
+import 'package:accumulate_api/src/client/acc_url.dart';
 import 'package:test/test.dart';
 
 void main() {
