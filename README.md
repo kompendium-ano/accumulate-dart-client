@@ -1,6 +1,5 @@
 # Accumulate Dart Client
 
-[![CircleCI](https://circleci.com/gh/kompendium-ano/accumulate-dart-client/tree/master.svg?style=svg&circle-token=1ae82503101537a31f2865115486b5d64419274b)](https://circleci.com/gh/kompendium-ano/accumulate-dart-client/tree/master)
 ![Pub Version](https://img.shields.io/pub/v/accumulate_api)
 ![GitHub](https://img.shields.io/github/license/kompendium-ano/accumulate-dart-client)
 
@@ -37,7 +36,7 @@ import 'package:accumulate_api/accumulate_api.dart';
 
 ## Usage
 
-- `lib/src/v2/` - holds collection of API calls to JSON RPC 
+- `lib/src/v2/` - holds collection of API calls to JSON RPC
 - `lib/src/model/` - holds models that used to build up native models and use them either during calls or as intermediary structure.
 
 ### 1. Generate Lite Account
@@ -114,9 +113,9 @@ KeyPage newKeyPage = KeyPage("", keypagePath, "");
 newKeyPage.keysRequired = 1;
 newKeyPage.keysRequiredOf = 1;
 
-// 4.2 Then we need to assemble list of public keys to add  
+// 4.2 Then we need to assemble list of public keys to add
 String publicKeyFroKeypage = HEX.encode(publicKey.bytes);
-List<String> keysToRegister = [publicKeyForKeypage]; 
+List<String> keysToRegister = [publicKeyForKeypage];
 
 // 4.3 Get fresh timestamp
 int timestampForKeypage = DateTime
@@ -140,7 +139,7 @@ int timestampForKeybook = DateTime
     .toUtc()
     .millisecondsSinceEpoch;
 
-//  4.5.3 Make Actual call 
+//  4.5.3 Make Actual call
 final respKb = await api.callKeyBookCreate(newADI, newKeyBook, [newKeyPage], timestampForKeyBook);
 ```
 
