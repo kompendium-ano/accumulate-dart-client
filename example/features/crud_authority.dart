@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:accumulate_api6/accumulate_api6.dart';
-import 'package:accumulate_api6/src/acme_client.dart';
-import 'package:accumulate_api6/src/model/api_types.dart';
-import 'package:accumulate_api6/src/client/lite_identity.dart';
-import 'package:accumulate_api6/src/payload/add_credits.dart';
-import 'package:accumulate_api6/src/payload/create_identity.dart';
-import 'package:accumulate_api6/src/signing/ed25519_keypair_signer.dart';
-import 'package:accumulate_api6/src/utils/utils.dart';
+import 'package:accumulate_api/accumulate_api.dart';
+import 'package:accumulate_api/src/acme_client.dart';
+import 'package:accumulate_api/src/model/api_types.dart';
+import 'package:accumulate_api/src/client/lite_identity.dart';
+import 'package:accumulate_api/src/payload/add_credits.dart';
+import 'package:accumulate_api/src/payload/create_identity.dart';
+import 'package:accumulate_api/src/signing/ed25519_keypair_signer.dart';
+import 'package:accumulate_api/src/utils/utils.dart';
 
 //final endPoint = "http://127.0.1.1:26660/v2";
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
