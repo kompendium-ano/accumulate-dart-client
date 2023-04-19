@@ -1,4 +1,4 @@
-library accumulate_api6;
+library accumulate_api;
 
 export 'src/client/acc_url.dart';
 export 'src/acme_client.dart';
