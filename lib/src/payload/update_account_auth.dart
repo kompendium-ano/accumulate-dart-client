@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:accumulate_api6/src/encoding.dart';
-import 'package:accumulate_api6/src/client/tx_types.dart';
-import 'package:accumulate_api6/src/utils/utils.dart';
+import 'package:accumulate_api/src/encoding.dart';
+import 'package:accumulate_api/src/client/tx_types.dart';
+import 'package:accumulate_api/src/utils/utils.dart';
 
 import 'base_payload.dart';
 

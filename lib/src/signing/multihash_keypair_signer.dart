@@ -1,10 +1,10 @@
 // import 'dart:typed_data';
 //
-// import 'package:accumulate_api6/src/client/signature_type.dart';
-// import 'package:accumulate_api6/src/client/signer.dart';
-// import 'package:accumulate_api6/src/signing/ed25519_keypair.dart';
-// import 'package:accumulate_api6/src/signing/multihash.dart';
-// import 'package:accumulate_api6/src/utils/utils.dart';
+// import 'package:accumulate_api/src/client/signature_type.dart';
+// import 'package:accumulate_api/src/client/signer.dart';
+// import 'package:accumulate_api/src/signing/ed25519_keypair.dart';
+// import 'package:accumulate_api/src/signing/multihash.dart';
+// import 'package:accumulate_api/src/utils/utils.dart';
 // import "package:crypto/crypto.dart";
 // import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
 // import 'package:hex/hex.dart';

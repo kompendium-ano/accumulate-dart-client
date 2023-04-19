@@ -1,5 +1,5 @@
 import "dart:typed_data";
-import 'package:accumulate_api6/src/payload/send_tokens.dart';
+import 'package:accumulate_api/src/payload/send_tokens.dart';
 
 import '../utils/utils.dart';
 

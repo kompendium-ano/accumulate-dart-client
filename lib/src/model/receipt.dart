@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:accumulate_api6/src/utils/utils.dart';
+import 'package:accumulate_api/src/utils/utils.dart';
 
 import '../encoding.dart';
 

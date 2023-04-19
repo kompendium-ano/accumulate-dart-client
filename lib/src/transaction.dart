@@ -211,8 +211,6 @@ class TxRequest {
     value.addAll({"signer": signer});
     value.addAll({"signature": signature});
 
-
-
     if (txHash != null) {
       value.addAll({"txHash": txHash!});
     }

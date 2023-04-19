@@ -9,7 +9,7 @@ import "package:hex/hex.dart";
 import 'package:json_annotation/json_annotation.dart';
 
 
-import '../../accumulate_api6.dart';
+import '../../accumulate_api.dart';
 
 // // URL is an Accumulate URL.
 // type URL struct {
