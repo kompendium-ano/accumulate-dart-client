@@ -101,22 +101,26 @@ class RcpData {
     this.type,
     this.url,
     this.symbol,
+    this.precision,
   });
 
   String? type;
   String? url;
   String? symbol;
+  int? precision;
 
   factory RcpData.fromMap(Map<String, dynamic> json) => RcpData(
     type: json["type"] == null ? null : json["type"],
     url: json["url"] == null ? null : json["url"],
     symbol: json["symbol"] == null ? null : json["symbol"],
+    precision: json["precision"] == null ? null : json["precision"],
   );
 
   Map<String, dynamic> toMap() => {
     "type": type == null ? null : type,
     "url": url == null ? null : url,
     "symbol": symbol == null ? null : symbol,
+    "precision": precision == null ? null : precision,
   };
 }
 

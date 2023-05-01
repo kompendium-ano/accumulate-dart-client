@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:accumulate_api/src/encoding.dart';
 import 'package:accumulate_api/src/utils/utils.dart';
-
-import '../encoding.dart';
+import 'package:hex/hex.dart';
 
 class ReceiptEntry {
   bool? right;
@@ -17,6 +17,18 @@ class Receipt {
   int? endIndex;
   dynamic anchor;
   late List<ReceiptEntry> entries;
+
+  Receipt(){
+  }
+
+  Receipt.fromProof(proof, entries2){
+    start = getBytes(proof.start);
+    startIndex = proof.startIndex;
+    end = getBytes(proof.end);
+    endIndex = proof.endIndex;
+    anchor = getBytes(proof.anchor);
+    entries = entries2;
+  }
 
   static Uint8List marshalBinaryReceipt(Receipt receipt) {
     List<int> forConcat = [];
@@ -58,6 +70,6 @@ class Receipt {
       return hash.asUint8List();
 
     }
-    return utf8.encode(hash).asUint8List();
+    return HEX.decode(hash).asUint8List();//utf8.encode(hash).asUint8List();
   }
 }
