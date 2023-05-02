@@ -91,3 +91,8 @@ String toHexString(String original) {
       .toList()
       .join('');
 }
+
+Uint8List hexStringtoUint8List(String val) {
+  return utf8.encode(val).asUint8List();
+}
+
