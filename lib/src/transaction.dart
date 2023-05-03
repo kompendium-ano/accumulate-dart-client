@@ -1,15 +1,15 @@
-import 'dart:convert';
 import "dart:typed_data";
-import 'client/signature_type.dart';
+
+import "package:crypto/crypto.dart";
 import 'package:hex/hex.dart';
 
 import 'client/acc_url.dart';
-import "package:crypto/crypto.dart";
-import 'payload.dart';
+import 'client/signature_type.dart';
 import 'client/signer.dart';
 import 'client/tx_signer.dart';
-import 'utils/utils.dart';
 import 'encoding.dart';
+import 'payload.dart';
+import 'utils/utils.dart';
 
 class HeaderOptions {
   int? timestamp;
@@ -20,13 +20,9 @@ class HeaderOptions {
 
 class Header {
   late AccURL _principal;
-
   late Uint8List _initiator;
-
   String? _memo;
-
   Uint8List? _metadata;
-
   late int _timestamp;
 
   Header(dynamic principal, [HeaderOptions? options]) {
@@ -97,6 +93,9 @@ class Transaction {
 
   late Uint8List _payloadBinary;
 
+  // Signer used to create transaction
+  TxSigner? _signerInUse;
+
   Signature? _signature;
 
   Uint8List? _hash;
@@ -149,6 +148,7 @@ class Transaction {
 
   sign(TxSigner signer) {
     _signature = signer.sign(this);
+    _signerInUse = signer;
   }
 
   TxRequest toTxRequest({bool? checkOnly}) {
@@ -163,13 +163,13 @@ class Transaction {
     txRequest.origin = _header.principal.toString();
     txRequest.signer = {
       "url": signerInfo!.url.toString(),
-      "publicKey": HEX.encode(signerInfo.publicKey!.toList()),
+      "publicKey": HEX.encode(signerInfo.publicKey!), //HEX.encode(_signerInUse!.publicKeyHash),
       "version": signerInfo.version,
       "timestamp": _header.timestamp,
       "signatureType": "${SignatureType().marshalJSON(signerInfo.type!)}",
       "useSimpleHash": true
     };
-    txRequest.signature = HEX.encode(_signature!.signature!.toList());
+    txRequest.signature = HEX.encode(_signature!.signature!); //HEX.encode(sha256.convert(_signature!.signature!).bytes.asUint8List()); //
     txRequest.txHash = HEX.encode(_hash!.toList());
     txRequest.payload = HEX.encode(_payloadBinary.toList());
     if (_header._memo != null) {
