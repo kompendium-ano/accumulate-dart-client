@@ -12,7 +12,7 @@ abstract class BasePayload implements Payload {
 
   @override
   set memo(String? _memoItem) {
-      _memo = _memoItem;
+    _memo = _memoItem;
   }
 
   @override
