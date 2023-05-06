@@ -423,10 +423,10 @@ sleep(Duration(seconds: 60));*/
   receipt.startIndex = 0;
   receipt.end =  body.hash();
   receipt.endIndex= 0;
-  receipt.anchor =  txn.hash();
+  receipt.anchor = txn.hash().asUint8List();
 
   ReceiptEntry entry = ReceiptEntry();
-  entry.hash = sha256.convert(header.marshalBinary()).bytes;
+  entry.hash = sha256.convert(header.marshalBinary()).bytes as Uint8List?;
   entry.right = false;
 
   receipt.entries= [entry];
@@ -439,31 +439,31 @@ sleep(Duration(seconds: 60));*/
   ReceiptM.Proof proof3 = ReceiptM.Proof.fromMap(anchorRes["result"]["receipt"]["proof"]);
 
   Receipt receipt2 = Receipt();
-  receipt2.start = proof2.start;
+  receipt2.start = hexStringtoUint8List(proof2.start!);
   receipt2.startIndex = proof2.startIndex;
-  receipt2.end = proof2.end;
+  receipt2.end = hexStringtoUint8List(proof2.end!);
   receipt2.endIndex = proof2.endIndex;
-  receipt2.anchor = proof2.anchor;
+  receipt2.anchor = hexStringtoUint8List(proof2.anchor!);
   List<ReceiptEntry> entries2 = [];
   for(ReceiptM.Entry entry in proof2.entries!){
     ReceiptEntry receiptEntry2 = ReceiptEntry();
     receiptEntry2.right = entry.right;
-    receiptEntry2.hash = entry.hash;
+    receiptEntry2.hash = hexStringtoUint8List(entry.hash!);
   }
   receipt2.entries = entries2;
 
 
   Receipt receipt3 = Receipt();
-  receipt3.start = proof3.start;
+  receipt3.start = hexStringtoUint8List(proof3.start!);
   receipt3.startIndex = proof3.startIndex;
-  receipt3.end = proof3.end;
+  receipt3.end = hexStringtoUint8List(proof3.end!);
   receipt3.endIndex = proof3.endIndex;
-  receipt3.anchor = proof3.anchor;
+  receipt3.anchor = hexStringtoUint8List(proof3.anchor!);
   List<ReceiptEntry> entries3 = [];
   for(ReceiptM.Entry entry in proof3.entries!){
     ReceiptEntry receiptEntry2 = ReceiptEntry();
     receiptEntry2.right = entry.right;
-    receiptEntry2.hash = entry.hash;
+    receiptEntry2.hash = hexStringtoUint8List(entry.hash!);
   }
   receipt3.entries = entries3;
 
@@ -497,9 +497,9 @@ sleep(Duration(seconds: 60));*/
 
 Receipt combineReceipts(Receipt r1,Receipt r2){
 
-  dynamic anchorStr = ((r1.anchor is Uint8List) || (r1.anchor is List<int>)) ? HEX.encode(r1.anchor) : r1.anchor;
+  dynamic anchorStr = ((r1.anchor is Uint8List) || (r1.anchor is List<int>)) ? HEX.encode(r1.anchor as List<int>) : r1.anchor;
   dynamic startStr =
-    ((r2.start is Uint8List) || (r2.start is List<int>)) ? HEX.encode(r2.start) : r2.start;
+    ((r2.start is Uint8List) || (r2.start is List<int>)) ? HEX.encode(r2.start as List<int>) : r2.start;
 
 if (anchorStr != startStr) {
   print("Receipts cannot be combined, anchor ${anchorStr} doesn't match root merkle tree ${startStr}");
