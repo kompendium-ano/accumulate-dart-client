@@ -6,7 +6,7 @@ import 'package:accumulate_api/src/model/factom/factom_scanner.dart';
 import 'package:accumulate_api/src/signing/rcd.dart';
 import 'package:accumulate_api/src/utils/utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:bitcoin_bip44/bitcoin_bip44.dart';
+import 'package:bitcoin_bip44_ng/bitcoin_bip44_ng.dart';
 import 'package:test/test.dart';
 
 // seed - carry bullet century olympic core drift between axis draw pilot pluck wash
