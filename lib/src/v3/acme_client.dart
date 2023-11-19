@@ -4,22 +4,15 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:accumulate_api/accumulate_api.dart';
 import 'package:hex/hex.dart';
+import 'package:accumulate_api/src/model/query_transaction_response_model.dart' as query_trx_res_model;
+import 'package:accumulate_api/src/model/tx.dart' as txModel;
 
-import 'client/acc_url.dart';
-import 'model/api_types.dart';
-import 'model/query_transaction_response_model.dart' as query_trx_res_model;
-import 'model/tx.dart' as txModel;
-import "payload.dart";
-import "payload_b.dart";
-import 'rpc_client.dart';
-import "transaction.dart";
-import 'client/tx_signer.dart';
-
-class ACMEClient {
+class ACMEClientV3 {
   late RpcClient _rpcClient;
 
-  ACMEClient(String endpoint) {
+  ACMEClientV3(String endpoint) {
     _rpcClient = RpcClient(endpoint);
   }
 
@@ -57,16 +50,6 @@ class ACMEClient {
       "execute-direct",
     );
   }
-
-  // Future<Map<String, dynamic>> signPending(AccURL principal, TxSigner signer, String txHash) async {
-  //   HeaderOptions? options;
-  //
-  //   final header = Header(principal, options);
-  //   final tx = Transaction(payload, header);
-  //   await tx.sign(signer);
-  //
-  //   return execute(tx);
-  // }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -154,14 +137,14 @@ class ACMEClient {
   }
 
   Future<Map<String, dynamic>> queryMinorBlocks(
-      String url, QueryPaginationForBlocks pagination, MinorBlocksQueryOptions? options, [bool? supressLog]) {
+      String url, QueryPaginationForBlocks pagination, MinorBlocksQueryOptions? options) {
     Map<String, dynamic> params = {};
     params.addAll({"url": url});
     params.addAll(pagination.toMap);
     if (options != null) {
       params.addAll(options.toMap);
     }
-    return call("query-minor-blocks", params, supressLog);
+    return call("query-minor-blocks", params);
   }
 
   Future<Map<String, dynamic>> queryMajorBlocks(

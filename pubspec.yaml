@@ -9,17 +9,17 @@ environment:
 dependencies:
   crypto: ^3.0.2
   base58check: ^2.0.0
-  bitcoin_bip44_ng: ^0.1.5
+  bitcoin_bip44_ng: ^0.1.6
   bip39: ^1.0.6
   bs58: ^1.0.2
   ed25519_edwards: ^0.3.1
   hex: ^0.2.0
-  http: ^0.13.4
+  http: ^1.1.0
   json_annotation: ^4.4.0
   dartz: ^0.10.0
   collection: ^1.16.0
+  csv: ^5.0.2
 
 dev_dependencies:
-  lints: ^1.0.0
-  test: ^1.16.0
-  test_html_builder: ^3.0.1
+  lints: ^2.1.0
+  test: ^1.24.7
