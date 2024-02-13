@@ -9,7 +9,7 @@
 The Dart SDK for the Accumulate blockchain provides developers with the tools needed to interact with the Accumulate network. This SDK supports all Accumulate API classes, basic data types, and utility functions for creating specific requests, aiming to simplify the development process for applications leveraging the Accumulate blockchain's scalable and secure infrastructure.
 
 The Accumulate Dart SDK repositiory is organized with three main strucutres:
- - Client library: [lib](/lib/)
+ - Client library: [lib](/lib/src/src/)
  - Test Stuite: [tests](/test/README.md/)
  - Accumulate Usage Examples Collection: [examples](/examples/SDK_Usage_Examples/README.md/)  
 
@@ -52,35 +52,35 @@ The Accumulate Dart SDK enables you to access nearly all the features and fucnit
 Explore practical examples in the [Examples](/examples/SDK_Usage_Examples/) section to start building with the Accumulate Dart SDK. This repository provides a suite of examples designed to demonstrate the capabilities and functionalities of the Accumulate protocol, offering developers a hands-on experience to better understand how to interact with the network effectively.
 
 The Usage Example Suite currently consists of 6 collections of example sets:
-- Lite Identities and Lite Token Accounts
-* Create/manage Lite Identities/Accounts for ACME tokens
-* Acquire testnet ACME tokens via faucet
-* Add credits to Lite Identities
-* Create Lite Token Accounts for ACME
-* Transfer ACME tokens between Lite Accounts
+### 1. Lite Identities and Lite Token Accounts
+- Create/manage Lite Identities/Accounts for ACME tokens
+- Acquire testnet ACME tokens via faucet
+- Add credits to Lite Identities
+- Create Lite Token Accounts for ACME
+- Transfer ACME tokens between Lite Accounts
 
-- Accumulate Digital Identifier (ADI)
-* Create ADI Identity
-* Add credits to Key Page
-* ADI Token Accounts
+### 2. Accumulate Digital Identifier (ADI)
+- Create ADI Identity
+- Add credits to Key Page
 
+### 3. ADI Token Accounts
 - Create ADI Token Accounts for ACME
-* Transfer ACME tokens between ADI Accounts and to Lite Accounts
+- Transfer ACME tokens between ADI Accounts and to Lite Accounts
 
-- ADI Data Accounts
-* Create/manage ADI Data Accounts
-* Write/manage data entries
-* Utilize scratch data entries and lite data accounts
+### 4. ADI Data Accounts
+- Create/manage ADI Data Accounts
+- Write/manage data entries
+- Utilize scratch data entries and lite data accounts
 
-- Custom Tokens
-* Create custom tokens under ADI
-* Create custom token accounts and issue tokens
-* Transfer custom tokens between ADI Custom Token Accounts
+### 5. Custom Tokens
+- Create custom tokens under ADI
+- Create custom token accounts and issue tokens
+- Transfer custom tokens between ADI Custom Token Accounts
 
-- Key Management
-* Manage keys for security/identity (ADI)
-* Create/additional/custom Key Books/Pages
-* Update Key Page (add keys)
+### 6. Key Management
+- Manage keys for security/identity (ADI)
+- Create/additional/custom Key Books/Pages
+- Update Key Page (add keys)
 
 
 ## Contributions
