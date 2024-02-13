@@ -36,7 +36,12 @@ Lite identities serve as the entry point into the Accumulate network, offering a
 - Acquiring and transferring ACME tokens
 - Adding credits to Lite Token Accounts
 
-### 2. **ADI Identity and Key Management**
+To run Lite Identities and Accounts examples
+```bash
+dart run SDK_Examples_file_1_lite_identities.dart
+```
+
+### 2. **ADI Identity**
 
 **File**: `SDK_Examples_file_2_Accumulate_Identities_(ADI).dart`
 
@@ -46,6 +51,11 @@ Accumulate Digital Identifiers (ADIs) are versatile and dynamic, allowing compre
 - Creation of ADI identities
 - Management of key books and key pages
 - Adding credits to key pages
+
+To run ADI Identity examples
+```bash
+dart run SDK_Examples_file_2_Accumulate_Identities_(ADI).dart
+```
 
 ### 3. **ADI Token Accounts**
 
@@ -57,6 +67,11 @@ ADI Token Accounts are human-readable and controlled by an ADI's key book, facil
 - Creation and management of ADI Token Accounts
 - Transactions between ADI Token Accounts and Lite Token Accounts
 
+To run ADI Token Accounts
+```bash
+dart run SDK_Examples_file_3_ADI_Token_Accounts.dart
+```
+
 ### 4. **ADI Data Accounts**
 
 **File**: `SDK_Examples_file_4_Data_Accounts_and_Entries.dart`
@@ -66,6 +81,11 @@ Accumulate's unique data account features enable easy data entry into the blockc
 **Covers**:
 - Creation of ADI Data Accounts
 - Data entry management within Data Accounts
+
+To run Data and Lite Data Account Examples
+```bash
+dart run SDK_Examples_file_4_Data_Accounts_and_Entries.dart
+```
 
 ### 5. **Custom Tokens**
 
@@ -77,6 +97,11 @@ Creating, issuing, and transferring custom tokens is simplified with Accumulate,
 - Custom token creation under an ADI
 - Account management and token issuance
 
+To run Custom Tokens Examples
+```bash
+dart run SDK_Examples_file_5_Custom_Tokens.dart
+```
+
 ### 6. **Key Management**
 
 **File**: `SDK_Examples_file_6_Key_Management.dart`
@@ -86,6 +111,11 @@ This example demonstrates key management functionalities essential for security 
 **Explores**:
 - Creation and management of Key Books and Key Pages
 - Addition and updating of keys for enhanced security
+
+To run ADI Key Management Examples
+```bash
+dart run SDK_Examples_file_6_Key_Management.dart
+```
 
 ## 🤝 Support
 
