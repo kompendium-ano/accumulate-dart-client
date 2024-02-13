@@ -7,6 +7,7 @@
 [![Build Status](https://github.com/kompendium-ano/accumulate-dart-client/actions/workflows/dart.yml/badge.svg)](https://github.com/kompendium-ano/accumulate-dart-client/actions/workflows/dart.yml)
 
 The Dart SDK for the Accumulate blockchain provides developers with the tools needed to interact with the Accumulate network. This SDK supports all Accumulate API classes, basic data types, and utility functions for creating specific requests, aiming to simplify the development process for applications leveraging the Accumulate blockchain's scalable and secure infrastructure.
+```
 
 ## Installation
 
@@ -71,5 +72,3 @@ This library is developed by Kompendium, LLC in partnership with Kelecorix, Inc,
 
 This project is licensed under the [MIT License](LICENSE).
 ```
-
-This revised README.md is designed to be more informative and welcoming to new users, encouraging community involvement and making it easier for developers to get started with the SDK.
