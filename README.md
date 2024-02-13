@@ -9,7 +9,7 @@
 The Dart SDK for the Accumulate blockchain provides developers with the tools needed to interact with the Accumulate network. This SDK supports all Accumulate API classes, basic data types, and utility functions for creating specific requests, aiming to simplify the development process for applications leveraging the Accumulate blockchain's scalable and secure infrastructure.
 
 The Accumulate Dart SDK repositiory is organized with three main strucutres:
- - Client library: [lib](/lib/src/src/)
+ - Client library: [lib](/lib/src/)
  - Test Stuite: [tests](/test/README.md/)
  - Accumulate Usage Examples Collection: [examples](/examples/SDK_Usage_Examples/README.md/)  
 
