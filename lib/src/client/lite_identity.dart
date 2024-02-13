@@ -1,3 +1,4 @@
+// lib\src\client\lite_identity.dart
 import 'dart:convert';
 import "dart:typed_data";
 
@@ -15,10 +16,11 @@ class LiteIdentity extends TxSigner {
 
   static AccURL computeUrl(Uint8List publicKeyHash) {
     final pkHash = publicKeyHash.sublist(0, 20);
-    final checkSum = sha256.convert(utf8.encode(HEX.encode(pkHash).toLowerCase())).bytes.sublist(28);
+    final checkSum = sha256.convert(utf8.encode(HEX.encode(pkHash).toLowerCase())).bytes;
+    final checkSumSlice = checkSum.sublist(checkSum.length - 4);
     List<int> forConcat = [];
     forConcat.addAll(pkHash);
-    forConcat.addAll(checkSum);
+    forConcat.addAll(checkSumSlice);
     final authority = HEX.encode(forConcat).toLowerCase();
     return AccURL.parse('acc://${authority}');
   }

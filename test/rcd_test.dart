@@ -1,10 +1,5 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:accumulate_api/accumulate_api.dart';
 import 'package:accumulate_api/src/model/factom/factom_scanner.dart';
-import 'package:accumulate_api/src/signing/rcd.dart';
-import 'package:accumulate_api/src/utils/utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bitcoin_bip44_ng/bitcoin_bip44_ng.dart';
 import 'package:test/test.dart';
@@ -71,8 +66,8 @@ void main() {
     // Mnemonic workflow
 
     String mnemonic = "carry bullet century olympic core drift between axis draw pilot pluck wash";
-    List<String> seedPhraseWords =
-    ["carry", "bullet", "century", "olympic", "core", "drift", "between", "axis", "draw", "pilot", "pluck", "wash"];
+    /*List<String> seedPhraseWords =
+    ["carry", "bullet", "century", "olympic", "core", "drift", "between", "axis", "draw", "pilot", "pluck", "wash"];*/
 
     // Add a scanner of your own:
     scanners = [FactomScanner()];

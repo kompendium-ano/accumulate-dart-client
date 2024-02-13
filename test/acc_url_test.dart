@@ -1,5 +1,5 @@
-import 'package:accumulate_api/src/client/acc_url.dart';
 import 'package:test/test.dart';
+import 'package:accumulate_api/src/client/acc_url.dart'; // Adjust this import path to where your AccURL class is located
 
 void main() {
   test('should parse url', () {

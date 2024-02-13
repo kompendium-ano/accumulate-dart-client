@@ -1,3 +1,5 @@
+// lib\src\acme_client.dart
+
 import "dart:async";
 import 'dart:collection';
 import 'dart:developer';
@@ -48,8 +50,9 @@ class ACMEClient {
     return execute(tx);
   }
 
-  Future<Map<String, dynamic>> execute(Transaction tx) {
-    return call("execute", tx.toTxRequest().toMap);
+  // Adjust execute method to accept suppressLog
+  Future<Map<String, dynamic>> execute(Transaction tx, {bool suppressLog = false}) {
+    return call("execute", tx.toTxRequest().toMap, suppressLog);
   }
 
   Future<Map<String, dynamic>> executeDirect() {
@@ -799,4 +802,5 @@ class ACMEClient {
   Future<Map<String, dynamic>> writeDataTo(dynamic principal, WriteDataToParam writeDataToParam, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), WriteDataTo(writeDataToParam), signer);
   }
+  
 }

@@ -1,3 +1,4 @@
+// lib\src\model\api_types.dart
 class QueryPagination {
   late int start;
   late int count;
@@ -161,13 +162,10 @@ class WaitTxOptions {
 }
 
 class TxError implements Exception {
-  late String txId;
+  String txId;
   dynamic status;
 
-  TxError(String txId, dynamic status) {
-    txId = txId;
-    status = status;
-  }
+  TxError(this.txId, this.status);
 
   @override
   String toString() => "Error:\ntxId:$txId\nstatus:$status";

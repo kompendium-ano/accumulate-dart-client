@@ -1,107 +1,75 @@
 
-# Accumulate Dart Client
+```markdown
+# Accumulate Dart SDK
 
+[![Pub Version](https://img.shields.io/pub/v/accumulate_api)](https://pub.dev/packages/accumulate_api)
+[![GitHub License](https://img.shields.io/github/license/kompendium-ano/accumulate-dart-client)](LICENSE)
+[![Build Status](https://github.com/kompendium-ano/accumulate-dart-client/actions/workflows/dart.yml/badge.svg)](https://github.com/kompendium-ano/accumulate-dart-client/actions/workflows/dart.yml)
 
-![Pub Version](https://img.shields.io/pub/v/accumulate_api)
-![GitHub](https://img.shields.io/github/license/kompendium-ano/accumulate-dart-client)
-[![Tests](https://github.com/kompendium-ano/accumulate-dart-client/actions/workflows/dart.yml/badge.svg)](https://github.com/kompendium-ano/accumulate-dart-client/actions/workflows/dart.yml)
-
-Dart client for [Accumulate](https://github.com/AccumulateNetwork/accumulate) blockchain, a novel blockchain network designed to be hugely scalable while maintaining security.
-This library supports all API class and basic data types that reflect network types and structures and utility functions to ease up creation of specific requests.
-
-Full API reference available here: https://docs.accumulatenetwork.io/accumulate/developers/api/api-reference
+The Dart SDK for the Accumulate blockchain provides developers with the tools needed to interact with the Accumulate network. This SDK supports all Accumulate API classes, basic data types, and utility functions for creating specific requests, aiming to simplify the development process for applications leveraging the Accumulate blockchain's scalable and secure infrastructure.
 
 ## Installation
 
-With Dart:
-```
-$ dart pub add accumulate_api
+### Dart
+
+```bash
+dart pub add accumulate_api
 ```
 
-With Flutter:
-```
-$ flutter pub add accumulate_api
+This adds `accumulate_api` to your package's `pubspec.yaml` file and runs an implicit `dart pub get`.
+
+### Flutter
+
+```bash
+flutter pub add accumulate_api
 ```
 
-This will add a line like this to your package's pubspec.yaml (and run an implicit dart pub get):
+For both Dart and Flutter, ensure your `pubspec.yaml` reflects the correct dependency:
 
-```
+```yaml
 dependencies:
-  accumulate_api: any
+  accumulate_api: ^version
 ```
-Alternatively, your editor might support dart pub get or flutter pub get. Check the docs for your editor to learn more.
-Import it
 
-Now in your Dart code, you can use:
-```
+Replace `^version` with the latest version of `accumulate_api`.
+
+### Import the SDK
+
+In your Dart code, import the package with:
+
+```dart
 import 'package:accumulate_api/accumulate_api.dart';
 ```
 
-## Usage
+## Practical Usage Examples
 
+The Accumulate Dart SDK enables you to access nearly all the features and fucnitonality that accumualte offers.
+Explore practical examples in the [Examples](/examples/SDK_Usage_Examples/) section to start building with the Accumulate Dart SDK. This repository provides a suite of examples designed to demonstrate the capabilities and functionalities of the Accumulate protocol, offering developers a hands-on experience to better understand how to interact with the network effectively.
 
-
-### 1. Generate Lite Identity
-
-```dart
-ACMEClient client = ACMEClient("https://testnet.accumulatenetwork.io/v2");
-var lid = LiteIdentity(Ed25519KeypairSigner.generate());
-```
-
-### 2. Add ACME token from Faucet
-
-```dart
-ACMEClient client = ACMEClient("https://testnet.accumulatenetwork.io/v2");
-var lid = LiteIdentity(Ed25519KeypairSigner.generate());
-final res = await client.faucet(lid.acmeTokenAccount);
-```
-
-
-### 3. Add Credits to Lite Identity
-
-```dart
-int creditAmount = 60000;
-AddCreditsParam addCreditsParam = AddCreditsParam();  
-addCreditsParam.recipient = lid.url;  
-addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;  
-addCreditsParam.oracle = await client.valueFromOracle();  
-await client.addCredits(lid.url, addCreditsParam, lid);
-```
-
-
-### 4. Send ACME token to another Lite ACME token account
-
-```dart
-int sendToken = 10000;
-final recipient =  
-    LiteIdentity(Ed25519KeypairSigner.generate()).acmeTokenAccount;  
-SendTokensParam sendTokensParam = SendTokensParam();  
-TokenRecipientParam tokenRecipientParam = TokenRecipientParam();  
-tokenRecipientParam.amount = sendToken * pow(10, 8);  
-tokenRecipientParam.url = recipient;  
-sendTokensParam.to = List<TokenRecipientParam>.from([tokenRecipientParam]);  
-await client.sendTokens(lid.acmeTokenAccount, sendTokensParam, lid);
-
-```
-
-### 5. Create ADI
-```dart
-final identitySigner = Ed25519KeypairSigner.generate();  
-var identityUrl = "acc://custom-adi-name";  
-final bookUrl = identityUrl + "/custom-book-name";  
-  
-CreateIdentityParam createIdentityParam = CreateIdentityParam();  
-createIdentityParam.url = identityUrl;  
-createIdentityParam.keyBookUrl = bookUrl;  
-createIdentityParam.keyHash = identitySigner.publicKeyHash();  
-await client.createIdentity(lid.url, createIdentityParam, lid);
-```
+The Usage Example Suite currently consists of 6 collections of example sets:
+- SDK_Examples_file_1_lite_identities.dart
+- SDK_Examples_file_2_Accumulate_Identities_(ADI).dart
+- SDK_Examples_file_3_ADI_Token_Accounts.dart
+- SDK_Examples_file_4_Data_Accounts_and_Entries.dart
+- SDK_Examples_file_5_Custom_Tokens.dart
+- SDK_Examples_file_6_Key_Management.dart
 
 
 ## Contributions
-The Library developed by Kompendium, LLC in partnership with [Kelecorix, Inc](https://github.com/kelecorix) and [Sergey Bushnyak](https://github.com/sigrlami). Contributions are welcome, open new PR or submit new issue.
 
-#### Library developers:
-* Sergey Bushnyak <sergey.bushnyak@kelecorix.com>
-* Jimmy Jose <theguywhomakesapp@gmail.com>
+We welcome contributions from the community. To contribute, please submit a pull request or open an issue for discussion.
 
+### Maintainers
+
+- Sergey Bushnyak (sergey.bushnyak@kelecorix.com)
+- Jimmy Jose (theguywhomakesapp@gmail.com)
+- Jason Gregoire (jason@kompendiumllc.co)
+
+This library is developed by Kompendium, LLC in partnership with Kelecorix, Inc, and individual contributors like Sergey Bushnyak. Your contributions and feedback are welcome.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+```
+
+This revised README.md is designed to be more informative and welcoming to new users, encouraging community involvement and making it easier for developers to get started with the SDK.

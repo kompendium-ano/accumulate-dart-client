@@ -1,3 +1,4 @@
+// lib\src\model\receipt.dart
 import 'dart:convert';
 import 'dart:typed_data';
 

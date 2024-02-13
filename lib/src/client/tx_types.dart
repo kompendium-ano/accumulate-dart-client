@@ -1,3 +1,4 @@
+// lib\src\client\tx_types.dart
 class TransactionType {
   // CreateIdentity creates an ADI,
   // which produces a synthetic chain.

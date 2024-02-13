@@ -36,11 +36,7 @@ class WriteDataTo extends BasePayload {
   @override
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = _marshalBinary();
-/*
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.writeData, 1));
 
-    forConcat.addAll(fieldMarshalBinary(2, marshalDataEntry(_data)));
-    forConcat.addAll(booleanMarshalBinary(_scratch, 3));*/
 
     return forConcat.asUint8List();
   }
@@ -50,25 +46,20 @@ class WriteDataTo extends BasePayload {
 
     forConcat.addAll(uvarintMarshalBinary(TransactionType.writeDataTo, 1));
     forConcat.addAll(stringMarshalBinary(this._recepient, 2));
-    //forConcat.addAll(stringMarshalBinary(marshalDataEntry(this._data), 3));
+    forConcat.addAll(withFieldNumber(marshalDataEntry(this._data), 3));
 
     return forConcat.asUint8List();
   }
 
   @override
   Uint8List hash() {
-    /*if (_dataHash != null) {
-      return _dataHash!;
-    }
-    _dataHash = hashTree(_data);
-    return _dataHash!;*/
 
     if (_customHash != null) {
       return _customHash!;
     }
     List<int> forConcat = [];
     Uint8List bodyHash = sha256Update(_marshalBinary(withoutEntry: true));
-    Uint8List dataHash = hashTree(_data);
+    Uint8List dataHash = sha256Update(hashTree(_data));
     forConcat.addAll(bodyHash);
     forConcat.addAll(dataHash);
     _customHash = sha256Update(forConcat.asUint8List());
@@ -79,8 +70,8 @@ class WriteDataTo extends BasePayload {
   Uint8List marshalDataEntry(List<Uint8List> data) {
     List<int> forConcat = [];
 
-    // AccumulateDataEntry DataEntryType 2
-    forConcat.addAll(uvarintMarshalBinary(2, 1));
+    // DoubleHashDataEntry DataEntryType 3
+    forConcat.addAll(uvarintMarshalBinary(3, 1));
     // Data
     for (Uint8List val in data) {
       forConcat.addAll(bytesMarshalBinary(val, 2));
