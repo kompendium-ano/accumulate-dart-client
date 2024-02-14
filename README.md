@@ -1,7 +1,6 @@
 
 # Accumulate Dart SDK
 
-
 [![Pub Version](https://img.shields.io/pub/v/accumulate_api)](https://pub.dev/packages/accumulate_api)
 [![GitHub License](https://img.shields.io/github/license/kompendium-ano/accumulate-dart-client)](LICENSE)
 [![Build Status](https://github.com/kompendium-ano/accumulate-dart-client/actions/workflows/dart.yml/badge.svg)](https://github.com/kompendium-ano/accumulate-dart-client/actions/workflows/dart.yml)
