@@ -1,0 +1,12 @@
+# General
+.dart_tool/
+.packages
+build/
+doc/api/
+
+# IDE 
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
