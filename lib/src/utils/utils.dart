@@ -1,3 +1,4 @@
+// lib\src\utils\utils.dart
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -92,7 +93,13 @@ String toHexString(String original) {
       .join('');
 }
 
-Uint8List hexStringtoUint8List(String val) {
-  return utf8.encode(val).asUint8List();
+Uint8List hexStringtoUint8List(String hexString) {
+  var length = hexString.length;
+  Uint8List result = Uint8List(length ~/ 2);
+  for (int i = 0; i < length; i += 2) {
+    var byteString = hexString.substring(i, i + 2);
+    var byteValue = int.parse(byteString, radix: 16);
+    result[i ~/ 2] = byteValue;
+  }
+  return result;
 }
-

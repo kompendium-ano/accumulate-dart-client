@@ -1,20 +1,20 @@
+// lib\src\rpc_client.dart
 library json_rpc;
 
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 
 class RPCError implements Exception {
   final int? errorCode;
   final String? message;
   final dynamic data;
 
-  const RPCError(this.errorCode, this.message, this.data);
+  RPCError(this.errorCode, this.message, this.data);
 
   @override
   String toString() {
-    return 'RPCError: got code $errorCode with msg "$message" and data $data.';
+    return 'RPCError: Error code $errorCode with message "$message" and data $data.';
   }
 }
 
@@ -22,21 +22,22 @@ class RPCResponse {
   final int? id;
   final dynamic result;
 
-  const RPCResponse(this.id, this.result);
+  RPCResponse(this.id, this.result);
 }
 
 class RpcClient {
-  late String _endpoint;
+  final String _endpoint;
+  int _idCounter = 0;
+  final http.Client _client;
 
-  late int _idCounter;
+  RpcClient(this._endpoint, {http.Client? client})
+      : _client = client ?? http.Client();
 
-  RpcClient(String endpoint) {
-    _endpoint = endpoint;
-    _idCounter = 0;
-  }
+  String get endpoint => _endpoint;
 
-  Future<Map<String, dynamic>> call(String function,
-      [Map<String, dynamic>? params, bool? suppressLog]) async {
+  int get idCounter => _idCounter;
+
+  Future<Map<String, dynamic>> call(String function, [Map<String, dynamic>? params, bool? suppressLog = false]) async {
     params ??= {};
     suppressLog ??= false;
 
@@ -47,28 +48,31 @@ class RpcClient {
       'id': _idCounter++
     };
 
-    Client client = Client();
+    // Log the request payload if not suppressed
+    if (!suppressLog) {
+      print("RPC Request Payload: ${json.encode(requestPayload)}");
+    }
 
-    final response = await client.post(
+    final response = await _client.post(
       Uri.parse(_endpoint),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(requestPayload),
     );
 
-    print(json.encode(requestPayload));
-    if(!suppressLog) {
-      print("\n");
-      print(response.body);
+    // Log the HTTP response
+    if (!suppressLog) {
+      print("RPC Response: HTTP ${response.statusCode} ${response.body}");
     }
 
     final data = json.decode(response.body) as Map<String, dynamic>;
 
     if (data.containsKey('error')) {
       final error = data['error'];
-
       final code = error['code'] as int?;
       final message = error['message'] as String?;
       final errorData = error['data'];
+      // Log the error before throwing
+      print("[RpcClient] Error received: Code $code, Message $message, Data $errorData");
       throw RPCError(code, message, errorData);
     }
 

@@ -1,3 +1,5 @@
+// lib\src\transaction.dart
+
 import "dart:typed_data";
 
 import "package:crypto/crypto.dart";
@@ -16,6 +18,8 @@ class HeaderOptions {
   String? memo;
   Uint8List? metadata;
   Uint8List? initiator;
+
+  HeaderOptions({this.timestamp, this.memo, this.metadata, this.initiator});
 }
 
 class Header {

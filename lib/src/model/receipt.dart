@@ -1,4 +1,4 @@
-import 'dart:convert';
+// lib\src\model\receipt.dart
 import 'dart:typed_data';
 
 import 'package:accumulate_api/src/encoding.dart';

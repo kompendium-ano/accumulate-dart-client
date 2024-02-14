@@ -1,4 +1,4 @@
-import 'dart:convert';
+// lib\src\utils\proof.dart
 import 'dart:typed_data';
 
 import 'package:accumulate_api/src/acme_client.dart';
@@ -24,21 +24,28 @@ Future<Tuple2<dynamic, CreateToken>> constructIssuerProof(ACMEClient client, Str
   print("$txn0url $res");
 
   ReceiptModel receiptModel = ReceiptModel.fromMap(res);
+  
+  // Log before accessing receiptModel.result.receipts
+  print("Logging before accessing receipts: ${receiptModel.result}");
   List<Receipts> receipts = receiptModel.result!.receipts!;
-  RcpTransaction transaction = receiptModel.result!.transaction!;
+  print("Logging after accessing receipts");
 
-  // Get a chain proof (from any chain, ends in a BVN anchor)
-  if (receiptModel.result!.receipts!.isEmpty) {
+  // Log before accessing transaction
+  print("Logging before accessing transaction: ${receiptModel.result}");
+  RcpTransaction transaction = receiptModel.result!.transaction!;
+  print("Logging after accessing transaction");
+
+  // Check for empty receipts
+  if (receipts.isEmpty) {
     print("No proof found");
     return Tuple2("No proof found", CreateToken(CreateTokenParam()));
   }
 
   Proof proof2 = receipts[0].proof!;
-  /// Response has no indexes
-  //proof2.startIndex = 0;
-  //proof2.endIndex = 0;
+  // Logs are not needed here as we already checked receipts.isEmpty
 
-  // Convert the response to a Transaction
+  // Log before accessing transaction.body
+  print("Logging before accessing transaction body: ${transaction.body}");
   if (transaction.body!.type != "createToken") {
     print('Expected first transaction of ${tokenUrl} to be createToken but got ${transaction.body!.type}');
   }
@@ -51,6 +58,7 @@ Future<Tuple2<dynamic, CreateToken>> constructIssuerProof(ACMEClient client, Str
   createTokenParam.url = transaction.body!.url!;
   createTokenParam.symbol = transaction.body!.symbol!;
   createTokenParam.precision = transaction.body!.precision!;
+
 
   CreateToken body = CreateToken(createTokenParam);
 

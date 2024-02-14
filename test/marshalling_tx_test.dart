@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:accumulate_api/src/payload/base_payload.dart';
 import 'package:accumulate_api/src/transaction.dart';
 import 'package:accumulate_api/src/utils/utils.dart';
@@ -29,7 +28,7 @@ void main() {
     var header = Header("acc://hello", ho);
     TestPayload payload = TestPayload();
 
-    var tx = Transaction(payload, header);
+    Transaction(payload, header);
 
     //expect(payload.extendedMarshalBinary(), [0]);
   });

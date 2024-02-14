@@ -1,10 +1,4 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:accumulate_api/accumulate_api.dart';
-import 'package:accumulate_api/src/utils/merkle_root_builder.dart';
-import 'package:accumulate_api/src/utils/proof.dart';
-import 'package:accumulate_api/src/utils/utils.dart';
 import 'package:test/test.dart';
 import 'package:hex/hex.dart';
 void main() {
@@ -39,8 +33,6 @@ void main() {
   });
 
   test('should combine receipts', () async {
-    final acmeClient = ACMEClient("https://mainnet.accumulatenetwork.io" + "/v2");
-
     Receipt r1 = Receipt()
       ..start = "c5f890fa64b1321b8454a53c4106faca35f7acf4f8e535e28153d11460885a52" //body.hash()
       ..startIndex = 1
@@ -92,7 +84,6 @@ void main() {
     var proof = await constructIssuerProof(acmeClient, tokenUrl);
 
     var receiptFinal = proof.value1;
-    var body = proof.value2;
 
     print(HEX.encode(receiptFinal.start));
     print(HEX.encode(receiptFinal.end));

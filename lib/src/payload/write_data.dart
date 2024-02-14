@@ -1,3 +1,4 @@
+// lib\src\payload\write_data.dart
 import 'dart:typed_data';
 
 import '../encoding.dart';
@@ -31,11 +32,6 @@ class WriteData extends BasePayload {
   @override
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = _marshalBinary();
-/*
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.writeData, 1));
-
-    forConcat.addAll(fieldMarshalBinary(2, marshalDataEntry(_data)));
-    forConcat.addAll(booleanMarshalBinary(_scratch, 3));*/
 
     return forConcat.asUint8List();
   }
@@ -46,7 +42,7 @@ class WriteData extends BasePayload {
     forConcat.addAll(uvarintMarshalBinary(TransactionType.writeData, 1));
 
     if (!withoutEntry) {
-        forConcat.addAll(fieldMarshalBinary(2, marshalDataEntry(this._data)));
+      forConcat.addAll(withFieldNumber(marshalDataEntry(this._data), 2));
     }
 
     if (this._scratch) {
@@ -62,19 +58,12 @@ class WriteData extends BasePayload {
 
   @override
   Uint8List hash() {
-
-    /*if (_dataHash != null) {
-      return _dataHash!;
-    }
-    _dataHash = hashTree(_data);
-    return _dataHash!;*/
-
     if (_customHash != null) {
       return _customHash!;
     }
     List<int> forConcat = [];
-    Uint8List bodyHash = sha256Update(_marshalBinary(withoutEntry:true));
-    Uint8List dataHash = hashTree(_data);
+    Uint8List bodyHash = sha256Update(_marshalBinary(withoutEntry: true));
+    Uint8List dataHash = sha256Update(hashTree(_data));
     forConcat.addAll(bodyHash);
     forConcat.addAll(dataHash);
     _customHash = sha256Update(forConcat.asUint8List());
@@ -85,7 +74,7 @@ class WriteData extends BasePayload {
   Uint8List marshalDataEntry(List<Uint8List> data) {
     List<int> forConcat = [];
 
-    forConcat.addAll(uvarintMarshalBinary(2, 1));
+    forConcat.addAll(uvarintMarshalBinary(3, 1));
 
     for (Uint8List val in data) {
       forConcat.addAll(bytesMarshalBinary(val, 2));
@@ -102,7 +91,7 @@ class WriteData extends BasePayload {
 
     // Data
     for (Uint8List entry in data) {
-      forConcat.addAll(bytesMarshalBinary(entry,2));
+      forConcat.addAll(bytesMarshalBinary(entry, 2));
     }
 
     return bytesMarshalBinary(forConcat.asUint8List());

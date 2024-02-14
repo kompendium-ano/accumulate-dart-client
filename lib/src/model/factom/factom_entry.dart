@@ -44,6 +44,10 @@ class FactomEntry {
   }
 
   AccURL getUrl() {
-    return AccURL.parse(HEX.encode(calculateChainId())); // Url.parse(Hex.encodeHexString(calculateChainId()));
+    Uint8List chainId = calculateChainId();
+    String chainIdHex = HEX.encode(chainId).toLowerCase();
+    String urlStr = 'acc://$chainIdHex';
+    AccURL url = AccURL.parse(urlStr);
+    return url;
   }
 }

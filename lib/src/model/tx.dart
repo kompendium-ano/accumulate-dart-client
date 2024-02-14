@@ -1,3 +1,4 @@
+// lib\src\model\tx.dart
 import 'dart:core';
 
 import 'package:json_annotation/json_annotation.dart';

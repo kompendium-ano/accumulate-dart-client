@@ -1,3 +1,4 @@
+// lib\src\model\receipt.dart
 // To parse this JSON data, do
 //
 //     final receiptModel = receiptModelFromMap(jsonString);

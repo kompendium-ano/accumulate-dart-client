@@ -1,3 +1,4 @@
+// lib\src\v3\acme_client.dart
 import "dart:async";
 import 'dart:collection';
 import 'dart:developer';
@@ -449,11 +450,9 @@ class ACMEClientV3 {
           List to = res['result']["data"]["to"];
           String? amount = "";
           String? urlRecepient = "";
-          if (to != null) {
-            amount = to[0]["amount"];
-            urlRecepient = to[0]["url"];
-          }
-          LinkedHashMap sigs = res['result']["signatures"][0];
+          amount = to[0]["amount"];
+          urlRecepient = to[0]["url"];
+                  LinkedHashMap sigs = res['result']["signatures"][0];
           int? ts = sigs["timestamp"];
 
           tx = txModel.Transaction("Outgoing", "send_token", txid, from, urlRecepient, int.parse(amount!), "acc://");
@@ -585,188 +584,184 @@ class ACMEClientV3 {
 
     // Collect transaction iteratively
     List<txModel.Transaction> txs = [];
-    if (res != null) {
-      var records = res['result']["items"];
+    var records = res['result']["items"];
 
-      if (records == null) {
-        return [];
-      }
+    if (records == null) {
+      return [];
+    }
 
-      for (var i = 0; i < records.length; i++) {
-        var tx = records[i];
-        String? type = tx["type"];
+    for (var i = 0; i < records.length; i++) {
+      var tx = records[i];
+      String? type = tx["type"];
 
-        switch (type) {
-          case "faucet": // that's faucet
-            String? txid = tx["txid"];
-            String? amount = tx["data"]["amount"]; // AMOUNT INCOSISTENT, faucet returns String while other types int
-            String? token = tx["data"]["token"];
-            var sigs = tx["signatures"];
-            var sig = sigs[sigs.length - 1];
-            int? ts = sig["timestamp"];
+      switch (type) {
+        case "faucet": // that's faucet
+          String? txid = tx["txid"];
+          String? amount = tx["data"]["amount"]; // AMOUNT INCOSISTENT, faucet returns String while other types int
+          String? token = tx["data"]["token"];
+          var sigs = tx["signatures"];
+          var sig = sigs[sigs.length - 1];
+          int? ts = sig["timestamp"];
 
-            // if nothing that was a faucet
-            txModel.Transaction txl = txModel.Transaction("Incoming", "", txid, "", "", int.parse(amount!), "$token");
+          // if nothing that was a faucet
+          txModel.Transaction txl = txModel.Transaction("Incoming", "", txid, "", "", int.parse(amount!), "$token");
 
-            // NB: yes, can be
-            if (ts! == 1) {
-              txl.created = 1667304000 * 1000;
-            } else {
-              txl.created = DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
-            }
-            txs.add(txl);
-            break;
-          case "addCredits":
-            String? txid = tx["txid"];
-            int? amountCredits = (tx["data"]["amount"] is String)
-                ? int.parse(tx["data"]["amount"])
-                : tx["data"]["amount"]; // that's amount of credits
-            int amount = (amountCredits! * 0.01).toInt() * 10000; // in acmes
-            LinkedHashMap sigs = tx["signatures"][0];
-            int? ts = sigs["timestamp"];
+          // NB: yes, can be
+          if (ts! == 1) {
+            txl.created = 1667304000 * 1000;
+          } else {
+            txl.created = DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
+          }
+          txs.add(txl);
+          break;
+        case "addCredits":
+          String? txid = tx["txid"];
+          int? amountCredits = (tx["data"]["amount"] is String)
+              ? int.parse(tx["data"]["amount"])
+              : tx["data"]["amount"]; // that's amount of credits
+          int amount = (amountCredits! * 0.01).toInt() * 10000; // in acmes
+          LinkedHashMap sigs = tx["signatures"][0];
+          int? ts = sigs["timestamp"];
 
-            txModel.Transaction txl = txModel.Transaction("Incoming", "add-credits", txid, "", "", amount, "credits");
-            txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
-            txs.add(txl);
-            break;
-          case "sendTokens":
-            String? txid = tx["txid"];
-            String? from = tx["data"]["from"];
-            List to = tx["data"]["to"];
-            String? amount = "";
-            String? urlRecepient = "";
-            if (to != null) {
-              amount = to[0]["amount"];
-              urlRecepient = to[0]["url"];
-            }
-            LinkedHashMap sigs = tx["signatures"][0];
-            int? ts = sigs["timestamp"];
+          txModel.Transaction txl = txModel.Transaction("Incoming", "add-credits", txid, "", "", amount, "credits");
+          txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          txs.add(txl);
+          break;
+        case "sendTokens":
+          String? txid = tx["txid"];
+          String? from = tx["data"]["from"];
+          List to = tx["data"]["to"];
+          String? amount = "";
+          String? urlRecepient = "";
+          amount = to[0]["amount"];
+          urlRecepient = to[0]["url"];
+                  LinkedHashMap sigs = tx["signatures"][0];
+          int? ts = sigs["timestamp"];
 
-            txModel.Transaction txl =
-                txModel.Transaction("Outgoing", "send_token", txid, from, urlRecepient, int.parse(amount!), "acc://");
-            txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
-            txs.add(txl);
-            break;
-          case "syntheticCreateChain":
-            String? txid = tx["txid"];
-            int? amount = tx["data"]["amount"];
-            String? token = tx["data"]["token"];
+          txModel.Transaction txl =
+              txModel.Transaction("Outgoing", "send_token", txid, from, urlRecepient, int.parse(amount!), "acc://");
+          txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          txs.add(txl);
+          break;
+        case "syntheticCreateChain":
+          String? txid = tx["txid"];
+          int? amount = tx["data"]["amount"];
+          String? token = tx["data"]["token"];
 
-            txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "$token");
-            txs.add(txl);
-            break;
-          case "burnTokens":
-            String? txid = tx["txid"];
-            String? prod = tx["produced"][0];
-            int? amount = int.parse(tx["data"]["amount"]);
-            String? token = prod!.split("@").last;
+          txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "$token");
+          txs.add(txl);
+          break;
+        case "burnTokens":
+          String? txid = tx["txid"];
+          String? prod = tx["produced"][0];
+          int? amount = int.parse(tx["data"]["amount"]);
+          String? token = prod!.split("@").last;
 
-            txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "$token");
-            txs.add(txl);
-            break;
-          case "systemGenesis":
-            String? txid = tx["txid"];
-            int? amount = tx["data"]["amount"];
-            String? token = tx["data"]["token"];
-            String? status = tx["status"]["code"];
+          txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "$token");
+          txs.add(txl);
+          break;
+        case "systemGenesis":
+          String? txid = tx["txid"];
+          int? amount = tx["data"]["amount"];
+          String? token = tx["data"]["token"];
+          String? status = tx["status"]["code"];
+
+          QueryPaginationForBlocks queryParams = QueryPaginationForBlocks();
+          queryParams.start = 0;
+          queryParams.limit = 1;
+
+          MinorBlocksQueryOptions queryFilter = MinorBlocksQueryOptions()
+            ..txFetchMode = 0
+            ..blockFilterMode = 1;
+
+          var majorBlocks = await queryMajorBlocks("acc://dn.acme", queryParams, queryFilter);
+          var blockInfo = majorBlocks["result"]["items"][0];
+
+          var blockTime = blockInfo["majorBlockTime"];
+          var blockTimeD = DateTime.parse(blockTime);
+
+          txModel.Transaction txl = txModel.Transaction(
+              "Incoming", "system_genesis", txid, "acc://ACME", path, amount, "acc://ACME", status);
+          txl.created = blockTimeD.millisecondsSinceEpoch;
+          txs.add(txl);
+          break;
+        case "syntheticDepositTokens":
+          String? txid = tx["txid"];
+          String? amountIn = tx["data"]["amount"];
+          String? token = tx["data"]["token"];
+          String? status = tx["status"]["code"];
+          var sigs = tx["signatures"];
+          var sig = sigs[sigs.length - 1];
+          int? ts = sig["timestamp"];
+
+          String? from = tx["data"]["source"];
+
+          int amount = int.parse(amountIn!);
+
+          txModel.Transaction txl =
+              txModel.Transaction("Incoming", "send_token", txid, from, path, amount, "$token", status);
+          if (ts! == 1) {
+            // Get Timestamp as time from block
+            int height = tx["status"]["received"];
+            String bvnFrom = tx["status"]["sourceNetwork"];
+            String bvn = tx["status"]["destinationNetwork"];
+            String bvnDest = "";
 
             QueryPaginationForBlocks queryParams = QueryPaginationForBlocks();
-            queryParams.start = 0;
-            queryParams.limit = 1;
+            queryParams.start = height;
+            queryParams.limit = 10;
 
             MinorBlocksQueryOptions queryFilter = MinorBlocksQueryOptions()
               ..txFetchMode = 0
               ..blockFilterMode = 1;
 
-            var majorBlocks = await queryMajorBlocks("acc://dn.acme", queryParams, queryFilter);
-            var blockInfo = majorBlocks["result"]["items"][0];
-
-            var blockTime = blockInfo["majorBlockTime"];
+            var minorBlocks = await queryMinorBlocks(bvn, queryParams, queryFilter);
+            var blockInfo = minorBlocks["result"]["items"][0]; //our block start
+            var blockTime = blockInfo["blockTime"];
             var blockTimeD = DateTime.parse(blockTime);
 
-            txModel.Transaction txl = txModel.Transaction(
-                "Incoming", "system_genesis", txid, "acc://ACME", path, amount, "acc://ACME", status);
             txl.created = blockTimeD.millisecondsSinceEpoch;
-            txs.add(txl);
-            break;
-          case "syntheticDepositTokens":
-            String? txid = tx["txid"];
-            String? amountIn = tx["data"]["amount"];
-            String? token = tx["data"]["token"];
-            String? status = tx["status"]["code"];
-            var sigs = tx["signatures"];
-            var sig = sigs[sigs.length - 1];
-            int? ts = sig["timestamp"];
+          } else {
+            txl.created = DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
+          }
 
-            String? from = tx["data"]["source"];
+          txs.add(txl);
+          break;
+        case "updateAccountAuth":
+          String? txid = tx["txid"];
+          LinkedHashMap sigs = tx["signatures"][0];
+          int? ts = sigs["timestamp"];
+          String? sponsor = tx["sponsor"];
+          String? origin = tx["origin"];
 
-            int amount = int.parse(amountIn!);
+          txModel.Transaction txl =
+              txModel.Transaction("Outgoing", "update-account-auth", txid, sponsor, origin, 0, "ACME");
+          txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          txs.add(txl);
+          break;
+        case "createTokenAccount":
+          String? txid = tx["txid"];
+          LinkedHashMap sigs = tx["signatures"][0];
+          int? ts = sigs["timestamp"];
+          String? sponsor = tx["sponsor"];
+          String? origin = tx["origin"];
 
-            txModel.Transaction txl =
-                txModel.Transaction("Incoming", "send_token", txid, from, path, amount, "$token", status);
-            if (ts! == 1) {
-              // Get Timestamp as time from block
-              int height = tx["status"]["received"];
-              String bvnFrom = tx["status"]["sourceNetwork"];
-              String bvn = tx["status"]["destinationNetwork"];
-              String bvnDest = "";
+          txModel.Transaction txl =
+              txModel.Transaction("Outgoing", "token-account-create", txid, sponsor, origin, 0, "ACME");
+          txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          txs.add(txl);
+          break;
+        default:
+          String? txid = tx["txid"];
+          int? amount = tx["data"]["amount"];
+          String? token = tx["data"]["token"];
 
-              QueryPaginationForBlocks queryParams = QueryPaginationForBlocks();
-              queryParams.start = height;
-              queryParams.limit = 10;
-
-              MinorBlocksQueryOptions queryFilter = MinorBlocksQueryOptions()
-                ..txFetchMode = 0
-                ..blockFilterMode = 1;
-
-              var minorBlocks = await queryMinorBlocks(bvn, queryParams, queryFilter);
-              var blockInfo = minorBlocks["result"]["items"][0]; //our block start
-              var blockTime = blockInfo["blockTime"];
-              var blockTimeD = DateTime.parse(blockTime);
-
-              txl.created = blockTimeD.millisecondsSinceEpoch;
-            } else {
-              txl.created = DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
-            }
-
-            txs.add(txl);
-            break;
-          case "updateAccountAuth":
-            String? txid = tx["txid"];
-            LinkedHashMap sigs = tx["signatures"][0];
-            int? ts = sigs["timestamp"];
-            String? sponsor = tx["sponsor"];
-            String? origin = tx["origin"];
-
-            txModel.Transaction txl =
-                txModel.Transaction("Outgoing", "update-account-auth", txid, sponsor, origin, 0, "ACME");
-            txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
-            txs.add(txl);
-            break;
-          case "createTokenAccount":
-            String? txid = tx["txid"];
-            LinkedHashMap sigs = tx["signatures"][0];
-            int? ts = sigs["timestamp"];
-            String? sponsor = tx["sponsor"];
-            String? origin = tx["origin"];
-
-            txModel.Transaction txl =
-                txModel.Transaction("Outgoing", "token-account-create", txid, sponsor, origin, 0, "ACME");
-            txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
-            txs.add(txl);
-            break;
-          default:
-            String? txid = tx["txid"];
-            int? amount = tx["data"]["amount"];
-            String? token = tx["data"]["token"];
-
-            txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "$token");
-            txs.add(txl);
-            break;
-        }
+          txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "$token");
+          txs.add(txl);
+          break;
       }
     }
-
+  
     return txs;
   }
 
