@@ -51,7 +51,7 @@ void main() {
 class DummyPayload extends Payload {
   @override
   Uint8List marshalBinary() {
-    return utf8.encode("Dummy data") as Uint8List;
+    return utf8.encode("Dummy data");
   }
 
   @override

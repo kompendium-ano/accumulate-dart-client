@@ -1,19 +1,12 @@
 // example\examples_clean_JKG.dart
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:accumulate_api/accumulate_api.dart';
-import 'package:accumulate_api/src/model/receipt_model.dart' as ReceiptM;
-import 'package:accumulate_api/src/payload/add_credits.dart';
-import 'package:accumulate_api/src/payload/write_data.dart';
-import 'package:accumulate_api/src/payload/send_tokens.dart'; // Ensure this is correctly imported
-import 'package:accumulate_api/src/signing/ed25519_keypair_signer.dart';
-import 'package:crypto/crypto.dart';
+// Ensure this is correctly imported
 import 'package:hex/hex.dart';
-import 'package:convert/convert.dart';
 
 
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
@@ -280,7 +273,7 @@ Future<void> addCredits(LiteIdentity lid, int creditAmount, int oracle) async {
   var res = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
   print("addCredits transaction response: $res");
 
-  if (res != null && res["result"] != null && res["result"]["txid"] != null) {
+  if (res["result"] != null && res["result"]["txid"] != null) {
     String txId = res["result"]["txid"];
     print("addCredits Transaction ID: $txId");
     await delayBeforePrint(); // Wait for network processing

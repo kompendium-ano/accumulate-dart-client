@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:convert/convert.dart';
 import 'package:accumulate_api/accumulate_api.dart';
 import 'package:crypto/crypto.dart';
-import 'package:accumulate_api/src/utils/utils.dart';
 
 Future<void> main() async {
   final String endPoint = "https://testnet.accumulatenetwork.io/v2";

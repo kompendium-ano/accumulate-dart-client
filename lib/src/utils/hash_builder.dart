@@ -11,25 +11,23 @@ class HashBuilder {
   late List<Uint8List> _hashList = [];
 
   void addHash(Uint8List value) {
-    if (value != null && value.length > 0) {
+    if (value.length > 0) {
       _add(value);
     }
   }
 
   void addBytes(Uint8List value) {
-    if (value != null && value.length > 0) {
+    if (value.length > 0) {
       _add(value);
     }
   }
 
   void addUrl(AccURL value) {
-    if (value != null) {
-      _add(utf8.encode(value.toString()).asUint8List());
+    _add(utf8.encode(value.toString()).asUint8List());
     }
-  }
 
   void _add(Uint8List value) {
-    if (value != null && value.length > 0) {
+    if (value.length > 0) {
       var vl = sha256.convert(value).bytes.asUint8List();
       _hashList.add(vl);
     }
