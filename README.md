@@ -10,7 +10,7 @@ The Dart SDK for the Accumulate blockchain provides developers with the tools ne
 
 The Accumulate Dart SDK repositiory is organized with three main strucutres:
  - Client library: [lib](/lib/src/)
- - Test Stuite: [tests](/test/README.md/)
+ - Test Suite: [tests](/test/README.md/)
  - Accumulate Usage Examples Collection: [examples](/examples/SDK_Usage_Examples/README.md/)  
 
 ## Installation
