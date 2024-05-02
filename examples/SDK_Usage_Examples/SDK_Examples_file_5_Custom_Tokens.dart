@@ -35,12 +35,18 @@ Future<void> testFeatures() async {
   // Create an ADI
   String adiName = "custom-adi-name-${DateTime.now().millisecondsSinceEpoch}";
   Ed25519KeypairSigner adiSigner = Ed25519KeypairSigner.generate();
-  await createAdi(lid, adiSigner, adiName, );
+  await createAdi(
+    lid,
+    adiSigner,
+    adiName,
+  );
 
   // Add credits to custom-adi-name key book's key page
-  String keyPageUrl = "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
+  String keyPageUrl =
+      "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
   print("keyPageUrl Name: $keyPageUrl");
-  await addCreditsToAdiKeyPage(lid, keyPageUrl, 7000000, oracle); // Adjust the credit amount as needed
+  await addCreditsToAdiKeyPage(
+      lid, keyPageUrl, 7000000, oracle); // Adjust the credit amount as needed
 
   // Pause to allow the addCredits transaction to settle
   print("Pausing to allow addCredits transaction to settle...");
@@ -49,23 +55,29 @@ Future<void> testFeatures() async {
   // Creating an ADI Custom Token
   String identityUrl = "acc://$adiName.acme";
   String customTokenUrl = "$identityUrl/my-custom-token";
-  await createCustomToken(adiSigner, identityUrl, keyPageUrl, customTokenUrl, "MYTKN", 2);
+  await createCustomToken(
+      adiSigner, identityUrl, keyPageUrl, customTokenUrl, "MYTKN", 2);
 
   // Create two custom token acounts for MYTKN
-  await createCustomTokenAccount(adiSigner, identityUrl, keyPageUrl, customTokenUrl, "myCustomTokenAccount1");
-  await createCustomTokenAccount(adiSigner, identityUrl, keyPageUrl, customTokenUrl, "myCustomTokenAccount2");
+  await createCustomTokenAccount(adiSigner, identityUrl, keyPageUrl,
+      customTokenUrl, "myCustomTokenAccount1");
+  await createCustomTokenAccount(adiSigner, identityUrl, keyPageUrl,
+      customTokenUrl, "myCustomTokenAccount2");
 
- // Pause to allow creation of custom token acounts for MYTKN transaction to settle
-  print("Pausing to allow creation of custom token acounts for MYTKN transaction to settle...");
+  // Pause to allow creation of custom token acounts for MYTKN transaction to settle
+  print(
+      "Pausing to allow creation of custom token acounts for MYTKN transaction to settle...");
   await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
 
   // Issue custom token (MYTKN) to a MYTKN custom token account
-  await issueCustomTokens(adiSigner, keyPageUrl, customTokenUrl, "$identityUrl/myCustomTokenAccount1", 100000);
+  await issueCustomTokens(adiSigner, keyPageUrl, customTokenUrl,
+      "$identityUrl/myCustomTokenAccount1", 100000);
 
   // Send custom token (MYTKN) from a custom token account to second custom token account
   String fromCustomTokenAccountUrl = "$identityUrl/myCustomTokenAccount1";
   String toCustomTokenAccountUrl = "$identityUrl/myCustomTokenAccount2";
-  int amountToSend = 6000; // the amount is base 100, so the amount you put is ##/100
+  int amountToSend =
+      6000; // the amount is base 100, so the amount you put is ##/100
   // Assumes `adiSigner` is your Ed25519KeypairSigner and `keyPageUrl` is the URL of the key page used for signing transactions
   await sendCustomTokens(
     fromAccount: fromCustomTokenAccountUrl,
@@ -73,12 +85,20 @@ Future<void> testFeatures() async {
     amount: amountToSend,
     signer: adiSigner,
     tokenUrl: customTokenUrl,
-    keyPageUrl: "$identityUrl/book/1", // Adjust based on your ADI's key book structure
+    keyPageUrl:
+        "$identityUrl/book/1", // Adjust based on your ADI's key book structure
   );
-  print("Sent $amountToSend MYTKN from $fromCustomTokenAccountUrl to $toCustomTokenAccountUrl");
+  print(
+      "Sent $amountToSend MYTKN from $fromCustomTokenAccountUrl to $toCustomTokenAccountUrl");
 }
 
-Future<void> createCustomToken(Ed25519KeypairSigner adiSigner, String identityUrl, String keyPageUrl, String tokenUrl, String symbol, int precision) async {
+Future<void> createCustomToken(
+    Ed25519KeypairSigner adiSigner,
+    String identityUrl,
+    String keyPageUrl,
+    String tokenUrl,
+    String symbol,
+    int precision) async {
   CreateTokenParam createTokenParam = CreateTokenParam();
   createTokenParam.url = tokenUrl;
   createTokenParam.symbol = symbol;
@@ -91,7 +111,7 @@ Future<void> createCustomToken(Ed25519KeypairSigner adiSigner, String identityUr
   // createTokenParam.metadata = ...;
 
   TxSigner txSigner = TxSigner(keyPageUrl, adiSigner);
-  
+
   print("Creating custom token: $symbol at $tokenUrl");
   var res = await client.createToken(identityUrl, createTokenParam, txSigner);
   var txId = res["result"]["txid"];
@@ -99,13 +119,18 @@ Future<void> createCustomToken(Ed25519KeypairSigner adiSigner, String identityUr
 
   // Optionally, wait for transaction to be confirmed
   await delayBeforePrint();
-  
+
   // Query and log the result of token creation
   // This is to check the status of the created token, similar to the given examples
 }
 
 // create a token account for a custom token
-Future<void> createCustomTokenAccount(Ed25519KeypairSigner adiSigner, String identityUrl, String keyPageUrl, String tokenUrl, String accountName) async {
+Future<void> createCustomTokenAccount(
+    Ed25519KeypairSigner adiSigner,
+    String identityUrl,
+    String keyPageUrl,
+    String tokenUrl,
+    String accountName) async {
   String tokenAccountUrl = "$identityUrl/$accountName";
   CreateTokenAccountParam createTokenAccountParam = CreateTokenAccountParam();
   createTokenAccountParam.url = tokenAccountUrl;
@@ -113,13 +138,20 @@ Future<void> createCustomTokenAccount(Ed25519KeypairSigner adiSigner, String ide
 
   TxSigner txSigner = TxSigner(keyPageUrl, adiSigner);
 
-  print("Creating custom token account at: $tokenAccountUrl for token: $tokenUrl");
-  var res = await client.createTokenAccount(identityUrl, createTokenAccountParam, txSigner);
+  print(
+      "Creating custom token account at: $tokenAccountUrl for token: $tokenUrl");
+  var res = await client.createTokenAccount(
+      identityUrl, createTokenAccountParam, txSigner);
   print("Custom token account creation response: $res");
 }
 
 // issue a custom token to a cusotm token account
-Future<void> issueCustomTokens(Ed25519KeypairSigner adiSigner, String keyPageUrl, String tokenUrl, String recipientAccountUrl, int amount) async {
+Future<void> issueCustomTokens(
+    Ed25519KeypairSigner adiSigner,
+    String keyPageUrl,
+    String tokenUrl,
+    String recipientAccountUrl,
+    int amount) async {
   IssueTokensParam issueTokensParam = IssueTokensParam();
   issueTokensParam.to = [
     TokenRecipientParam()
@@ -129,7 +161,8 @@ Future<void> issueCustomTokens(Ed25519KeypairSigner adiSigner, String keyPageUrl
 
   TxSigner txSigner = TxSigner(keyPageUrl, adiSigner);
 
-  print("Issuing $amount tokens to: $recipientAccountUrl from token: $tokenUrl");
+  print(
+      "Issuing $amount tokens to: $recipientAccountUrl from token: $tokenUrl");
   var res = await client.issueTokens(tokenUrl, issueTokensParam, txSigner);
   print("Token issuance response: $res");
 }
@@ -157,7 +190,8 @@ Future<void> sendCustomTokens({
 
   try {
     // Execute the sendTokens transaction for the custom token
-    var response = await client.sendTokens(fromAccount, sendTokensParam, txSigner); // Notice the tokenUrl parameter
+    var response = await client.sendTokens(fromAccount, sendTokensParam,
+        txSigner); // Notice the tokenUrl parameter
     print("Custom Token Send tx submitted, response: $response");
   } catch (e) {
     print("Error sending custom tokens: $e");

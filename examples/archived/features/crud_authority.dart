@@ -13,7 +13,6 @@ Future<void> main() async {
 }
 
 void testAuthorityActions() async {
-
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Re-Usable Variable
   String txId = "";
@@ -78,7 +77,8 @@ void testAuthorityActions() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // CREATE ADI #1
 
-  identityUrl = "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}.acme";
+  identityUrl =
+      "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}.acme";
   final keyForAdi = Ed25519KeypairSigner.generate();
   final bookUrl = identityUrl + "/cosm-book";
 
@@ -100,7 +100,8 @@ void testAuthorityActions() async {
   qp.start = 0;
   qp.count = 20;
 
-  res = await client.queryDirectory(identityUrl, qp, null); // NB: now returns only ADI and KeyBook, no keypage
+  res = await client.queryDirectory(identityUrl, qp,
+      null); // NB: now returns only ADI and KeyBook, no keypage
   sleep(Duration(seconds: 2));
   print(res);
 
@@ -135,7 +136,8 @@ void testAuthorityActions() async {
   createKeyBookParam.url = newKeyBookUrl;
   createKeyBookParam.publicKeyHash = keyForNewBook.publicKeyHash();
 
-  res = await client.createKeyBook(identityUrl, createKeyBookParam, identityKeyPageTxSigner);
+  res = await client.createKeyBook(
+      identityUrl, createKeyBookParam, identityKeyPageTxSigner);
   txId = res["result"]["txid"];
   print("Create keybook txId $txId");
 
@@ -144,25 +146,27 @@ void testAuthorityActions() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // ADD  AUTHORITY
 
-  UpdateAccountAuthOperation accountAuthOperation0 = UpdateAccountAuthOperation();
+  UpdateAccountAuthOperation accountAuthOperation0 =
+      UpdateAccountAuthOperation();
   accountAuthOperation0.authority = lid.acmeTokenAccount;
   accountAuthOperation0.type = UpdateAccountAuthActionType.AddAuthority;
 
   UpdateAccountAuthParam updateAccountAuthParam0 = UpdateAccountAuthParam();
   updateAccountAuthParam0.operations = [accountAuthOperation0];
 
-  res = await client.updateAccountAuth(identityUrl, updateAccountAuthParam0, identityKeyPageTxSigner);
+  res = await client.updateAccountAuth(
+      identityUrl, updateAccountAuthParam0, identityKeyPageTxSigner);
 
   txId = res["result"]["txid"];
   print("updateAccountAuth txId: $txId");
 
   sleep(Duration(seconds: 2));
 
-
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // ADD LOCAL AUTHORITY (ADI1 BOOK to ADI1)
 
-  UpdateAccountAuthOperation accountAuthOperation = UpdateAccountAuthOperation();
+  UpdateAccountAuthOperation accountAuthOperation =
+      UpdateAccountAuthOperation();
   accountAuthOperation.authority = newKeyBookUrl;
   accountAuthOperation.type = UpdateAccountAuthActionType.AddAuthority;
 
@@ -170,18 +174,19 @@ void testAuthorityActions() async {
   updateAccountAuthParam.operations = [accountAuthOperation];
 
   //res = await client.updateAccountAuth(bookUrl, updateAccountAuthParam, identityKeyPageTxSigner);
-  res = await client.updateAccountAuth(identityUrl, updateAccountAuthParam, identityKeyPageTxSigner);
+  res = await client.updateAccountAuth(
+      identityUrl, updateAccountAuthParam, identityKeyPageTxSigner);
 
   txId = res["result"]["txid"];
   print("updateAccountAuth txId: $txId");
 
   sleep(Duration(seconds: 2));
 
-
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // CREATE ADI #2
 
-  identityUrl_2 = "acc://adi-astronaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}.acme";
+  identityUrl_2 =
+      "acc://adi-astronaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}.acme";
   final keyForAdi_2 = Ed25519KeypairSigner.generate();
   final defaultBookForAdi_2 = identityUrl_2 + "/astro-book";
 
@@ -203,21 +208,24 @@ void testAuthorityActions() async {
   qp2.start = 0;
   qp2.count = 20;
 
-  res = await client.queryDirectory(identityUrl_2, qp2, null); // NB: now returns only ADI and KeyBook, no keypage
+  res = await client.queryDirectory(identityUrl_2, qp2,
+      null); // NB: now returns only ADI and KeyBook, no keypage
   sleep(Duration(seconds: 2));
   print(res);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // ADD REMOTE AUTHORITY (ADI2 BOOK to ADI1)
 
-  UpdateAccountAuthOperation accountAuthOperationR1 = UpdateAccountAuthOperation();
+  UpdateAccountAuthOperation accountAuthOperationR1 =
+      UpdateAccountAuthOperation();
   accountAuthOperationR1.authority = defaultBookForAdi_2;
   accountAuthOperationR1.type = UpdateAccountAuthActionType.AddAuthority;
 
   UpdateAccountAuthParam updateAccountAuthParamR1 = UpdateAccountAuthParam();
   updateAccountAuthParamR1.operations = [accountAuthOperationR1];
 
-  res = await client.updateAccountAuth(bookUrl, updateAccountAuthParamR1, identityKeyPageTxSigner);
+  res = await client.updateAccountAuth(
+      bookUrl, updateAccountAuthParamR1, identityKeyPageTxSigner);
 
   txId = res["result"]["txid"];
   print("updateAccountAuth txId: $txId");
@@ -227,14 +235,16 @@ void testAuthorityActions() async {
   ///////////////////////////////////////////////////////////////////////////////////////////////
   // DISABLE AUTHORITY
 
-  UpdateAccountAuthOperation accountAuthOperation2 = UpdateAccountAuthOperation();
+  UpdateAccountAuthOperation accountAuthOperation2 =
+      UpdateAccountAuthOperation();
   accountAuthOperation2.authority = defaultBookForAdi_2;
   accountAuthOperation2.type = UpdateAccountAuthActionType.Disable;
 
   UpdateAccountAuthParam updateAccountAuthParam2 = UpdateAccountAuthParam();
   updateAccountAuthParam2.operations = [accountAuthOperation2];
 
-  res = await client.updateAccountAuth(identityKeyPageTxSigner.url, updateAccountAuthParam2, identityKeyPageTxSigner);
+  res = await client.updateAccountAuth(identityKeyPageTxSigner.url,
+      updateAccountAuthParam2, identityKeyPageTxSigner);
 
   txId = res["result"]["txid"];
   print("updateAccountAuth txId $txId");
@@ -244,25 +254,27 @@ void testAuthorityActions() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // ENABLE AUTHORITY
 
-  UpdateAccountAuthOperation accountAuthOperation3 = UpdateAccountAuthOperation();
+  UpdateAccountAuthOperation accountAuthOperation3 =
+      UpdateAccountAuthOperation();
   accountAuthOperation3.authority = defaultBookForAdi_2;
   accountAuthOperation3.type = UpdateAccountAuthActionType.Enable;
 
   UpdateAccountAuthParam updateAccountAuthParam3 = UpdateAccountAuthParam();
   updateAccountAuthParam3.operations = [accountAuthOperation3];
 
-  res = await client.updateAccountAuth(identityKeyPageTxSigner.url, updateAccountAuthParam3, identityKeyPageTxSigner);
+  res = await client.updateAccountAuth(identityKeyPageTxSigner.url,
+      updateAccountAuthParam3, identityKeyPageTxSigner);
 
   txId = res["result"]["txid"];
   print("updateAccountAuth txId $txId");
 
   sleep(Duration(seconds: 10));
 
-
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // REMOVE/DELETE AUTHORITY
 
-  UpdateAccountAuthOperation accountAuthOperation4 = UpdateAccountAuthOperation();
+  UpdateAccountAuthOperation accountAuthOperation4 =
+      UpdateAccountAuthOperation();
   accountAuthOperation4.authority = defaultBookForAdi_2;
   accountAuthOperation4.type = UpdateAccountAuthActionType.RemoveAuthority;
 
@@ -275,6 +287,4 @@ void testAuthorityActions() async {
   print("updateAccountAuth txId $txId");
 
   sleep(Duration(seconds: 10));
-
-
 }

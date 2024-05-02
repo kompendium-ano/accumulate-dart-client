@@ -21,7 +21,8 @@ void main() {
         SignatureType().marshalJSON(signatureType);
       } catch (e) {
         expect(e, isA<Exception>());
-        expect(e.toString(), 'Exception: Cannot marshal JSON SignatureType: $signatureType');
+        expect(e.toString(),
+            'Exception: Cannot marshal JSON SignatureType: $signatureType');
       }
     });
   });

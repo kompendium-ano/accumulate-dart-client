@@ -6,7 +6,7 @@ import 'signer.dart';
 import 'package:accumulate_api/src/transaction.dart';
 import 'package:accumulate_api/src/utils/utils.dart';
 
-class TxSigner{
+class TxSigner {
   late AccURL _url;
 
   late Signer _signer;
@@ -54,5 +54,4 @@ class TxSigner{
         signer.signRaw(tx.dataForSignature(info).asUint8List());
     return signature;
   }
-
 }

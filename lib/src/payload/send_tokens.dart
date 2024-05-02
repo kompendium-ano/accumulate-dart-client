@@ -9,8 +9,6 @@ import '../encoding.dart';
 import '../client/tx_types.dart';
 import "base_payload.dart";
 
-
-
 class SendTokensParam {
   late List<TokenRecipientParam> to;
   Uint8List? hash;
@@ -55,11 +53,10 @@ class SendTokens extends BasePayload {
     }
 
     for (TokenRecipient recipient in _to) {
-      forConcat.addAll(
-          fieldMarshalBinary(4, TokenRecipient.marshalBinaryTokenRecipient(recipient)));
+      forConcat.addAll(fieldMarshalBinary(
+          4, TokenRecipient.marshalBinaryTokenRecipient(recipient)));
     }
 
     return forConcat.asUint8List();
   }
-
 }

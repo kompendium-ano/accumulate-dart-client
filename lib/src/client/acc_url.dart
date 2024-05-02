@@ -68,7 +68,8 @@ class AccURL {
         // For example, extracting the path from the AccURL and appending it to the current URL
         url += pathStr.substring(6);
       } else if (pathStr[0] == "/") {
-        url += pathStr.substring(1); // Remove the leading slash to avoid double slashes
+        url += pathStr
+            .substring(1); // Remove the leading slash to avoid double slashes
       } else {
         url += pathStr;
       }
@@ -83,7 +84,8 @@ class AccURL {
       throw ArgumentError("AccURL.toAccURL argument must not be null.");
     }
     if (!(arg is String || arg is AccURL)) {
-      throw ArgumentError("AccURL.toAccURL argument must be a String or AccURL.");
+      throw ArgumentError(
+          "AccURL.toAccURL argument must be a String or AccURL.");
     }
     return arg is AccURL ? arg : AccURL.parse(arg as String);
   }

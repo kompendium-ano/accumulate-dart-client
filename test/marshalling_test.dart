@@ -13,16 +13,21 @@ void main() {
     expect(uvarintMarshalBinary(128), [128, 1].asUint8List());
     expect(uvarintMarshalBinary(256), [128, 2].asUint8List());
 
-    expect(uvarintMarshalBinary(9007199254740991), [255, 255, 255, 255, 255, 255, 255, 15].asUint8List());
-    expect(uvarintMarshalBinary(pow(2, 53).toInt() - 1), [255, 255, 255, 255, 255, 255, 255, 15].asUint8List());
+    expect(uvarintMarshalBinary(9007199254740991),
+        [255, 255, 255, 255, 255, 255, 255, 15].asUint8List());
+    expect(uvarintMarshalBinary(pow(2, 53).toInt() - 1),
+        [255, 255, 255, 255, 255, 255, 255, 15].asUint8List());
 
     //new
-    expect(bigNumberMarshalBinary(9007199254740991), [7, 31, 255, 255, 255, 255, 255, 255].asUint8List());
+    expect(bigNumberMarshalBinary(9007199254740991),
+        [7, 31, 255, 255, 255, 255, 255, 255].asUint8List());
 
-    expect(uvarintMarshalBinary(pow(2, 53).toInt()), [128, 128, 128, 128, 128, 128, 128, 16].asUint8List());
+    expect(uvarintMarshalBinary(pow(2, 53).toInt()),
+        [128, 128, 128, 128, 128, 128, 128, 16].asUint8List());
 
     // we see [3,..] here because it indicates number of values
-    expect(bytesMarshalBinary([0, 1, 2].asUint8List()), [3, 0, 1, 2].asUint8List());
+    expect(bytesMarshalBinary([0, 1, 2].asUint8List()),
+        [3, 0, 1, 2].asUint8List());
 
     expect(stringMarshalBinary("test"), [4, 116, 101, 115, 116].asUint8List());
 
@@ -117,28 +122,36 @@ void main() {
       0xc4
     ].asUint8List();
 
-    expect(() => hashMarshalBinary(hash), throwsA(isA<InvalidHashLengthException>()));
+    expect(() => hashMarshalBinary(hash),
+        throwsA(isA<InvalidHashLengthException>()));
   });
 
   test('should marshal field', () {
-    expect(fieldMarshalBinary(1, booleanMarshalBinary(true)), [1, 1].asUint8List());
-    expect(fieldMarshalBinary(2, booleanMarshalBinary(false)), [2, 0].asUint8List());
+    expect(fieldMarshalBinary(1, booleanMarshalBinary(true)),
+        [1, 1].asUint8List());
+    expect(fieldMarshalBinary(2, booleanMarshalBinary(false)),
+        [2, 0].asUint8List());
   });
 
   test('should throw when marshal field', () {
-    expect(() => fieldMarshalBinary(0, booleanMarshalBinary(true)), throwsA(isA<ValueOutOfRangeException>()));
+    expect(() => fieldMarshalBinary(0, booleanMarshalBinary(true)),
+        throwsA(isA<ValueOutOfRangeException>()));
   });
 
   test('should marshal with field', () {
-    expect(withFieldNumber(uvarintMarshalBinaryAlt(1), 1), [1, 1].asUint8List());
-    expect(withFieldNumber(uvarintMarshalBinaryAlt(1), 2), [2, 1].asUint8List());
+    expect(
+        withFieldNumber(uvarintMarshalBinaryAlt(1), 1), [1, 1].asUint8List());
+    expect(
+        withFieldNumber(uvarintMarshalBinaryAlt(1), 2), [2, 1].asUint8List());
   });
 
   // Testing alternative implementation for uvarint
   test('should varint marshal binary BN numbers', () {
-    expect(uvarintMarshalBinaryAlt(0), []); // This is wrong behaviour, should be [0] but generates []
+    expect(uvarintMarshalBinaryAlt(0),
+        []); // This is wrong behaviour, should be [0] but generates []
     expect(uvarintMarshalBinaryAlt(2), [2].asUint8List());
-    expect(uvarintMarshalBinaryAlt(-1), []); // This is wrong behaviour, should be [1] but generates []
+    expect(uvarintMarshalBinaryAlt(-1),
+        []); // This is wrong behaviour, should be [1] but generates []
     expect(uvarintMarshalBinaryAlt(128), [128].asUint8List());
     expect(uvarintMarshalBinaryAlt(-64), [192].asUint8List());
   });

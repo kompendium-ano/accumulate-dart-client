@@ -43,7 +43,6 @@ Future<void> main() async {
 }
 
 void testFeatures() async {
-
   int waitTimeInSeconds = 60;
 
   LiteIdentity lid;
@@ -57,8 +56,6 @@ void testFeatures() async {
   print("new account ${lid.acmeTokenAccount.toString()}");
   print("\n");
   await Future.wait([
-      client.faucet(lid.acmeTokenAccount),
-    Future.delayed(const Duration(seconds: 10)),
     client.faucet(lid.acmeTokenAccount),
     Future.delayed(const Duration(seconds: 10)),
     client.faucet(lid.acmeTokenAccount),
@@ -75,8 +72,8 @@ void testFeatures() async {
     Future.delayed(const Duration(seconds: 10)),
     client.faucet(lid.acmeTokenAccount),
     Future.delayed(const Duration(seconds: 10)),
-
-
+    client.faucet(lid.acmeTokenAccount),
+    Future.delayed(const Duration(seconds: 10)),
   ]);
   dynamic res = await client.faucet(lid.acmeTokenAccount);
   print(res);
@@ -87,8 +84,7 @@ void testFeatures() async {
 
   //bool status = await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
   //print("transaction $status");
- // sleep(Duration(seconds: 60));
-
+  // sleep(Duration(seconds: 60));
 
   print("\n");
   res = await client.queryUrl(lid.url);
@@ -98,14 +94,15 @@ void testFeatures() async {
   res = await client.queryUrl(lid.acmeTokenAccount);
   print(res);
   print("\n");
-  int creditAmount = 50000*10;
+  int creditAmount = 50000 * 10;
   AddCreditsParam addCreditsParam = AddCreditsParam();
   addCreditsParam.recipient = lid.url;
   addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
   addCreditsParam.oracle = oracle;
   addCreditsParam.memo = "Add credits memo test";
-  addCreditsParam.metadata = utf8.encode("Add credits metadata test").asUint8List();
-print(addCreditsParam.amount);
+  addCreditsParam.metadata =
+      utf8.encode("Add credits metadata test").asUint8List();
+  print(addCreditsParam.amount);
   res = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
   print("addCredits res $res");
 
@@ -113,8 +110,6 @@ print(addCreditsParam.amount);
   print("addCredits txId $txId");
   sleep(Duration(seconds: waitTimeInSeconds));
   res = await client.queryTx(txId);
-
-
 
   identityUrl = "acc://adi-${DateTime.now().millisecondsSinceEpoch}.acme";
   final identitySigner = Ed25519KeypairSigner.generate();
@@ -134,25 +129,23 @@ print(addCreditsParam.amount);
   sleep(Duration(seconds: waitTimeInSeconds));
 
   //await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);
- // print("transaction complete");
+  // print("transaction complete");
 
   //res = await client.queryUrl(identityUrl);
 
-
   final keyPageUrl = bookUrl + "/1";
 
-  creditAmount = 90000*10;
+  creditAmount = 90000 * 10;
 
   addCreditsParam = AddCreditsParam();
   addCreditsParam.recipient = keyPageUrl;
-  addCreditsParam.amount = (creditAmount * pow(10, 8))~/ oracle;
+  addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
   addCreditsParam.oracle = oracle;
 
-  res  = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
+  res = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
   txId = res["result"]["txid"];
   print("Add credits to page $keyPageUrl txId $txId");
   sleep(Duration(seconds: waitTimeInSeconds));
-
 
   final tokenUrl = identityUrl + "/JTok";
   CreateTokenParam createTokenParam = CreateTokenParam();
@@ -162,7 +155,8 @@ print(addCreditsParam.amount);
 
   identityKeyPageTxSigner = TxSigner(keyPageUrl, identitySigner);
 
-  res = await client.createToken(identityUrl, createTokenParam, identityKeyPageTxSigner);
+  res = await client.createToken(
+      identityUrl, createTokenParam, identityKeyPageTxSigner);
   txId = res["result"]["txid"];
   print("CustomToken txId $txId");
   sleep(Duration(seconds: waitTimeInSeconds));
@@ -208,7 +202,6 @@ print(addCreditsParam.amount);
 
   sleep(Duration(seconds: waitTimeInSeconds));
 */
-
 
 /*
 
@@ -375,8 +368,6 @@ sleep(Duration(seconds: 60));*/
 
   sleep(Duration(seconds: 60));*/
 
-
-
   var txn0url = '${tokenUrl}#txn/0';
 
   QueryOptions queryOptions = QueryOptions();
@@ -397,12 +388,14 @@ sleep(Duration(seconds: 60));*/
 
   // Convert the response to a Transaction
   if (transaction.body!.type != "createToken") {
-    print('Expected first transaction of ${tokenUrl} to be createToken but got ${transaction.body!.type}');
+    print(
+        'Expected first transaction of ${tokenUrl} to be createToken but got ${transaction.body!.type}');
   }
 
   trans.HeaderOptions headerOptions = trans.HeaderOptions();
-  headerOptions.initiator = HEX.decode(transaction.header!.initiator!).asUint8List();
-  dynamic header = trans.Header(transaction.header!.principal!,headerOptions);
+  headerOptions.initiator =
+      HEX.decode(transaction.header!.initiator!).asUint8List();
+  dynamic header = trans.Header(transaction.header!.principal!, headerOptions);
   createTokenParam = CreateTokenParam();
   createTokenParam.url = transaction.body!.url!;
   createTokenParam.symbol = transaction.body!.symbol!;
@@ -416,22 +409,23 @@ sleep(Duration(seconds: 60));*/
   receipt.start = body.hash();
 
   receipt.startIndex = 0;
-  receipt.end =  body.hash();
-  receipt.endIndex= 0;
+  receipt.end = body.hash();
+  receipt.endIndex = 0;
   receipt.anchor = txn.hash().asUint8List();
 
   ReceiptEntry entry = ReceiptEntry();
   entry.hash = sha256.convert(header.marshalBinary()).bytes as Uint8List?;
   entry.right = false;
 
-  receipt.entries= [entry];
+  receipt.entries = [entry];
 
   Receipt proof1 = receipt;
 
   print("anchorRes ${proof2.anchor!}");
   // Prove the BVN anchor
   dynamic anchorRes = await client.queryAnchor(proof2.anchor!);
-  ReceiptM.Proof proof3 = ReceiptM.Proof.fromMap(anchorRes["result"]["receipt"]["proof"]);
+  ReceiptM.Proof proof3 =
+      ReceiptM.Proof.fromMap(anchorRes["result"]["receipt"]["proof"]);
 
   Receipt receipt2 = Receipt();
   receipt2.start = hexStringtoUint8List(proof2.start!);
@@ -440,13 +434,12 @@ sleep(Duration(seconds: 60));*/
   receipt2.endIndex = proof2.endIndex;
   receipt2.anchor = hexStringtoUint8List(proof2.anchor!);
   List<ReceiptEntry> entries2 = [];
-  for(ReceiptM.Entry entry in proof2.entries!){
+  for (ReceiptM.Entry entry in proof2.entries!) {
     ReceiptEntry receiptEntry2 = ReceiptEntry();
     receiptEntry2.right = entry.right;
     receiptEntry2.hash = hexStringtoUint8List(entry.hash!);
   }
   receipt2.entries = entries2;
-
 
   Receipt receipt3 = Receipt();
   receipt3.start = hexStringtoUint8List(proof3.start!);
@@ -455,7 +448,7 @@ sleep(Duration(seconds: 60));*/
   receipt3.endIndex = proof3.endIndex;
   receipt3.anchor = hexStringtoUint8List(proof3.anchor!);
   List<ReceiptEntry> entries3 = [];
-  for(ReceiptM.Entry entry in proof3.entries!){
+  for (ReceiptM.Entry entry in proof3.entries!) {
     ReceiptEntry receiptEntry2 = ReceiptEntry();
     receiptEntry2.right = entry.right;
     receiptEntry2.hash = hexStringtoUint8List(entry.hash!);
@@ -463,8 +456,8 @@ sleep(Duration(seconds: 60));*/
   receipt3.entries = entries3;
 
   // Assemble the full proof
-  dynamic receiptFinal = combineReceipts(combineReceipts(proof1, receipt2), receipt3);
-
+  dynamic receiptFinal =
+      combineReceipts(combineReceipts(proof1, receipt2), receipt3);
 
   // Create a token account for the TEST token
   var tokenAccountUrl = identityUrl + "/JimTokenAcc";
@@ -473,12 +466,12 @@ sleep(Duration(seconds: 60));*/
   createTokenAccountParam.tokenUrl = tokenUrl;
   TokenIssuerProofParam tokenIssuerProofParam = TokenIssuerProofParam();
 
-
   tokenIssuerProofParam.receipt = receiptFinal;
   tokenIssuerProofParam.transaction = body;
   createTokenAccountParam.proof = tokenIssuerProofParam;
 
-  res = await client.createTokenAccount(identityUrl, createTokenAccountParam, identityKeyPageTxSigner);
+  res = await client.createTokenAccount(
+      identityUrl, createTokenAccountParam, identityKeyPageTxSigner);
 
   txId = res["result"]["txid"];
   print("Create Custom Token Account $txId");
@@ -486,18 +479,20 @@ sleep(Duration(seconds: 60));*/
 
   res = await client.queryUrl(tokenAccountUrl);
 
-
   print("DONE");
 }
 
-Receipt combineReceipts(Receipt r1,Receipt r2){
+Receipt combineReceipts(Receipt r1, Receipt r2) {
+  dynamic anchorStr = ((r1.anchor is Uint8List) || (r1.anchor is List<int>))
+      ? HEX.encode(r1.anchor as List<int>)
+      : r1.anchor;
+  dynamic startStr = ((r2.start is Uint8List) || (r2.start is List<int>))
+      ? HEX.encode(r2.start as List<int>)
+      : r2.start;
 
-  dynamic anchorStr = ((r1.anchor is Uint8List) || (r1.anchor is List<int>)) ? HEX.encode(r1.anchor as List<int>) : r1.anchor;
-  dynamic startStr =
-    ((r2.start is Uint8List) || (r2.start is List<int>)) ? HEX.encode(r2.start as List<int>) : r2.start;
-
-if (anchorStr != startStr) {
-  print("Receipts cannot be combined, anchor ${anchorStr} doesn't match root merkle tree ${startStr}");
+  if (anchorStr != startStr) {
+    print(
+        "Receipts cannot be combined, anchor ${anchorStr} doesn't match root merkle tree ${startStr}");
   }
 
   Receipt result = cloneReceipt(r1);
@@ -508,38 +503,35 @@ if (anchorStr != startStr) {
   return result;
 }
 
-Receipt cloneReceipt(Receipt receipt){
+Receipt cloneReceipt(Receipt receipt) {
   Receipt newReceipt = Receipt();
   newReceipt.start = copyHash(receipt.start);
   newReceipt.startIndex = receipt.startIndex;
   newReceipt.end = copyHash(receipt.end);
-  newReceipt.endIndex =  receipt.endIndex;
-  newReceipt.anchor =  copyHash(receipt.anchor);
-  newReceipt.entries =  receipt.entries.map(copyReceiptEntry).toList();
+  newReceipt.endIndex = receipt.endIndex;
+  newReceipt.anchor = copyHash(receipt.anchor);
+  newReceipt.entries = receipt.entries.map(copyReceiptEntry).toList();
 
-return newReceipt;
+  return newReceipt;
 }
 
 ReceiptEntry copyReceiptEntry(ReceiptEntry re) {
   ReceiptEntry result = ReceiptEntry();
   result.hash = copyHash(re.hash);
 
-if (re.right != null && re.right!) {
-   result.right = true;
-   }
-return result;
+  if (re.right != null && re.right!) {
+    result.right = true;
+  }
+  return result;
 }
 
-Uint8List copyHash(dynamic hash){
-  if((hash is Uint8List)){
+Uint8List copyHash(dynamic hash) {
+  if ((hash is Uint8List)) {
     return hash;
-
   }
 
-  if((hash is List<int>)){
+  if ((hash is List<int>)) {
     return hash.asUint8List();
-
   }
-return utf8.encode(hash).asUint8List();
+  return utf8.encode(hash).asUint8List();
 }
-

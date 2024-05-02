@@ -33,7 +33,6 @@ Future<void> main() async {
   var r = await client.queryUrl(txSigner.url); // check for key page version
   txSigner = TxSigner.withNewVersion(txSigner, r["result"]["data"]["version"]);
 
-
   try {
     var res = await client.writeData(dataAccountUrl, writeDataParam, txSigner);
     print("Write Data to ADI Data Account response: $res");

@@ -37,7 +37,8 @@ class RpcClient {
 
   int get idCounter => _idCounter;
 
-  Future<Map<String, dynamic>> call(String function, [Map<String, dynamic>? params, bool? suppressLog = false]) async {
+  Future<Map<String, dynamic>> call(String function,
+      [Map<String, dynamic>? params, bool? suppressLog = false]) async {
     params ??= {};
     suppressLog ??= false;
 
@@ -72,7 +73,8 @@ class RpcClient {
       final message = error['message'] as String?;
       final errorData = error['data'];
       // Log the error before throwing
-      print("[RpcClient] Error received: Code $code, Message $message, Data $errorData");
+      print(
+          "[RpcClient] Error received: Code $code, Message $message, Data $errorData");
       throw RPCError(code, message, errorData);
     }
 

@@ -31,7 +31,8 @@ class CreateDataAccount extends BasePayload {
   @override
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.createDataAccount, 1));
+    forConcat
+        .addAll(uvarintMarshalBinary(TransactionType.createDataAccount, 1));
     forConcat.addAll(stringMarshalBinary(_url.toString(), 2));
 
     if (_authorities != null) {

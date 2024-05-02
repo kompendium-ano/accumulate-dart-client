@@ -10,14 +10,18 @@ void main() {
       final result = fieldMarshalBinary(field, data);
 
       expect(result, isNotNull);
-      expect(result.length, equals(data.length + 1)); // Length should include the field byte
+      expect(result.length,
+          equals(data.length + 1)); // Length should include the field byte
     });
 
-    test('Field marshal binary should throw ValueOutOfRangeException for invalid field', () {
+    test(
+        'Field marshal binary should throw ValueOutOfRangeException for invalid field',
+        () {
       final field = 0;
       final data = Uint8List.fromList([1, 2, 3]);
 
-      expect(() => fieldMarshalBinary(field, data), throwsA(TypeMatcher<ValueOutOfRangeException>()));
+      expect(() => fieldMarshalBinary(field, data),
+          throwsA(TypeMatcher<ValueOutOfRangeException>()));
     });
 
     test('Uvarint marshal binary should encode integer', () {
@@ -38,4 +42,3 @@ void main() {
     // TO DO: Add more tests for other encoding methods as needed.
   });
 }
-

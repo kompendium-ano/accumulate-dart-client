@@ -8,7 +8,6 @@ import 'package:accumulate_api/accumulate_api.dart';
 // Ensure this is correctly imported
 import 'package:hex/hex.dart';
 
-
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);
 int delayBeforePrintSeconds = 180;
@@ -47,9 +46,6 @@ Future<void> testFeatures() async {
 
   // Add 1000 credits to the second lite account
   await addCredits(secondLid, 10000, oracle);
-  
-
-
 
   // Sending 7 tokens from lid to secondLid
   await sendTokens(
@@ -67,12 +63,18 @@ Future<void> testFeatures() async {
   // Print ADI Signer Key Details
   printKeypairDetails(adiSigner);
   print("the adiSigner: $adiSigner");
-  await createAdi(lid, adiSigner, adiName, );
+  await createAdi(
+    lid,
+    adiSigner,
+    adiName,
+  );
 
   // Add credits to custom-adi-name key book's key page
-  String keyPageUrl = "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
+  String keyPageUrl =
+      "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
   print("keyPageUrl Name: $keyPageUrl");
-  await addCreditsToAdiKeyPage(lid, keyPageUrl, 7000000, oracle); // Adjust the credit amount as needed
+  await addCreditsToAdiKeyPage(
+      lid, keyPageUrl, 7000000, oracle); // Adjust the credit amount as needed
 
   // Pause to allow the addCredits transaction to settle
   print("Pausing to allow addCredits transaction to settle...");
@@ -83,7 +85,7 @@ Future<void> testFeatures() async {
   await createAdiKeyBook(client, adiSigner, "acc://$adiName.acme", keyBookUrl);
   // Prepare a list of public keys for the new key page
   List<Uint8List> keys = [adiSigner.publicKey()];
-  
+
   // Create a Key Page in the Key Book
   await createAdiKeyPage(client, adiSigner, keyBookUrl, keys);
 
@@ -115,11 +117,13 @@ Future<void> testFeatures() async {
   // Create the first ADI ACME token account
   String identityUrl = "acc://$adiName.acme";
   String tokenAccountUrl1 = "$identityUrl/acme-token-account-1";
-  await createAdiAcmeTokenAccount(adiSigner, identityUrl, keyPageUrl, tokenAccountUrl1);
+  await createAdiAcmeTokenAccount(
+      adiSigner, identityUrl, keyPageUrl, tokenAccountUrl1);
 
   // Create the second ADI ACME token account
   String tokenAccountUrl2 = "$identityUrl/acme-token-account-2";
-  await createAdiAcmeTokenAccount(adiSigner, identityUrl, keyPageUrl, tokenAccountUrl2);
+  await createAdiAcmeTokenAccount(
+      adiSigner, identityUrl, keyPageUrl, tokenAccountUrl2);
 
   // Pause to allow the create token accoutns to settle
   print("Pausing to allow the create token accoutns to settle...");
@@ -134,7 +138,7 @@ Future<void> testFeatures() async {
     amount: 30,
     signer: signer1,
   );
-    print("Sending 30 tokens from lid to tokenAccountUrl1");
+  print("Sending 30 tokens from lid to tokenAccountUrl1");
 
   // Pause to allow the addCredits transaction to settle
   print("Pausing to allow sendTokens transaction to settle...");
@@ -150,7 +154,7 @@ Future<void> testFeatures() async {
     signer: adiSigner,
     keyPageUrl: "acc://$adiName.acme/book/1", // Key page URL
   );
-    print("Sending 9 from tokenAccountUrl1 to tokenAccountUrl2");
+  print("Sending 9 from tokenAccountUrl1 to tokenAccountUrl2");
 
   // Sending 5 tokens from tokenAccountUrl1 to lid
   await sendTokens(
@@ -162,29 +166,33 @@ Future<void> testFeatures() async {
     signer: adiSigner,
     keyPageUrl: "acc://$adiName.acme/book/1", // Key page URL for source account
   );
-      print("Sending 5 tokens from tokenAccountUrl1 to lid");
-
-
+  print("Sending 5 tokens from tokenAccountUrl1 to lid");
 
   // Creating an ADI Custom Token
   String customTokenUrl = "$identityUrl/my-custom-token";
-  await createCustomToken(adiSigner, identityUrl, keyPageUrl, customTokenUrl, "MYTKN", 2);
+  await createCustomToken(
+      adiSigner, identityUrl, keyPageUrl, customTokenUrl, "MYTKN", 2);
 
   // create two custom token acounts for MYTKN
-  await createCustomTokenAccount(adiSigner, identityUrl, keyPageUrl, customTokenUrl, "myCustomTokenAccount1");
-  await createCustomTokenAccount(adiSigner, identityUrl, keyPageUrl, customTokenUrl, "myCustomTokenAccount2");
+  await createCustomTokenAccount(adiSigner, identityUrl, keyPageUrl,
+      customTokenUrl, "myCustomTokenAccount1");
+  await createCustomTokenAccount(adiSigner, identityUrl, keyPageUrl,
+      customTokenUrl, "myCustomTokenAccount2");
 
- // Pause to allow creation of custom token acounts for MYTKN transaction to settle
-  print("Pausing to allow creation of custom token acounts for MYTKN transaction to settle...");
+  // Pause to allow creation of custom token acounts for MYTKN transaction to settle
+  print(
+      "Pausing to allow creation of custom token acounts for MYTKN transaction to settle...");
   await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
 
   // issue custom token (MYTKN) to a MYTKN custom token account
-  await issueCustomTokens(adiSigner, keyPageUrl, customTokenUrl, "$identityUrl/myCustomTokenAccount1", 100000);
+  await issueCustomTokens(adiSigner, keyPageUrl, customTokenUrl,
+      "$identityUrl/myCustomTokenAccount1", 100000);
 
   // Send custom token (MYTKN) from a custom token account to second custom token account
   String fromCustomTokenAccountUrl = "$identityUrl/myCustomTokenAccount1";
   String toCustomTokenAccountUrl = "$identityUrl/myCustomTokenAccount2";
-  int amountToSend = 6000; // the amount is base 100, so the amount you put is ##/100
+  int amountToSend =
+      6000; // the amount is base 100, so the amount you put is ##/100
   // Assuming `adiSigner` is your Ed25519KeypairSigner and `keyPageUrl` is the URL of the key page used for signing transactions
   await sendCustomTokens(
     fromAccount: fromCustomTokenAccountUrl,
@@ -192,9 +200,11 @@ Future<void> testFeatures() async {
     amount: amountToSend,
     signer: adiSigner,
     tokenUrl: customTokenUrl,
-    keyPageUrl: "$identityUrl/book/1", // Adjust based on your ADI's key book structure
+    keyPageUrl:
+        "$identityUrl/book/1", // Adjust based on your ADI's key book structure
   );
-  print("Sent $amountToSend MYTKN from $fromCustomTokenAccountUrl to $toCustomTokenAccountUrl");
+  print(
+      "Sent $amountToSend MYTKN from $fromCustomTokenAccountUrl to $toCustomTokenAccountUrl");
 }
 
 // SendTokens function Enum to define the type of account for clearer function calls
@@ -216,7 +226,8 @@ Future<void> sendTokens({
   } else if (fromType == AccountType.adi && keyPageUrl != null) {
     txSigner = TxSigner(keyPageUrl, signer);
   } else {
-    throw Exception("Invalid account type or missing key page URL for ADI account.");
+    throw Exception(
+        "Invalid account type or missing key page URL for ADI account.");
   }
 
   // Construct the parameters for sending tokens
@@ -230,7 +241,8 @@ Future<void> sendTokens({
 
   try {
     // Execute the sendTokens transaction
-    var response = await client.sendTokens(fromAccount, sendTokensParam, txSigner);
+    var response =
+        await client.sendTokens(fromAccount, sendTokensParam, txSigner);
     print("ACME Send tx submitted, response: $response");
   } catch (e) {
     print("Error sending ACME tokens: $e");
@@ -243,6 +255,7 @@ Future<void> addFundsToAccount(AccURL accountUrl, {int times = 10}) async {
     await Future.delayed(Duration(seconds: 10));
   }
 }
+
 void printKeypairDetails(Ed25519KeypairSigner signer) {
   String publicKeyHex = HEX.encode(signer.publicKey());
   String privateKeyHex = HEX.encode(signer.secretKey());
@@ -260,7 +273,8 @@ Future<void> addCredits(LiteIdentity lid, int creditAmount, int oracle) async {
   addCreditsParam.oracle = oracle;
   addCreditsParam.memo = "Add credits memo test";
   // Convert metadata to Uint8List
-  Uint8List metadata = Uint8List.fromList(utf8.encode("Add credits metadata test"));
+  Uint8List metadata =
+      Uint8List.fromList(utf8.encode("Add credits metadata test"));
   addCreditsParam.metadata = metadata;
 
   print("Preparing to add credits:");
@@ -284,8 +298,9 @@ Future<void> addCredits(LiteIdentity lid, int creditAmount, int oracle) async {
   }
 }
 
-// Create an Accumulate ADI Identity 
-Future<void> createAdi(LiteIdentity lid, Ed25519KeypairSigner adiSigner, String adiName) async {
+// Create an Accumulate ADI Identity
+Future<void> createAdi(
+    LiteIdentity lid, Ed25519KeypairSigner adiSigner, String adiName) async {
   // Correct formation of the ADI URL
   final String identityUrl = "acc://$adiName.acme";
   final String bookUrl = "$identityUrl/book";
@@ -301,7 +316,8 @@ Future<void> createAdi(LiteIdentity lid, Ed25519KeypairSigner adiSigner, String 
   print("Key Hash: ${HEX.encode(adiSigner.publicKeyHash())}");
 
   try {
-    var response = await client.createIdentity(lid.url, createIdentityParam, lid);
+    var response =
+        await client.createIdentity(lid.url, createIdentityParam, lid);
     var txId = response["result"]["txid"];
     print("Create identity transaction submitted, response: $response");
     print("Transaction ID: $txId");
@@ -315,37 +331,49 @@ Future<void> createAdi(LiteIdentity lid, Ed25519KeypairSigner adiSigner, String 
 }
 
 // Function to add credits to a key page of the ADI
-Future<void> addCreditsToAdiKeyPage(LiteIdentity lid, String keyPageUrl, int creditAmount, int oracle) async {
+Future<void> addCreditsToAdiKeyPage(
+    LiteIdentity lid, String keyPageUrl, int creditAmount, int oracle) async {
   AddCreditsParam addCreditsParam = AddCreditsParam();
   addCreditsParam.recipient = keyPageUrl;
   addCreditsParam.amount = (creditAmount * pow(10, 8).toInt()) ~/ oracle;
   addCreditsParam.oracle = oracle;
-  print("Adding credits to ADI key page: $keyPageUrl with amount: ${addCreditsParam.amount}");
+  print(
+      "Adding credits to ADI key page: $keyPageUrl with amount: ${addCreditsParam.amount}");
 
   var res = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
   print("Add credits to ADI key page response: $res");
 }
 
 // Function to create an ACME token account under the ADI
-Future<void> createAdiAcmeTokenAccount(Ed25519KeypairSigner adiSigner, String identityUrl, String keyPageUrl, String tokenAccountUrl) async {
+Future<void> createAdiAcmeTokenAccount(Ed25519KeypairSigner adiSigner,
+    String identityUrl, String keyPageUrl, String tokenAccountUrl) async {
   // Prepare the parameters for creating a token account
   CreateTokenAccountParam createTokenAccountParam = CreateTokenAccountParam();
-  createTokenAccountParam.url = tokenAccountUrl; // Use the specific token account URL
+  createTokenAccountParam.url =
+      tokenAccountUrl; // Use the specific token account URL
   createTokenAccountParam.tokenUrl = "acc://ACME";
-  
+
   print("Creating ADI ACME token account at: $tokenAccountUrl");
 
   // And use the TxSigner initialized with the key from the key page
-  TxSigner txSigner = TxSigner(keyPageUrl, adiSigner); // Use the signer with authority
-  
+  TxSigner txSigner =
+      TxSigner(keyPageUrl, adiSigner); // Use the signer with authority
+
   // Execute the transaction
-  var res = await client.createTokenAccount(identityUrl, createTokenAccountParam, txSigner);
-  
+  var res = await client.createTokenAccount(
+      identityUrl, createTokenAccountParam, txSigner);
+
   print("Create ADI ACME token account response: $res");
 }
 
 // create a custom token
-Future<void> createCustomToken(Ed25519KeypairSigner adiSigner, String identityUrl, String keyPageUrl, String tokenUrl, String symbol, int precision) async {
+Future<void> createCustomToken(
+    Ed25519KeypairSigner adiSigner,
+    String identityUrl,
+    String keyPageUrl,
+    String tokenUrl,
+    String symbol,
+    int precision) async {
   CreateTokenParam createTokenParam = CreateTokenParam();
   createTokenParam.url = tokenUrl;
   createTokenParam.symbol = symbol;
@@ -358,7 +386,7 @@ Future<void> createCustomToken(Ed25519KeypairSigner adiSigner, String identityUr
   // createTokenParam.metadata = ...;
 
   TxSigner txSigner = TxSigner(keyPageUrl, adiSigner);
-  
+
   print("Creating custom token: $symbol at $tokenUrl");
   var res = await client.createToken(identityUrl, createTokenParam, txSigner);
   var txId = res["result"]["txid"];
@@ -366,13 +394,18 @@ Future<void> createCustomToken(Ed25519KeypairSigner adiSigner, String identityUr
 
   // Optionally, wait for transaction to be confirmed
   await delayBeforePrint();
-  
+
   // Query and log the result of token creation
   // This is to check the status of the created token, similar to the given examples
 }
 
 // create a token account for a custom token
-Future<void> createCustomTokenAccount(Ed25519KeypairSigner adiSigner, String identityUrl, String keyPageUrl, String tokenUrl, String accountName) async {
+Future<void> createCustomTokenAccount(
+    Ed25519KeypairSigner adiSigner,
+    String identityUrl,
+    String keyPageUrl,
+    String tokenUrl,
+    String accountName) async {
   String tokenAccountUrl = "$identityUrl/$accountName";
   CreateTokenAccountParam createTokenAccountParam = CreateTokenAccountParam();
   createTokenAccountParam.url = tokenAccountUrl;
@@ -380,13 +413,20 @@ Future<void> createCustomTokenAccount(Ed25519KeypairSigner adiSigner, String ide
 
   TxSigner txSigner = TxSigner(keyPageUrl, adiSigner);
 
-  print("Creating custom token account at: $tokenAccountUrl for token: $tokenUrl");
-  var res = await client.createTokenAccount(identityUrl, createTokenAccountParam, txSigner);
+  print(
+      "Creating custom token account at: $tokenAccountUrl for token: $tokenUrl");
+  var res = await client.createTokenAccount(
+      identityUrl, createTokenAccountParam, txSigner);
   print("Custom token account creation response: $res");
 }
 
 // issue a custom token to a cusotm token account
-Future<void> issueCustomTokens(Ed25519KeypairSigner adiSigner, String keyPageUrl, String tokenUrl, String recipientAccountUrl, int amount) async {
+Future<void> issueCustomTokens(
+    Ed25519KeypairSigner adiSigner,
+    String keyPageUrl,
+    String tokenUrl,
+    String recipientAccountUrl,
+    int amount) async {
   IssueTokensParam issueTokensParam = IssueTokensParam();
   issueTokensParam.to = [
     TokenRecipientParam()
@@ -396,7 +436,8 @@ Future<void> issueCustomTokens(Ed25519KeypairSigner adiSigner, String keyPageUrl
 
   TxSigner txSigner = TxSigner(keyPageUrl, adiSigner);
 
-  print("Issuing $amount tokens to: $recipientAccountUrl from token: $tokenUrl");
+  print(
+      "Issuing $amount tokens to: $recipientAccountUrl from token: $tokenUrl");
   var res = await client.issueTokens(tokenUrl, issueTokensParam, txSigner);
   print("Token issuance response: $res");
 }
@@ -424,14 +465,16 @@ Future<void> sendCustomTokens({
 
   try {
     // Execute the sendTokens transaction for the custom token
-    var response = await client.sendTokens(fromAccount, sendTokensParam, txSigner); // Notice the tokenUrl parameter
+    var response = await client.sendTokens(fromAccount, sendTokensParam,
+        txSigner); // Notice the tokenUrl parameter
     print("Custom Token Send tx submitted, response: $response");
   } catch (e) {
     print("Error sending custom tokens: $e");
   }
 }
 
-Future<void> createAdiKeyBook(ACMEClient client, Ed25519KeypairSigner adiSigner, String identityUrl, String keyBookUrl) async {
+Future<void> createAdiKeyBook(ACMEClient client, Ed25519KeypairSigner adiSigner,
+    String identityUrl, String keyBookUrl) async {
   // Prepare the parameters for creating a key book
   CreateKeyBookParam createKeyBookParam = CreateKeyBookParam();
   createKeyBookParam.url = keyBookUrl;
@@ -444,14 +487,17 @@ Future<void> createAdiKeyBook(ACMEClient client, Ed25519KeypairSigner adiSigner,
   print("Creating key book at: $keyBookUrl");
 
   // Execute the transaction to create the key book using your ACMEClient instance
-  var res = await client.createKeyBook(identityUrl, createKeyBookParam, txSigner);
-  
+  var res =
+      await client.createKeyBook(identityUrl, createKeyBookParam, txSigner);
+
   print("Create key book transaction response: $res");
 }
 
-Future<void> createAdiKeyPage(ACMEClient client, Ed25519KeypairSigner adiSigner, String keyBookUrl, List<Uint8List> keys) async {
+Future<void> createAdiKeyPage(ACMEClient client, Ed25519KeypairSigner adiSigner,
+    String keyBookUrl, List<Uint8List> keys) async {
   // Construct the URL for the new key page (this may vary based on your naming convention)
-  String keyPageUrl = "$keyBookUrl/key-page-${DateTime.now().millisecondsSinceEpoch}";
+  String keyPageUrl =
+      "$keyBookUrl/key-page-${DateTime.now().millisecondsSinceEpoch}";
 
   // Prepare the parameters for creating a key page
   CreateKeyPageParam createKeyPageParam = CreateKeyPageParam()
@@ -464,16 +510,17 @@ Future<void> createAdiKeyPage(ACMEClient client, Ed25519KeypairSigner adiSigner,
   print("Creating key page at: $keyPageUrl");
 
   // Execute the transaction to create the key page
-  var res = await client.createKeyPage(keyBookUrl, createKeyPageParam, txSigner);
-  
+  var res =
+      await client.createKeyPage(keyBookUrl, createKeyPageParam, txSigner);
+
   print("Create key page transaction response: $res");
 }
 
 // Update a key page function
 Future<Map<String, dynamic>> updateAdiKeyPage(
     ACMEClient client,
-    String keyPageUrl, 
-    UpdateKeyPageParam updateKeyPageParam, 
+    String keyPageUrl,
+    UpdateKeyPageParam updateKeyPageParam,
     Ed25519KeypairSigner signer) async {
   // Convert the Ed25519KeypairSigner to TxSigner if necessary
   // This conversion logic depends on your implementation details
@@ -486,7 +533,6 @@ Future<Map<String, dynamic>> updateAdiKeyPage(
     txSigner,
   );
 }
-
 
 /*
 

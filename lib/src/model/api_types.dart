@@ -92,19 +92,18 @@ class TxQueryOptions extends QueryOptions {
   }
 }
 
-class TxHistoryQueryOptions  {
-bool? scratch;
+class TxHistoryQueryOptions {
+  bool? scratch;
 
-Map<String, dynamic> get toMap {
-  Map<String, dynamic> value = {};
+  Map<String, dynamic> get toMap {
+    Map<String, dynamic> value = {};
 
-  if (scratch != null) {
-    value.addAll({"scratch": scratch!});
+    if (scratch != null) {
+      value.addAll({"scratch": scratch!});
+    }
+
+    return value;
   }
-
-
-  return value;
-}
 }
 
 class MinorBlocksQueryOptions {
@@ -115,15 +114,14 @@ class MinorBlocksQueryOptions {
     Map<String, dynamic> value = {};
 
     if (txFetchMode != null) {
-      if(txFetchMode==0) {
+      if (txFetchMode == 0) {
         value.addAll({"TxFetchMode": "Expand"});
       }
     }
 
     if (blockFilterMode != null) {
-      if(blockFilterMode == 0) {
-        value.addAll(
-            {"BlockFilterMode": "ExcludeNone"});
+      if (blockFilterMode == 0) {
+        value.addAll({"BlockFilterMode": "ExcludeNone"});
       } else {
         value.addAll({"BlockFilterMode": "ExcludeEmpty"});
       }

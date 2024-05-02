@@ -64,7 +64,7 @@ class Ed25519Keypair {
 
     if (!skipValidation) {
       final message =
-      utf8.encode("@accumulate/accumulate.js-validation-v1").asUint8List();
+          utf8.encode("@accumulate/accumulate.js-validation-v1").asUint8List();
       final sig = ed.sign(privateKey, message);
       bool valid = ed.verify(publicKey, message, sig);
       if (!valid) {

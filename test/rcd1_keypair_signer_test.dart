@@ -7,7 +7,8 @@ void main() {
     late RCD1KeypairSigner rcd1KeypairSigner;
 
     setUp(() {
-      ed25519Keypair = Ed25519Keypair.generate(); // You can provide your own test keypair if needed
+      ed25519Keypair = Ed25519Keypair
+          .generate(); // You can provide your own test keypair if needed
       rcd1KeypairSigner = RCD1KeypairSigner(ed25519Keypair);
     });
 
@@ -37,4 +38,3 @@ void main() {
     });
   });
 }
-

@@ -24,7 +24,12 @@ class KeyBook {
         _address = json['address'],
         _parentAdi = json['parentAdi'];
 
-  Map<String, dynamic> toJson() => {'nickname': _nickname, 'path': _path, 'address': _address, 'parentAdi': _parentAdi};
+  Map<String, dynamic> toJson() => {
+        'nickname': _nickname,
+        'path': _path,
+        'address': _address,
+        'parentAdi': _parentAdi
+      };
 
   String? get path => _path;
 

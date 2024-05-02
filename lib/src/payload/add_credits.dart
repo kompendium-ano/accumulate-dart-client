@@ -22,8 +22,12 @@ class AddCredits extends BasePayload {
 
   AddCredits(AddCreditsParam addCreditsParam) : super() {
     _recipient = AccURL.toAccURL(addCreditsParam.recipient);
-    _amount = addCreditsParam.amount is int ? addCreditsParam.amount : int.parse(addCreditsParam.amount);
-    _oracle = addCreditsParam.oracle is int ? addCreditsParam.oracle : int.parse(addCreditsParam.oracle);
+    _amount = addCreditsParam.amount is int
+        ? addCreditsParam.amount
+        : int.parse(addCreditsParam.amount);
+    _oracle = addCreditsParam.oracle is int
+        ? addCreditsParam.oracle
+        : int.parse(addCreditsParam.oracle);
 
     super.memo = addCreditsParam.memo;
     super.metadata = addCreditsParam.metadata;

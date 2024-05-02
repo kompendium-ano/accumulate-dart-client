@@ -9,7 +9,8 @@ void main() {
     keypair.publicKey = kp1.publicKey;
     keypair.mnemonic = kp1.mnemonic;
 
-    final kp2 = Ed25519Keypair(keypair); // Ed25519Keypair and Keypair different types
+    final kp2 =
+        Ed25519Keypair(keypair); // Ed25519Keypair and Keypair different types
 
     expect(kp1.publicKey, kp2.publicKey);
   });

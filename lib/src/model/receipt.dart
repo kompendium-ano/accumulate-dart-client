@@ -18,10 +18,9 @@ class Receipt {
   dynamic anchor;
   late List<ReceiptEntry> entries;
 
-  Receipt(){
-  }
+  Receipt() {}
 
-  Receipt.fromProof(proof, entries2){
+  Receipt.fromProof(proof, entries2) {
     start = getBytes(proof.start);
     startIndex = proof.startIndex;
     end = getBytes(proof.end);
@@ -61,15 +60,13 @@ class Receipt {
   }
 
   static Uint8List getBytes(dynamic hash) {
-    if((hash is Uint8List)){
+    if ((hash is Uint8List)) {
       return hash;
-
     }
 
-    if((hash is List<int>)){
+    if ((hash is List<int>)) {
       return hash.asUint8List();
-
     }
-    return HEX.decode(hash).asUint8List();//utf8.encode(hash).asUint8List();
+    return HEX.decode(hash).asUint8List(); //utf8.encode(hash).asUint8List();
   }
 }

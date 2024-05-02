@@ -32,7 +32,7 @@ class FactomDataEntry extends BasePayload {
     forConcat.addAll(bytesMarshalBinary(_accountId!, 1));
     //forConcat.addAll(uvarintMarshalBinary(_data!.length, 2));
     //forConcat.addAll(bytesMarshalBinary(_data!, 3));
-    if(_extIds.length > 0) {
+    if (_extIds.length > 0) {
       Uint8List refsBinary = marshallExtIds();
       //forConcat.addAll(bytesMarshalBinary(refsBinary, 3));
     }

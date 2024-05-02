@@ -5,7 +5,6 @@ import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-
 import '../../accumulate_api.dart';
 
 // // URL is an Accumulate URL.
@@ -25,15 +24,14 @@ class AccumulateURL {
   String? _fragment;
   AccURL? _accURL;
 
-  AccumulateURL() {
-  }
+  AccumulateURL() {}
 
   AccumulateURL.fromJson(Map<String, dynamic> json)
       : _userInfo = json['userInfo'],
         _authority = json['authority'],
         _path = json['path'],
         _query = json['query'],
-  _accURL = json['url'],
+        _accURL = json['url'],
         _fragment = json['fragment'];
 
   Map<String, dynamic> toJson() => {
@@ -42,11 +40,10 @@ class AccumulateURL {
         'path': _path,
         'query': _query,
         'fragment': _fragment,
-    'url':_accURL,
+        'url': _accURL,
       };
 
   String getPath() => _accURL.toString();
-
 
   // Hostname returns the hostname from the authority component.
   //   func (u *URL) Hostname() string {
@@ -73,11 +70,10 @@ class AccumulateURL {
   //    return chain(u.Hostname() + ensurePath(u.Path))
   //  }
   List<int> resourceChain() {
-    String combo =  _accURL.toString();   //hostname() + ensurePath(path)!;
+    String combo = _accURL.toString(); //hostname() + ensurePath(path)!;
     Digest chainHash = sha256.convert(utf8.encode(combo.toLowerCase()));
     return chainHash.bytes.sublist(0, 32);
   }
-
 
   // func ensurePath(s string) string {
   // if s == "" || s[0] == '/' {
@@ -126,7 +122,7 @@ class AccumulateURL {
 
   AccURL? get accURL => _accURL;
 
-  set accURL(AccURL? value){
+  set accURL(AccURL? value) {
     _accURL = value;
   }
 }
@@ -167,7 +163,6 @@ class AccumulateURL {
 // }
 ///
 Either<String, AccumulateURL> parseStringToAccumulateURL(String input) {
-
   Uri parsedUri = Uri.parse(input);
   if (parsedUri.scheme == "") {
     // unidentified scheme, try to make it accumulate scheme
@@ -248,6 +243,7 @@ class Address {
   set URL(AccumulateURL? value) {
     _URL = value;
   }
+
   LiteIdentity? get lid => _lid;
 
   set lid(LiteIdentity? value) {
@@ -271,7 +267,7 @@ class Address {
         _pikHex = json['pikHex'],
         _pik = json['pik'],
         _parentAdi = json['parentAdi'],
-  _lid = json['lid'],
+        _lid = json['lid'],
         _affiliatedKeybook = json['affiliatedKeybook'];
 
   Map<String, dynamic> toJson() => {
@@ -285,7 +281,7 @@ class Address {
         'pikHex': _pikHex,
         'pik': _pik,
         'parentAdi': _parentAdi,
-    'lid':_lid,
+        'lid': _lid,
         'affiliatedKeybook': _affiliatedKeybook
       };
 
@@ -375,7 +371,8 @@ class Address {
   // }
   //
   // tokenUrl for now "ACME"
-  AccumulateURL generateAddressViaProtocol(List<int> pubKey, String tokenUrlStr) {
+  AccumulateURL generateAddressViaProtocol(
+      List<int> pubKey, String tokenUrlStr) {
     Either<String, AccumulateURL> res = parseStringToAccumulateURL(tokenUrlStr);
     if (res.isLeft())
       return new AccumulateURL();
@@ -383,9 +380,9 @@ class Address {
       final AccumulateURL tokenUrl = res.toOption().toNullable()!;
       tokenUrl.authority;
 
-
       // 1. Get the hash of the public key
-      Digest keyHash = sha256.convert(pubKey); // keyHash := sha256.Sum256(pubKey)
+      Digest keyHash =
+          sha256.convert(pubKey); // keyHash := sha256.Sum256(pubKey)
 
       int lengthKeyHash = keyHash.toString().length;
       String str = keyHash.toString();
@@ -403,8 +400,6 @@ class Address {
       return anonUrl; //"acc://" + anonUrl.authority + anonUrl.path;
     }
   }
-
-
 
   bool isACMEAddress(String input) {
     if (input.length != 53) {

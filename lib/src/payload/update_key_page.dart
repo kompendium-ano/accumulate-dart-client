@@ -53,7 +53,10 @@ class UpdateKeyPage extends BasePayload {
 
     forConcat.addAll(uvarintMarshalBinary(TransactionType.updateKeyPage, 1));
 
-    this._operations.map(marshalBinaryKeyPageOperation).forEach((b) => forConcat.addAll(bytesMarshalBinary(b, 2)));
+    this
+        ._operations
+        .map(marshalBinaryKeyPageOperation)
+        .forEach((b) => forConcat.addAll(bytesMarshalBinary(b, 2)));
 
     return forConcat.asUint8List();
   }
@@ -90,7 +93,8 @@ class UpdateKeyPage extends BasePayload {
 
     forConcat.addAll(uvarintMarshalBinary(operation.type!, 1));
 
-    forConcat.addAll(bytesMarshalBinary(marshalBinaryKeySpec(operation.key!), 2));
+    forConcat
+        .addAll(bytesMarshalBinary(marshalBinaryKeySpec(operation.key!), 2));
 
     return forConcat.asUint8List();
   }
@@ -100,8 +104,10 @@ class UpdateKeyPage extends BasePayload {
 
     forConcat.addAll(uvarintMarshalBinary(operation.type!, 1));
 
-    forConcat.addAll(bytesMarshalBinary(marshalBinaryKeySpec(operation.oldKey!), 2));
-    forConcat.addAll(bytesMarshalBinary(marshalBinaryKeySpec(operation.newKey!), 3));
+    forConcat
+        .addAll(bytesMarshalBinary(marshalBinaryKeySpec(operation.oldKey!), 2));
+    forConcat
+        .addAll(bytesMarshalBinary(marshalBinaryKeySpec(operation.newKey!), 3));
 
     return forConcat.asUint8List();
   }
@@ -120,11 +126,13 @@ class UpdateKeyPage extends BasePayload {
 
     forConcat.addAll(uvarintMarshalBinary(operation.type!, 1));
     if (operation.allow != null) {
-      operation.allow!.forEach((a) => forConcat.addAll(uvarintMarshalBinary(a, 2)));
+      operation.allow!
+          .forEach((a) => forConcat.addAll(uvarintMarshalBinary(a, 2)));
     }
 
     if (operation.deny != null) {
-      operation.deny!.forEach((d) => forConcat.addAll(uvarintMarshalBinary(d, 3)));
+      operation.deny!
+          .forEach((d) => forConcat.addAll(uvarintMarshalBinary(d, 3)));
     }
 
     return forConcat.asUint8List();

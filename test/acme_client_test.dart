@@ -15,12 +15,14 @@ void main() {
 
     test('Invalid protocol should throw InvalidProtocolException', () {
       final invalidUrl = 'http://example.com';
-      expect(() => AccURL.parse(invalidUrl), throwsA(TypeMatcher<InvalidProtocolException>()));
+      expect(() => AccURL.parse(invalidUrl),
+          throwsA(TypeMatcher<InvalidProtocolException>()));
     });
 
     test('Missing authority should throw MissingAuthorityException', () {
       final invalidUrl = 'acc://';
-      expect(() => AccURL.parse(invalidUrl), throwsA(TypeMatcher<MissingAuthorityException>()));
+      expect(() => AccURL.parse(invalidUrl),
+          throwsA(TypeMatcher<MissingAuthorityException>()));
     });
 
     test('Appending path segments should create a new AccURL', () {
@@ -49,5 +51,4 @@ void main() {
       expect(appendedUrl.toString(), 'acc://example.com/path');
     });
   });
-
 }

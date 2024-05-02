@@ -5,7 +5,8 @@ import 'dart:math';
 import 'package:accumulate_api/accumulate_api.dart';
 import 'package:hex/hex.dart';
 
-final endPoint = "https://testnet.accumulatenetwork.io/v2"; // "http://127.0.1.1:26660/v2"; //"";
+final endPoint =
+    "https://testnet.accumulatenetwork.io/v2"; // "http://127.0.1.1:26660/v2"; //"";
 ACMEClient client = ACMEClient(endPoint);
 
 Future<void> main() async {
@@ -92,7 +93,8 @@ void testFeatures() async {
   sleep(Duration(seconds: waitTimeInSeconds));
   res = await client.queryTx(txId);
 
-  identityUrl = "acc://adi-cosmonaut-1-${DateTime.now().millisecondsSinceEpoch}.acme";
+  identityUrl =
+      "acc://adi-cosmonaut-1-${DateTime.now().millisecondsSinceEpoch}.acme";
   final identitySigner = Ed25519KeypairSigner.generate();
   final bookUrl = identityUrl + "/book0";
 
@@ -111,7 +113,8 @@ void testFeatures() async {
 
   ////////////////////////////////////////
   //Send Token To ADI acc
-  var recipient = LiteIdentity(Ed25519KeypairSigner.generate()).acmeTokenAccount;
+  var recipient =
+      LiteIdentity(Ed25519KeypairSigner.generate()).acmeTokenAccount;
   int amount = 1;
 
   TokenRecipientParam tokenRecipientParam = TokenRecipientParam();
@@ -160,12 +163,14 @@ void testFeatures() async {
 
   identityKeyPageTxSigner = TxSigner(keyPageUrl, identitySigner);
 
-  res = await client.createToken(identityUrl, createTokenParam, identityKeyPageTxSigner);
+  res = await client.createToken(
+      identityUrl, createTokenParam, identityKeyPageTxSigner);
   txId = res["result"]["txid"];
   print("CustomToken txId $txId");
   sleep(Duration(seconds: waitTimeInSeconds));
 
-  recipient = LiteIdentity(Ed25519KeypairSigner.generate()).url.append(tokenUrl);
+  recipient =
+      LiteIdentity(Ed25519KeypairSigner.generate()).url.append(tokenUrl);
   print("recipient $recipient");
   amount = 123 * 10 ^ 12;
   IssueTokensParam issueTokensParam = IssueTokensParam();
@@ -174,7 +179,8 @@ void testFeatures() async {
   tokenRecipientParam.amount = amount;
   issueTokensParam.to = [tokenRecipientParam];
 
-  res = await client.issueTokens(tokenUrl, issueTokensParam, identityKeyPageTxSigner);
+  res = await client.issueTokens(
+      tokenUrl, issueTokensParam, identityKeyPageTxSigner);
   txId = res["result"]["txid"];
   print("issueTokens txId $txId");
   sleep(Duration(seconds: waitTimeInSeconds));
@@ -360,7 +366,8 @@ void testFeatures() async {
   var receiptFinal = proof.value1;
   var body = proof.value2;
 
-  var tokenAccountUrl = identityUrl + "/acc-${createTokenParam.symbol.toLowerCase()}";
+  var tokenAccountUrl =
+      identityUrl + "/acc-${createTokenParam.symbol.toLowerCase()}";
 
   TokenIssuerProofParam tokenIssuerProofParam1 = TokenIssuerProofParam();
   tokenIssuerProofParam1.receipt = receiptFinal;
@@ -371,7 +378,8 @@ void testFeatures() async {
   createTokenAccountParam1.tokenUrl = tokenUrl;
   createTokenAccountParam1.proof = tokenIssuerProofParam1;
 
-  res = await client.createTokenAccount(identityUrl, createTokenAccountParam1, identityKeyPageTxSigner);
+  res = await client.createTokenAccount(
+      identityUrl, createTokenAccountParam1, identityKeyPageTxSigner);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -395,7 +403,8 @@ void testFeatures() async {
 
   //////////////////////////////////////////////////////////////////////////////////////
 
-  var anotherIdentityUrl = "acc://adi-cosmonaut-2-${DateTime.now().millisecondsSinceEpoch}.acme";
+  var anotherIdentityUrl =
+      "acc://adi-cosmonaut-2-${DateTime.now().millisecondsSinceEpoch}.acme";
   final keyForAnotherAdi = Ed25519KeypairSigner.generate();
   var idk1 = keyForAnotherAdi.publicKey();
   var idk2 = HEX.encode(keyForAnotherAdi.publicKeyHash());
@@ -412,7 +421,8 @@ void testFeatures() async {
   print("////// CREATE IDENTITY txId $txId //////////////////////////////////");
   sleep(Duration(seconds: waitTimeInSeconds));
 
-  var identityKeyPageTxSigner2 = TxSigner(anotherIdentityUrl + "/book0/1", keyForAnotherAdi);
+  var identityKeyPageTxSigner2 =
+      TxSigner(anotherIdentityUrl + "/book0/1", keyForAnotherAdi);
 
   addCreditsParam = AddCreditsParam();
   addCreditsParam.recipient = anotherIdentityUrl + "/book0/1";
@@ -426,24 +436,28 @@ void testFeatures() async {
 
   ////////////////////////////////////////////
 
-  CreateTokenAccountParam createTokenAccountParamAcc = CreateTokenAccountParam();
+  CreateTokenAccountParam createTokenAccountParamAcc =
+      CreateTokenAccountParam();
   createTokenAccountParamAcc.url = anotherIdentityUrl + "/acc-acme";
   createTokenAccountParamAcc.tokenUrl = "acc://acme";
 
   TxSigner sgnr = TxSigner("$anotherIdentityUrl/book0/1", keyForAnotherAdi);
-  res = await client.createTokenAccount(anotherIdentityUrl, createTokenAccountParamAcc, sgnr);
+  res = await client.createTokenAccount(
+      anotherIdentityUrl, createTokenAccountParamAcc, sgnr);
   txId = res["result"]["txid"];
 
   /// Make version signer
   ///
   print("==== Construct Versioned Signer");
-  var version = await client.querySignerVersion(identityKeyPageTxSigner2, keyForAnotherAdi.publicKeyHash());
+  var version = await client.querySignerVersion(
+      identityKeyPageTxSigner2, keyForAnotherAdi.publicKeyHash());
   sleep(Duration(seconds: 4));
-  var identityKeyPageTxSigner2WithVersion = TxSigner.withNewVersion(identityKeyPageTxSigner2, version);
+  var identityKeyPageTxSigner2WithVersion =
+      TxSigner.withNewVersion(identityKeyPageTxSigner2, version);
 
   // Create a token account for the TEST token
-  var tokenAccountUrlNew =
-      anotherIdentityUrl + "/acc-${createTokenParam.symbol.toLowerCase()}"; //${DateTime.now().millisecondsSinceEpoch}";
+  var tokenAccountUrlNew = anotherIdentityUrl +
+      "/acc-${createTokenParam.symbol.toLowerCase()}"; //${DateTime.now().millisecondsSinceEpoch}";
 
   TokenIssuerProofParam tokenIssuerProofParam = TokenIssuerProofParam();
   tokenIssuerProofParam.receipt = receiptFinal;
@@ -453,14 +467,18 @@ void testFeatures() async {
   createTokenAccountParam.url = tokenAccountUrlNew;
   createTokenAccountParam.tokenUrl = tokenUrl;
   createTokenAccountParam.proof = tokenIssuerProofParam;
-  createTokenAccountParam.authorities = [AccURL("$identityUrl/book0"), AccURL("$anotherIdentityUrl/book0")];
+  createTokenAccountParam.authorities = [
+    AccURL("$identityUrl/book0"),
+    AccURL("$anotherIdentityUrl/book0")
+  ];
 
-  print("==== ATTEMPT TO CREATE TOKEN ACCOUNT ============================================");
+  print(
+      "==== ATTEMPT TO CREATE TOKEN ACCOUNT ============================================");
 
   // check this TxSigner(keyPageUrl, keyForAdi)
   // TxSigner(anotherIdentityUrl, keyForAnotherAdi)
-  res =
-      await client.createTokenAccount(anotherIdentityUrl, createTokenAccountParam, identityKeyPageTxSigner2WithVersion);
+  res = await client.createTokenAccount(anotherIdentityUrl,
+      createTokenAccountParam, identityKeyPageTxSigner2WithVersion);
 
   txId = res["result"]["txid"];
   print("Create Custom Token Account $txId");

@@ -27,7 +27,8 @@ void main() {
         Uri.parse('http://example.com/rpc'),
         headers: anyNamed('headers'),
         body: anyNamed('body'),
-      )).thenAnswer((_) async => http.Response(json.encode(expectedResponse), 200));
+      )).thenAnswer(
+          (_) async => http.Response(json.encode(expectedResponse), 200));
 
       print('Testing RpcClient call with successful response');
       final response = await rpcClient.call('testFunction');
@@ -46,7 +47,8 @@ void main() {
         Uri.parse('http://example.com/rpc'),
         headers: anyNamed('headers'),
         body: anyNamed('body'),
-      )).thenAnswer((_) async => http.Response(json.encode(expectedErrorResponse), 200));
+      )).thenAnswer(
+          (_) async => http.Response(json.encode(expectedErrorResponse), 200));
 
       print('Testing RpcClient call with error response');
       final future = rpcClient.call('nonExistentMethod');

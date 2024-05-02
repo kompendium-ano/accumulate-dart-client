@@ -3,7 +3,6 @@ import 'package:test/test.dart';
 import 'package:crypto/crypto.dart';
 import 'package:accumulate_api/src/utils/utils.dart';
 
-
 void main() {
   group('AsUint8List extension', () {
     test('Should convert List<int> to Uint8List', () {
@@ -77,7 +76,8 @@ void main() {
       final hexString = '48656c6c6f2c20576f726c6421';
       final uint8List = hexStringtoUint8List(hexString);
       expect(uint8List, isA<Uint8List>());
-      expect(uint8List.toList(), [72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33]);
+      expect(uint8List.toList(),
+          [72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33]);
     });
   });
 }

@@ -5,10 +5,10 @@ import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable()
 class Transaction {
-  String? _type;     // name of the transaction type inside wallet
-  String? _subtype;  // for better tx identification
+  String? _type; // name of the transaction type inside wallet
+  String? _subtype; // for better tx identification
   String? _typeNode; // name of the transaction inside node
-  String? _txid;     // remote tx value
+  String? _txid; // remote tx value
   String? _from;
   String? _to;
   int? _amount;
@@ -16,14 +16,15 @@ class Transaction {
   int? _created;
   String? _status;
 
-
   String? get status => _status;
 
   set status(String? value) {
     _status = value;
   }
 
-  Transaction(String? type, String subtype, String? txid, String? from, String? to, int? amount, String? tokenUrl, [String? status]) {
+  Transaction(String? type, String subtype, String? txid, String? from,
+      String? to, int? amount, String? tokenUrl,
+      [String? status]) {
     this._type = type;
     this._subtype = subtype;
     this._txid = txid;
@@ -110,5 +111,4 @@ class Transaction {
   set created(int? value) {
     _created = value;
   }
-
 }

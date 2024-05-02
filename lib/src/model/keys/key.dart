@@ -40,8 +40,13 @@ class Key {
         _pik = json['pik'],
         _parentKeyPage = json['parentKeyPage'];
 
-  Map<String, dynamic> toJson() =>
-      {'nickname': _nickname, 'puk': _puk, 'pikHex': _pikHex, 'pik': _pik, 'parentKeyPage': _parentKeyPage};
+  Map<String, dynamic> toJson() => {
+        'nickname': _nickname,
+        'puk': _puk,
+        'pikHex': _pikHex,
+        'pik': _pik,
+        'parentKeyPage': _parentKeyPage
+      };
 
   set nickname(String? value) {
     _nickname = value;

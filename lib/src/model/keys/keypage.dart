@@ -11,7 +11,8 @@ class KeyPage {
   String? _address;
   String? _parentKeyBook;
   int? _parentKeyBookPriority;
-  int? _keysRequired; // number of key signatures require to establish full signature
+  int?
+      _keysRequired; // number of key signatures require to establish full signature
   int? _keysRequiredOf; // total number of keys needed
   String? _networkName;
   int? _amountCredits;
@@ -88,7 +89,6 @@ class KeyPage {
   set networkName(String? value) {
     _networkName = value;
   }
-
 
   int? get amountCredits => _amountCredits;
 

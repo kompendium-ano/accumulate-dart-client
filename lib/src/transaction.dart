@@ -130,6 +130,7 @@ class Transaction {
 
   List<int> dataForSignature(SignerInfo signerInfo) {
     Uint8List sigHash = header.computeInitiator(signerInfo);
+    print("sig hash: ${HEX.encode(sigHash)}");
 
     List<int> tempHash = List<int>.from(sigHash.toList());
 
@@ -167,13 +168,15 @@ class Transaction {
     txRequest.origin = _header.principal.toString();
     txRequest.signer = {
       "url": signerInfo!.url.toString(),
-      "publicKey": HEX.encode(signerInfo.publicKey!), //HEX.encode(_signerInUse!.publicKeyHash),
+      "publicKey": HEX.encode(
+          signerInfo.publicKey!), //HEX.encode(_signerInUse!.publicKeyHash),
       "version": signerInfo.version,
       "timestamp": _header.timestamp,
       "signatureType": "${SignatureType().marshalJSON(signerInfo.type!)}",
       "useSimpleHash": true
     };
-    txRequest.signature = HEX.encode(_signature!.signature!); //HEX.encode(sha256.convert(_signature!.signature!).bytes.asUint8List()); //
+    txRequest.signature = HEX.encode(_signature!
+        .signature!); //HEX.encode(sha256.convert(_signature!.signature!).bytes.asUint8List()); //
     txRequest.txHash = HEX.encode(_hash!.toList());
     txRequest.payload = HEX.encode(_payloadBinary.toList());
     if (_header._memo != null) {

@@ -1,10 +1,8 @@
-
 // lib\src\model\keys\preps.dart
 
 import '../adi.dart';
 import 'keybook.dart';
 import 'keypage.dart';
-
 
 class KeyBookPrep {
   IdentityADI sponsorADI;
@@ -13,7 +11,6 @@ class KeyBookPrep {
   int timestamp;
 
   KeyBookPrep(this.sponsorADI, this.keybook, this.keypages, this.timestamp);
-
 }
 
 class KeyPagePrep {
@@ -23,5 +20,4 @@ class KeyPagePrep {
   int timestamp;
 
   KeyPagePrep(this.sponsorADI, this.keypage, this.keys, this.timestamp);
-
 }

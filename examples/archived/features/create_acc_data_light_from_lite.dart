@@ -86,7 +86,8 @@ void testLiteDataAccountCreation() async {
   // Create Lite Data Account
   print("======== Lite Data CREATE =============================");
 
-  FactomEntry fe = FactomEntry(utf8.encode(lid.acmeTokenAccount.toString()).asUint8List());
+  FactomEntry fe =
+      FactomEntry(utf8.encode(lid.acmeTokenAccount.toString()).asUint8List());
   //fe.addExtRef("Kompendium");
   //fe.addExtRef("Test val");
 
@@ -102,5 +103,4 @@ void testLiteDataAccountCreation() async {
 
   res = await client.queryData(txId);
   print("tx $res");
-
 }

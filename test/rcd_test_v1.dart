@@ -1,4 +1,3 @@
-
 import 'package:accumulate_api/accumulate_api.dart';
 import 'package:accumulate_api/src/model/factom/factom_scanner.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -8,21 +7,19 @@ import 'package:test/test.dart';
 // seed - carry bullet century olympic core drift between axis draw pilot pluck wash
 //
 void main() {
-
-  handleView(Address value){
+  handleView(Address value) {
     //print(value.publicKey.getEncoded());
-    print(getFactoidAddressFromRCDHash(getRCDHashFromPublicKey(value.publicKey.getEncoded(false), 1)));
+    print(getFactoidAddressFromRCDHash(
+        getRCDHashFromPublicKey(value.publicKey.getEncoded(false), 1)));
   }
 
   test('should construct RCD hash', () {
-
     String fa = "FA27j6v5HGrG987D5ksQvgHc5jpPww7dhB1VuYRSrxm9rEmANatK";
     var rcdHash = getRCDFromFactoidAddress(fa);
 
-
     AccURL? lidFromFA;
     String la;
-    if(rcdHash.length > 1){
+    if (rcdHash.length > 1) {
       lidFromFA = getLiteAccountFromFactoidAddress(fa);
       la = getAcmeLiteAccountFromFactoidAddress(fa);
       //var la = parseStringToAccumulateURL();
@@ -36,12 +33,13 @@ void main() {
     print("RCD from FS: ${factoidInfo.rcdHash}");
     print("FA FROM RCD: ${getFactoidAddressFromRCDHash(factoidInfo.rcdHash!)}");
 
-
     print("----------------------------------------------");
     print("Reconstruct ED25519");
 
-    Ed25519Keypair ed25519keypair = Ed25519Keypair.fromSecretKey(factoidInfo.keypair!.secretKey);
-    Ed25519KeypairSigner ed25519keypairSigner = Ed25519KeypairSigner(ed25519keypair);
+    Ed25519Keypair ed25519keypair =
+        Ed25519Keypair.fromSecretKey(factoidInfo.keypair!.secretKey);
+    Ed25519KeypairSigner ed25519keypairSigner =
+        Ed25519KeypairSigner(ed25519keypair);
     LiteIdentity lid = LiteIdentity(ed25519keypairSigner);
 
     print("PubKey from Fs:     ${factoidInfo.keypair!.publicKey.toString()}");
@@ -51,7 +49,8 @@ void main() {
 
     print("PrivKey from Fs:     ${factoidInfo.keypair!.secretKey.toString()}");
     print("PrivKey from Rec:    ${ed25519keypair.secretKey.toString()}");
-    print("PrivKey from Signer: ${ed25519keypairSigner.secretKey().toString()}");
+    print(
+        "PrivKey from Signer: ${ed25519keypairSigner.secretKey().toString()}");
     print("----------------------------------------------");
     print("LID url from Signer: ${lid.url}");
     print("LID url from FA:     ${lidFromFA}");
@@ -66,7 +65,8 @@ void main() {
     print("| Mnemonics \n");
     // Mnemonic workflow
 
-    String mnemonic = "carry bullet century olympic core drift between axis draw pilot pluck wash";
+    String mnemonic =
+        "carry bullet century olympic core drift between axis draw pilot pluck wash";
     /*List<String> seedPhraseWords =
     ["carry", "bullet", "century", "olympic", "core", "drift", "between", "axis", "draw", "pilot", "pluck", "wash"];*/
 
@@ -89,11 +89,10 @@ void main() {
       //     '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
       // List<int> s = Base58Codec(alphabet).decode(key44.toString());
       // Ed25519Keypair kp = Ed25519Keypair.fromSecretKey(s.asUint8List());
-
     }
 
-
-    var seed = bip39.mnemonicToSeed("carry bullet century olympic core drift between axis draw pilot pluck wash");
+    var seed = bip39.mnemonicToSeed(
+        "carry bullet century olympic core drift between axis draw pilot pluck wash");
     Ed25519Keypair ed25519keypair2 = Ed25519Keypair.fromSeed(seed);
     var secret2 = getFactoidSecretFromPrivKey(ed25519keypair2.secretKey);
 
@@ -106,9 +105,5 @@ void main() {
     print("CALC: ${factoidInfo.faAddress}");
 
     expect(fa, factoidInfo.faAddress);
-
   });
-
-
-
 }

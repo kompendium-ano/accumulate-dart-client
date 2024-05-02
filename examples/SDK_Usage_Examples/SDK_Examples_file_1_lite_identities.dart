@@ -75,7 +75,8 @@ Future<void> sendTokens({
   } else if (fromType == AccountType.adi && keyPageUrl != null) {
     txSigner = TxSigner(keyPageUrl, signer);
   } else {
-    throw Exception("Invalid account type or missing key page URL for ADI account.");
+    throw Exception(
+        "Invalid account type or missing key page URL for ADI account.");
   }
 
   // Construct the parameters for sending tokens
@@ -89,7 +90,8 @@ Future<void> sendTokens({
 
   try {
     // Execute the sendTokens transaction
-    var response = await client.sendTokens(fromAccount, sendTokensParam, txSigner);
+    var response =
+        await client.sendTokens(fromAccount, sendTokensParam, txSigner);
     print("ACME Send tx submitted, response: $response");
   } catch (e) {
     print("Error sending ACME tokens: $e");
@@ -120,7 +122,8 @@ Future<void> addCredits(LiteIdentity lid, int creditAmount, int oracle) async {
   addCreditsParam.oracle = oracle;
   addCreditsParam.memo = "Add credits memo test";
   // Convert metadata to Uint8List
-  Uint8List metadata = Uint8List.fromList(utf8.encode("Add credits metadata test"));
+  Uint8List metadata =
+      Uint8List.fromList(utf8.encode("Add credits metadata test"));
   addCreditsParam.metadata = metadata;
 
   print("Preparing to add credits:");

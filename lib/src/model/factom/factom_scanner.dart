@@ -1,7 +1,6 @@
 import 'package:bitcoin_bip44_ng/bitcoin_bip44_ng.dart';
 
 class FactomScanner extends Scanner {
-
   String? pathToFactomDb;
 
   @override

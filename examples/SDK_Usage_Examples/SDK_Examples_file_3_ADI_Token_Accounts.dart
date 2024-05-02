@@ -56,12 +56,18 @@ Future<void> testFeatures() async {
   // Create an ADI
   String adiName = "custom-adi-name-${DateTime.now().millisecondsSinceEpoch}";
   Ed25519KeypairSigner adiSigner = Ed25519KeypairSigner.generate();
-  await createAdi(lid, adiSigner, adiName, );
+  await createAdi(
+    lid,
+    adiSigner,
+    adiName,
+  );
 
   // Add credits to custom-adi-name key book's key page
-  String keyPageUrl = "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
+  String keyPageUrl =
+      "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
   print("keyPageUrl Name: $keyPageUrl");
-  await addCreditsToAdiKeyPage(lid, keyPageUrl, 7000000, oracle); // Adjust the credit amount as needed
+  await addCreditsToAdiKeyPage(
+      lid, keyPageUrl, 7000000, oracle); // Adjust the credit amount as needed
 
   // Pause to allow the addCredits transaction to settle
   print("Pausing to allow addCredits transaction to settle...");
@@ -70,11 +76,13 @@ Future<void> testFeatures() async {
   // Create the first ADI ACME token account
   String identityUrl = "acc://$adiName.acme";
   String tokenAccountUrl1 = "$identityUrl/acme-token-account-1";
-  await createAdiAcmeTokenAccount(adiSigner, identityUrl, keyPageUrl, tokenAccountUrl1);
+  await createAdiAcmeTokenAccount(
+      adiSigner, identityUrl, keyPageUrl, tokenAccountUrl1);
 
   // Create the second ADI ACME token account
   String tokenAccountUrl2 = "$identityUrl/acme-token-account-2";
-  await createAdiAcmeTokenAccount(adiSigner, identityUrl, keyPageUrl, tokenAccountUrl2);
+  await createAdiAcmeTokenAccount(
+      adiSigner, identityUrl, keyPageUrl, tokenAccountUrl2);
 
   // Pause to allow the create token accoutns to settle
   print("Pausing to allow the create token accoutns to settle...");
@@ -89,7 +97,7 @@ Future<void> testFeatures() async {
     amount: 30,
     signer: signer1,
   );
-    print("Sending 30 tokens from lid to tokenAccountUrl1");
+  print("Sending 30 tokens from lid to tokenAccountUrl1");
 
   // Pause to allow sendTokens transaction to settlee
   print("Pausing to allow sendTokens transaction to settle...");
@@ -105,7 +113,7 @@ Future<void> testFeatures() async {
     signer: adiSigner,
     keyPageUrl: "acc://$adiName.acme/book/1", // Key page URL
   );
-    print("Sending 9 from tokenAccountUrl1 to tokenAccountUrl2");
+  print("Sending 9 from tokenAccountUrl1 to tokenAccountUrl2");
 
   // Sending 5 tokens from tokenAccountUrl1 to lid
   await sendTokens(
@@ -117,23 +125,27 @@ Future<void> testFeatures() async {
     signer: adiSigner,
     keyPageUrl: "acc://$adiName.acme/book/1", // Key page URL for source account
   );
-      print("Sending 5 tokens from tokenAccountUrl1 to lid");
+  print("Sending 5 tokens from tokenAccountUrl1 to lid");
 }
 
 // Function to create an ACME token account under the ADI
-Future<void> createAdiAcmeTokenAccount(Ed25519KeypairSigner adiSigner, String identityUrl, String keyPageUrl, String tokenAccountUrl) async {
+Future<void> createAdiAcmeTokenAccount(Ed25519KeypairSigner adiSigner,
+    String identityUrl, String keyPageUrl, String tokenAccountUrl) async {
   // Prepare the parameters for creating a token account
   CreateTokenAccountParam createTokenAccountParam = CreateTokenAccountParam();
-  createTokenAccountParam.url = tokenAccountUrl; // Use the specific token account URL
+  createTokenAccountParam.url =
+      tokenAccountUrl; // Use the specific token account URL
   createTokenAccountParam.tokenUrl = "acc://ACME";
-  
+
   print("Creating ADI ACME token account at: $tokenAccountUrl");
 
   // And use the TxSigner initialized with the key from the key page
-  TxSigner txSigner = TxSigner(keyPageUrl, adiSigner); // Use the signer with authority
-  
+  TxSigner txSigner =
+      TxSigner(keyPageUrl, adiSigner); // Use the signer with authority
+
   // Execute the transaction
-  var res = await client.createTokenAccount(identityUrl, createTokenAccountParam, txSigner);
-  
+  var res = await client.createTokenAccount(
+      identityUrl, createTokenAccountParam, txSigner);
+
   print("Create ADI ACME token account response: $res");
 }

@@ -37,7 +37,6 @@ class WriteDataTo extends BasePayload {
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = _marshalBinary();
 
-
     return forConcat.asUint8List();
   }
 
@@ -53,7 +52,6 @@ class WriteDataTo extends BasePayload {
 
   @override
   Uint8List hash() {
-
     if (_customHash != null) {
       return _customHash!;
     }

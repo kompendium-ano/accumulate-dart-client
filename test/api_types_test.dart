@@ -70,8 +70,7 @@ void main() {
 
   group('TxHistoryQueryOptions Tests', () {
     test('toMap includes set property', () {
-      final txHistoryQueryOptions = TxHistoryQueryOptions()
-        ..scratch = true;
+      final txHistoryQueryOptions = TxHistoryQueryOptions()..scratch = true;
 
       final map = txHistoryQueryOptions.toMap;
 
@@ -128,4 +127,3 @@ void main() {
     });
   });
 }
-

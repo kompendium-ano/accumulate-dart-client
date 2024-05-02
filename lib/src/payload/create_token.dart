@@ -33,8 +33,10 @@ class CreateToken extends BasePayload {
     _properties = createTokenParam.properties != null
         ? AccURL.toAccURL(createTokenParam.properties)
         : null;
-    _supplyLimit = createTokenParam.supplyLimit  != null
-        ? (createTokenParam.supplyLimit is int ? createTokenParam.supplyLimit : int.parse(createTokenParam.supplyLimit))
+    _supplyLimit = createTokenParam.supplyLimit != null
+        ? (createTokenParam.supplyLimit is int
+            ? createTokenParam.supplyLimit
+            : int.parse(createTokenParam.supplyLimit))
         : null;
     _authorities = createTokenParam.authorities;
     super.memo = createTokenParam.memo;

@@ -37,13 +37,17 @@ class UpdateAccountAuth extends BasePayload {
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
 
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.updateAccountAuth, 1));
-    _operations.map(marshalBinaryAccountAuthOperation).forEach((b) => forConcat.addAll(bytesMarshalBinary(b, 2)));
+    forConcat
+        .addAll(uvarintMarshalBinary(TransactionType.updateAccountAuth, 1));
+    _operations
+        .map(marshalBinaryAccountAuthOperation)
+        .forEach((b) => forConcat.addAll(bytesMarshalBinary(b, 2)));
 
     return forConcat.asUint8List();
   }
 
-  Uint8List marshalBinaryAccountAuthOperation(UpdateAccountAuthOperation operation) {
+  Uint8List marshalBinaryAccountAuthOperation(
+      UpdateAccountAuthOperation operation) {
     List<int> forConcat = [];
 
     forConcat.addAll(uvarintMarshalBinary(operation.type, 1));

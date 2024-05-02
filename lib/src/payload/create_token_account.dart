@@ -29,7 +29,8 @@ class CreateTokenAccount extends BasePayload {
   List<AccURL>? _authorities;
   TokenIssuerProofParam? _proof;
 
-  CreateTokenAccount(CreateTokenAccountParam createTokenAccountParam) : super() {
+  CreateTokenAccount(CreateTokenAccountParam createTokenAccountParam)
+      : super() {
     _url = AccURL.toAccURL(createTokenAccountParam.url);
     _tokenUrl = AccURL.toAccURL(createTokenAccountParam.tokenUrl);
     _authorities = createTokenAccountParam.authorities;
@@ -42,7 +43,8 @@ class CreateTokenAccount extends BasePayload {
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = [];
 
-    forConcat.addAll(uvarintMarshalBinary(TransactionType.createTokenAccount, 1));
+    forConcat
+        .addAll(uvarintMarshalBinary(TransactionType.createTokenAccount, 1));
     forConcat.addAll(stringMarshalBinary(_url.toString(), 2));
     forConcat.addAll(stringMarshalBinary(_tokenUrl.toString(), 3));
 
@@ -67,7 +69,8 @@ class CreateTokenAccount extends BasePayload {
         : CreateToken(proof.transaction).marshalBinary();
 
     forConcat.addAll(bytesMarshalBinary(txMarshalBinary, 1));
-    forConcat.addAll(bytesMarshalBinary(Receipt.marshalBinaryReceipt(proof.receipt), 2));
+    forConcat.addAll(
+        bytesMarshalBinary(Receipt.marshalBinaryReceipt(proof.receipt), 2));
 
     return forConcat.asUint8List();
   }

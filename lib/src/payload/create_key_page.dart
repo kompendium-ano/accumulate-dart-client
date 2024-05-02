@@ -31,7 +31,8 @@ class CreateKeyPage extends BasePayload {
 
     forConcat.addAll(uvarintMarshalBinary(TransactionType.createKeyPage, 1));
     for (var key in _keys) {
-      forConcat.addAll(fieldMarshalBinary(2, bytesMarshalBinary(bytesMarshalBinary(key, 1))));
+      forConcat.addAll(fieldMarshalBinary(
+          2, bytesMarshalBinary(bytesMarshalBinary(key, 1))));
     }
     forConcat.addAll(stringMarshalBinary(_url.toString(), 3));
 
