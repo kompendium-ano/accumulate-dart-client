@@ -14,12 +14,13 @@ import 'payload.dart';
 import 'utils/utils.dart';
 
 class HeaderOptions {
-  int? timestamp;
+  int timestamp;
   String? memo;
   Uint8List? metadata;
   Uint8List? initiator;
 
-  HeaderOptions({this.timestamp, this.memo, this.metadata, this.initiator});
+  HeaderOptions({int? timestamp, this.memo, this.metadata, this.initiator})
+      : this.timestamp = timestamp ?? DateTime.now().microsecondsSinceEpoch;
 }
 
 class Header {
@@ -157,6 +158,7 @@ class Transaction {
   }
 
   TxRequest toTxRequest({bool? checkOnly}) {
+    print("Creating request with timestamp: ${header.timestamp}");
     if (_signature == null) {
       throw Exception("Unsigned transaction cannot be converted to TxRequest");
     }

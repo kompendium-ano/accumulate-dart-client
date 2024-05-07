@@ -75,8 +75,7 @@ Future<void> testFeatures() async {
   await addCreditsToAdiKeyPage(
       lid, keyPageUrl1, 200000, oracle); // Adjust the credit amount as needed
 
-
-    // Create second ADI
+  // Create second ADI
   String adiName2 = "custom-adi-name2-${DateTime.now().millisecondsSinceEpoch}";
   Ed25519KeypairSigner adiSigner2 = Ed25519KeypairSigner.generate();
   printKeypairDetails(adiSigner2);
@@ -90,8 +89,8 @@ Future<void> testFeatures() async {
   String keyPageUrl2 =
       "acc://$adiName2.acme/book/1"; // Adjust based on actual key page URL
   print("keyPageUrl Name: $keyPageUrl2");
-  await addCreditsToAdiKeyPage(
-      secondLid, keyPageUrl2, 10000, oracle); // Adjust the credit amount as needed
+  await addCreditsToAdiKeyPage(secondLid, keyPageUrl2, 10000,
+      oracle); // Adjust the credit amount as needed
 
   // Pause to allow the addCredits transactions to settle for adiName1 & adiName2
   print("Pausing to allow addCredits transactions to settle...");
@@ -107,9 +106,6 @@ Future<void> testFeatures() async {
   print(
       "Pausing to allow the Create an ADI Data Account transaction to settle...");
   await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
-
-
-
 
   // Adding keyBook of adiName2 to keyPage of adiName1
   final String UpdatekeyPageUrl = keyPageUrl1;
@@ -147,7 +143,6 @@ Future<void> testFeatures() async {
   await addDataToAdiDataAccount(
       client, adiSigner1, keyPageUrl1, dataAccountUrl1, writeDataParam);
 }
-
 
 // Create Data function & signature
 Future<void> createAdiDataAccount(Ed25519KeypairSigner adiSigner1,

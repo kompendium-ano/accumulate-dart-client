@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:convert/convert.dart';
 import 'package:accumulate_api/accumulate_api.dart';
 
-
 // Helper function to convert hex string to bytes
 Uint8List hexToBytes(String s) {
   try {
@@ -59,7 +58,8 @@ class IssueTokens extends BasePayload {
     binaryData.addAll(uvarintMarshalBinary(TransactionType.issueTokens));
     for (TokenRecipientParam recipient in params.to) {
       AccURL url = AccURL.toAccURL(recipient.url);
-      Uint8List recipientData = TokenRecipient(url, recipient.amount).marshalBinary();
+      Uint8List recipientData =
+          TokenRecipient(url, recipient.amount).marshalBinary();
       binaryData.addAll(fieldMarshalBinary(2, recipientData));
     }
     return Uint8List.fromList(binaryData);
@@ -67,8 +67,10 @@ class IssueTokens extends BasePayload {
 }
 
 Future<void> main() async {
-  String privateKeyBase64 = "67f7c78e33400dd03f0d3592a18209452024929f8a91b35f007d923fba43ca6ed1e4aba8d16ceb79d1a7f6cf51a35ab244b872ddc617557ed6b1d6773bc33696";
-  String txId = "acc://754b8d66189ab2f2f4eba22a3742ad8565f4b635e64f8ddafe24b1c5451cde16@custom-adi-name-1714153702289.acme/my-custom-token";
+  String privateKeyBase64 =
+      "67f7c78e33400dd03f0d3592a18209452024929f8a91b35f007d923fba43ca6ed1e4aba8d16ceb79d1a7f6cf51a35ab244b872ddc617557ed6b1d6773bc33696";
+  String txId =
+      "acc://754b8d66189ab2f2f4eba22a3742ad8565f4b635e64f8ddafe24b1c5451cde16@custom-adi-name-1714153702289.acme/my-custom-token";
 
   final client = ACMEClient("https://testnet.accumulatenetwork.io/v2");
 
@@ -84,15 +86,18 @@ Future<void> main() async {
     }
 
     var transaction = result['transaction'];
-    if (transaction == null || !transaction.containsKey('body') || !transaction['body'].containsKey('to')) {
+    if (transaction == null ||
+        !transaction.containsKey('body') ||
+        !transaction['body'].containsKey('to')) {
       print("Error: Transaction body is incomplete.");
       return;
     }
 
     List<dynamic> toRecipients = transaction['body']['to'];
-    List<TokenRecipientParam> recipients = toRecipients.map((item) =>
-      TokenRecipientParam(url: item["url"], amount: int.parse(item["amount"]))
-    ).toList();
+    List<TokenRecipientParam> recipients = toRecipients
+        .map((item) => TokenRecipientParam(
+            url: item["url"], amount: int.parse(item["amount"])))
+        .toList();
 
     final issueTokensParams = IssueTokensParam(to: recipients);
     final payload = IssueTokens(issueTokensParams);
@@ -101,7 +106,6 @@ Future<void> main() async {
     final signature = signer.signRaw(payload.extendedMarshalBinary());
     String signatureHex = hex.encode(signature);
     print("Signature: $signatureHex");
-
   } catch (e) {
     print("An error occurred: $e");
   }
