@@ -58,7 +58,7 @@ Future<void> main() async {
   sigInfo.url = AccURL("acc://custom-adi-name-1714297678838.acme/book/1");
   sigInfo.publicKey = hex.decode(publicKeyHex) as Uint8List?;
   sigInfo.version = 1;
-  final timestamp = DateTime.now().millisecondsSinceEpoch;
+  final timestamp = DateTime.now().microsecondsSinceEpoch;
 
   final endPoint = "https://kermit.accumulatenetwork.io/v2";
   final client = ACMEClient(endPoint);
@@ -137,6 +137,26 @@ Payload decodePayload(dynamic data) {
 }
 */
 
+int? parseOperationType(String? operationType) {
+  if (operationType == null) return null;
+
+  switch (operationType.toLowerCase()) {
+    case 'update':
+      return KeyPageOperationType.Update;
+    case 'remove':
+      return KeyPageOperationType.Remove;
+    case 'add':
+      return KeyPageOperationType.Add;
+    case 'setthreshold':
+      return KeyPageOperationType.SetThreshold;
+    case 'updateallowed':
+      return KeyPageOperationType.UpdateAllowed;
+    default:
+      print("Unknown operation type: $operationType");
+      return null;
+  }
+}
+
 Payload decodePayload(dynamic data) {
   switch (data["type"]) {
     case "writeData":
@@ -146,63 +166,81 @@ Payload decodePayload(dynamic data) {
       final params = WriteDataParam()
         ..scratch = data["scratch"] ?? false
         ..writeToState = data["writeToState"] ?? false
-        ..data = data["entry"]["data"]
-            .map((s) => hex.decode(s))
-            .cast<Uint8List>()
-            .toList();
+        ..data = (data["entry"]["data"] as List<dynamic>?)
+                ?.map((s) => hex.decode(s as String))
+                .cast<Uint8List>()
+                .toList() ??
+            [];
       return WriteData(params);
 
     case "updateKeyPage":
-      var operations = (data["operations"] as List).map((op) {
-        var keyOperation = KeyOperation()
-          ..type = op["type"]
-          ..key = (op["key"] != null
-              ? (KeySpec()..keyHash = op["key"]["keyHash"])
-              : null)
-          ..oldKey = (op["oldKey"] != null
-              ? (KeySpec()..keyHash = op["oldKey"]["keyHash"])
-              : null)
-          ..newKey = (op["newKey"] != null
-              ? (KeySpec()..keyHash = op["newKey"]["keyHash"])
-              : null)
-          ..threshold = op["threshold"]
-          ..allow = (op["allow"] as List?)?.map<int>((a) => a).toList()
-          ..deny = (op["deny"] as List?)?.map<int>((d) => d).toList();
-        return keyOperation;
-      }).toList();
+      print("Decoding updateKeyPage payload");
+      var operationsData = data["operation"] as List<dynamic>?;
+      print("Operations Data: ${jsonEncode(operationsData)}");
+
+      var operations = operationsData?.map((op) {
+            print("Processing operation: ${jsonEncode(op)}");
+            var keyOperation = KeyOperation()
+              ..type = parseOperationType(op["type"] as String?)
+              ..key = (op["entry"] != null
+                  ? (KeySpec()..delegate = op["entry"]["delegate"])
+                  : null);
+
+            print("KeyOperation created with type: ${keyOperation.type}");
+            print("Delegate: ${keyOperation.key?.delegate}");
+
+            return keyOperation;
+          }).toList() ??
+          [];
+
+      print("Total operations processed: ${operations.length}");
 
       final updateKeyPageParams = UpdateKeyPageParam()
         ..operations = operations
-        ..memo = data["memo"]
-        ..metadata = data["metadata"] != null
-            ? Uint8List.fromList(hex.decode(data["metadata"]))
-            : null;
+        ..memo = data["memo"] as String?
+        ..metadata =
+            data["metadata"] != null ? maybeDecodeHex(data["metadata"]) : null;
+
+      print(
+          "UpdateKeyPageParam created with memo: ${updateKeyPageParams.memo}");
+      if (updateKeyPageParams.metadata != null) {
+        print("Metadata decoded successfully");
+      } else {
+        print("No metadata or failed to decode");
+      }
 
       return UpdateKeyPage(updateKeyPageParams);
 
     default:
-      throw "Unsupported transaction type ${data["type"]}";
+      throw "Unsupported transaction type ${data['type']}";
   }
 }
 
-Uint8List? maybeDecodeHex(String? s) {
-  if (s == null) {
+Uint8List? maybeDecodeHex(String? hexString) {
+  if (hexString == null) return null;
+  try {
+    return Uint8List.fromList(hex.decode(hexString));
+  } catch (e) {
+    print("Failed to decode hex: $e");
     return null;
   }
-  return hex.decode(s) as Uint8List;
 }
 
 bool maybeDecodeBool(dynamic value) {
   if (value is String) {
     return value.toLowerCase() == 'true';
   }
-  return value ??
-      false; // Default to false if null or not a recognizable string
+  return value ?? false;
 }
 
 int? maybeDecodeInt(String? s) {
   if (s == null) {
     return null;
   }
-  return int.parse(s);
+  try {
+    return int.parse(s);
+  } catch (e) {
+    print("Failed to parse int: $e");
+    return null;
+  }
 }
