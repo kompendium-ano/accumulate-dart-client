@@ -5,7 +5,7 @@ import 'package:hex/hex.dart';
 import 'dart:typed_data';
 import 'package:accumulate_api/accumulate_api.dart';
 import 'SDK_Examples_file_1_lite_identities.dart';
-import 'SDK_Examples_file_2_Accumulate_Identities_(ADI).dart';
+import 'SDK_Examples_file_2_Accumulate_Identities.dart';
 
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);

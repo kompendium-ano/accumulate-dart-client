@@ -38,18 +38,16 @@ class QueryResponseParser {
           ..writeToState = transaction['body']['writeToState'];
         Payload payload = WriteData(param);
 
-        // Reuse fetched header data of tx being signed 
+        // Manually set timestamp to ensure consistency in transaction hash
         HeaderOptions options = HeaderOptions(
-            timestamp: transaction['header']
-                ['timestamp'],
+            timestamp: 1714298100261732, // Manually setting the timestamp
             memo: transaction['header']['memo'],
             metadata: transaction['header']['metadata'] != null
                 ? hexToBytes(transaction['header']['metadata'])
                 : null,
             initiator: transaction['header']['initiator'] != null
                 ? hexToBytes(transaction['header']['initiator'])
-                : null
-            );
+                : null);
         Header header = Header(transaction['header']['principal'], options);
 
         Transaction tx = Transaction(payload, header);
@@ -60,8 +58,6 @@ class QueryResponseParser {
         Ed25519KeypairSigner signer = Ed25519KeypairSigner(keypair);
 
         String signerUrl = "acc://custom-adi-name-1714297678838.acme/book/1";
-        // udpate the private key if the singerurl changes
-        // TODO - add acc://custom-adi-name-1714297678838.acme/book to some other keypage and increase threshold for writeData
         TxSigner txSigner = TxSigner(signerUrl, signer);
 
         tx.sign(txSigner);
@@ -83,8 +79,9 @@ class QueryResponseParser {
       } else {
         print('Unhandled transaction type: $bodyType');
       }
-    } catch (e) {
+    } catch (e, stacktrace) {
       print("Error fetching or parsing transaction: $e");
+      print("Stack Trace: $stacktrace");
     }
   }
 }
@@ -93,7 +90,6 @@ void main() {
   String endpoint = "https://testnet.accumulatenetwork.io/v2";
   String transactionId =
       "a11a8158f7d20ec580a453f7bdeb89bad610d9ae15a9be8dcd8f0bfbe14629e5";
-      // this the txhash that the details will be fetched
 
   QueryResponseParser parser = QueryResponseParser(endpoint);
   parser.fetchAndParseTransaction(transactionId);

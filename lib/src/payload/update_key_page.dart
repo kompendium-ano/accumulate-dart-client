@@ -80,9 +80,21 @@ class UpdateKeyPage extends BasePayload {
   Uint8List marshalBinaryKeySpec(KeySpec keySpec) {
     List<int> forConcat = [];
 
-    forConcat.addAll(bytesMarshalBinary(getKeyHash(keySpec.keyHash), 1));
+    // Process keyHash if it's provided
+    if (keySpec.keyHash != null) {
+      forConcat.addAll(bytesMarshalBinary(getKeyHash(keySpec.keyHash), 1));
+    }
+
+    // Process delegate if it's provided
     if (keySpec.delegate != null) {
+      // Marshaling the delegate as a string
       forConcat.addAll(stringMarshalBinary(keySpec.delegate.toString(), 2));
+    }
+
+    // It's important to handle the case where both are null if that's a possibility in your application
+    if (keySpec.keyHash == null && keySpec.delegate == null) {
+      // Handle or throw an error, or provide a default value
+      throw ArgumentError("KeySpec must have at least a keyHash or a delegate");
     }
 
     return forConcat.asUint8List();

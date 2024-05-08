@@ -1,6 +1,5 @@
 // examples\multisig_sand_box\txsigner_multisig_extension_test.dart
 
-
 import 'package:accumulate_api/src/client/acc_url.dart';
 import 'package:accumulate_api/src/client/tx_signer.dart';
 import 'package:accumulate_api/src/signing/ed25519_keypair_signer.dart';
@@ -9,11 +8,9 @@ import 'package:convert/convert.dart';
 
 void main() {
   var keypair = Ed25519Keypair.generate();
-  var signer =
-      Ed25519KeypairSigner(keypair);
+  var signer = Ed25519KeypairSigner(keypair);
 
-  var url = AccURL(
-      'acc://custom-adi-name-1714297678838.acme/data-account');
+  var url = AccURL('acc://custom-adi-name-1714297678838.acme/data-account');
   var txSigner = TxSigner(url, signer);
 
   String txHash =

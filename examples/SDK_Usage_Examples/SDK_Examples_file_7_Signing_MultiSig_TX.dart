@@ -1,15 +1,13 @@
 // examples\SDK_Usage_Examples\SDK_Examples_file_7_Signing_MultiSig_TX.dart
 import 'dart:async';
-import 'dart:convert';
 import 'package:hex/hex.dart';
-import 'dart:typed_data';
 import 'package:accumulate_api/accumulate_api.dart';
 import 'SDK_Examples_file_1_lite_identities.dart';
-import 'SDK_Examples_file_2_Accumulate_Identities_(ADI).dart';
+import 'SDK_Examples_file_2_Accumulate_Identities.dart';
 
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);
-int delayBeforePrintSeconds = 180;
+int delayBeforePrintSeconds = 60;
 
 Future<void> main() async {
   print(endPoint);
@@ -25,25 +23,13 @@ Future<void> testFeatures() async {
   LiteIdentity lid = LiteIdentity(signer1);
   printKeypairDetails(signer1);
 
-  Ed25519KeypairSigner signer2 = Ed25519KeypairSigner.generate();
-  LiteIdentity secondLid = LiteIdentity(signer2);
-  printKeypairDetails(signer2);
-
   // First lite token account
   print("First lite account URL: ${lid.acmeTokenAccount}\n");
   await addFundsToAccount(lid.acmeTokenAccount, times: 4);
 
   // Pause to allow the faucet txs to settle for lid
   print("Pausing to allow faucet tx to settle for lid...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
-
-  // Second lite token account
-  print("Second lite account URL: ${secondLid.acmeTokenAccount}\n");
-  await addFundsToAccount(secondLid.acmeTokenAccount, times: 4);
-
-  // Pause to allow the faucet txs to settle for secondLid
-  print("Pausing to allow faucet tx to settle for secondLid...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 60)); // Pause for 1 minutes
 
   // Retrieve oracle value for credit calculation
   final oracle = await client.valueFromOracle();
@@ -51,12 +37,9 @@ Future<void> testFeatures() async {
   // Add 2000 credits to the first lite account
   await addCredits(lid, 200000, oracle);
 
-  // Add 2000 credits to the first lite account
-  await addCredits(secondLid, 100000, oracle);
-
   // Pause to allow the add credits txs to settle
   print("Pausing to allow add credits txs to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 60)); // Pause for 1 minutes
 
   // Create first ADI
   String adiName1 = "custom-adi-name1-${DateTime.now().millisecondsSinceEpoch}";
@@ -75,27 +58,10 @@ Future<void> testFeatures() async {
   await addCreditsToAdiKeyPage(
       lid, keyPageUrl1, 200000, oracle); // Adjust the credit amount as needed
 
-  // Create second ADI
-  String adiName2 = "custom-adi-name2-${DateTime.now().millisecondsSinceEpoch}";
-  Ed25519KeypairSigner adiSigner2 = Ed25519KeypairSigner.generate();
-  printKeypairDetails(adiSigner2);
-  await createAdi(
-    secondLid,
-    adiSigner2,
-    adiName2,
-  );
-
-  // Add credits to adiName2 key book's key page
-  String keyPageUrl2 =
-      "acc://$adiName2.acme/book/1"; // Adjust based on actual key page URL
-  print("keyPageUrl Name: $keyPageUrl2");
-  await addCreditsToAdiKeyPage(secondLid, keyPageUrl2, 10000,
-      oracle); // Adjust the credit amount as needed
-
-  // Pause to allow the addCredits transactions to settle for adiName1 & adiName2
+  // Pause to allow the addCredits transactions to settle for adiName1
   print("Pausing to allow addCredits transactions to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
-
+  await Future.delayed(Duration(seconds: 60)); // Pause for 1 minutes
+/*
   // Create an adiName1 Data Account
   String identityUrl1 = "acc://$adiName1.acme";
   String dataAccountUrl1 = "$identityUrl1/data-account";
@@ -105,11 +71,11 @@ Future<void> testFeatures() async {
   // Pause to allow the Create an ADI Data Account transaction to settle
   print(
       "Pausing to allow the Create an ADI Data Account transaction to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
-
+  await Future.delayed(Duration(seconds: 60)); // Pause for 1 minutes
+*/
   // Adding keyBook of adiName2 to keyPage of adiName1
   final String UpdatekeyPageUrl = keyPageUrl1;
-  final String keyBookUrl2 = "acc://$adiName2.acme/book";
+  final String keyBookUrl2 = "acc://custom-adi-name-1714297678838.acme/book";
   // Generate or specify the new public key you want to add to the key page
   String newPublicKey = keyBookUrl2;
 
@@ -130,6 +96,7 @@ Future<void> testFeatures() async {
   );
   print("Update key page response: $response");
 
+/*
   // Add Data Entries to the Data Account
   List<Uint8List> dataEntries = [
     utf8.encode("========First test entry========").asUint8List(),
@@ -142,6 +109,7 @@ Future<void> testFeatures() async {
     ..writeToState = true;
   await addDataToAdiDataAccount(
       client, adiSigner1, keyPageUrl1, dataAccountUrl1, writeDataParam);
+      */
 }
 
 // Create Data function & signature
