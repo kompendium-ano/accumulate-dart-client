@@ -15,11 +15,9 @@ class CreateKeyPageParam {
 }
 
 class CreateKeyPage extends BasePayload {
-  late AccURL _url;
   late List<Uint8List> _keys;
 
   CreateKeyPage(CreateKeyPageParam createKeyPageParam) : super() {
-    _url = AccURL.toAccURL(createKeyPageParam.url);
     _keys = createKeyPageParam.keys;
     super.memo = createKeyPageParam.memo;
     super.metadata = createKeyPageParam.metadata;
@@ -34,7 +32,6 @@ class CreateKeyPage extends BasePayload {
       forConcat.addAll(fieldMarshalBinary(
           2, bytesMarshalBinary(bytesMarshalBinary(key, 1))));
     }
-    forConcat.addAll(stringMarshalBinary(_url.toString(), 3));
 
     return forConcat.asUint8List();
   }

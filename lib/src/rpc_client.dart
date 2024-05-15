@@ -72,12 +72,10 @@ class RpcClient {
       final code = error['code'] as int?;
       final message = error['message'] as String?;
       final errorData = error['data'];
-      // Log the error before throwing
       print(
           "[RpcClient] Error received: Code $code, Message $message, Data $errorData");
       throw RPCError(code, message, errorData);
     }
-
     return data;
   }
 }

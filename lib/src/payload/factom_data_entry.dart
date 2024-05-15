@@ -1,7 +1,6 @@
 // lib\src\payload\factom_data_entry.dart
 import 'dart:core';
 import 'dart:typed_data';
-
 import 'package:accumulate_api/src/encoding.dart';
 import 'package:accumulate_api/src/payload/base_payload.dart';
 import 'package:accumulate_api/src/utils/utils.dart';

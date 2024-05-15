@@ -155,7 +155,6 @@ void testDataAccountCreation() async {
 
   CreateDataAccountParam dataAccountParams = CreateDataAccountParam();
   dataAccountParams.url = dataAccountUrl;
-  dataAccountParams.scratch = false;
 
   res = await client.createDataAccount(
       identityUrl, dataAccountParams, identityKeyPageTxSigner);

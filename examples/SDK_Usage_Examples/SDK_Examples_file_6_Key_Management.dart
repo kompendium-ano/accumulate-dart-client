@@ -9,7 +9,7 @@ import 'SDK_Examples_file_2_Accumulate_Identities.dart';
 
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);
-int delayBeforePrintSeconds = 180;
+int delayBeforePrintSeconds = 60;
 
 Future<void> main() async {
   print(endPoint);
@@ -66,12 +66,13 @@ Future<void> testFeatures() async {
   int nextPageNumber = await getNextKeyPageNumber(client, keyBookUrl);
 
   // Create the new key page with the newly generated key, using the existing key for authentication
+  print("creating new adi key page");
   await createAdiKeyPage2(
       client, adiSigner, keyBookUrl, newKeys2, nextPageNumber, adiName);
 
   // Pause to allow the addCredits transaction to settle
   print("Pausing to allow transactions to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 60)); // Pause for 2 minutes
 
   // Creaet new custom Key Book
   // To create a key book, you alos need a key page, and a key for the key page
@@ -100,6 +101,7 @@ Future<void> testFeatures() async {
     ..publicKeyHash =
         publicKeyHash; // Ensure publicKeyHash is defined and correct
 
+  print("creating new adi key book");
   await createKeyBook(
       client, principalUrl, createKeyBookParam, adiSigner, keyPageUrl);
 
@@ -172,9 +174,7 @@ Future<void> createAdiKeyPage(
       .url); // check for version, every keypage update changes versions!!
   txSigner = TxSigner.withNewVersion(txSigner, r["result"]["data"]["version"]);
 
-  CreateKeyPageParam createKeyPageParam = CreateKeyPageParam()
-    ..url = newKeyPageUrl
-    ..keys = keys;
+  CreateKeyPageParam createKeyPageParam = CreateKeyPageParam()..keys = keys;
 
   print("Creating key page at: $newKeyPageUrl");
 
@@ -230,9 +230,7 @@ Future<void> createAdiKeyPage2(
   txSigner = TxSigner.withNewVersion(txSigner, r["result"]["data"]["version"]);
 
   // Prepare the parameters for creating a new key page
-  CreateKeyPageParam createKeyPageParam = CreateKeyPageParam()
-    ..url = newKeyPageUrl
-    ..keys = keys;
+  CreateKeyPageParam createKeyPageParam = CreateKeyPageParam()..keys = keys;
 
   // Log the action
   print("Creating key page at: $newKeyPageUrl");

@@ -1,7 +1,7 @@
 // examples\SDK_Usage_Examples\SDK_Examples_file_4_Data_Accounts_and_Entries.dart
 import 'dart:async';
 import 'dart:convert';
-import 'package:hex/hex.dart';
+import 'package:convert/convert.dart';
 import 'dart:typed_data';
 import 'package:accumulate_api/accumulate_api.dart';
 import 'SDK_Examples_file_1_lite_identities.dart';
@@ -9,7 +9,7 @@ import 'SDK_Examples_file_2_Accumulate_Identities.dart';
 
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);
-int delayBeforePrintSeconds = 180;
+int delayBeforePrintSeconds = 40;
 
 Future<void> main() async {
   print(endPoint);
@@ -54,7 +54,7 @@ Future<void> testFeatures() async {
 
   // Pause to allow the addCredits transaction to settle
   print("Pausing to allow addCredits transaction to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 40)); // Pause for 2 minutes
 
   // Create an ADI Data Account
   String identityUrl = "acc://$adiName.acme";
@@ -65,7 +65,7 @@ Future<void> testFeatures() async {
   // Pause to allow the Create an ADI Data Account transaction to settle
   print(
       "Pausing to allow the Create an ADI Data Account transaction to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 40)); // Pause for 2 minutes
 
   // Add Data Entries to the Data Account
   List<Uint8List> dataEntries = [
@@ -82,7 +82,9 @@ Future<void> testFeatures() async {
 
   // Use writeDataTo a lite token account to create a lite data account & add data entires
   final String dataAccountUrl2 =
-      "acc://e553bacf3bc87d262eb8505a579c235c345dbae6e7bf95cd6ff597fb8ccfe128";
+      "acc://fb8e87b944b562098bc5ba3cfb099660610c5ffc7606dd12fab5d4bcb445bdcb";
+  print("dataAccountUrl2");
+  print("lite data account test");
   List<Uint8List> dataEntries2 = [
     utf8.encode("").asUint8List(),
     utf8.encode("Testing").asUint8List(),
@@ -92,6 +94,7 @@ Future<void> testFeatures() async {
 
   // NOTE - write to state is NOT ALLOWED for LDAs
   WriteDataParam writeDataParam2 = WriteDataParam();
+  print('lite data entries $dataEntries2');
   writeDataParam2.data = dataEntries2;
 
   TxSigner txSigner = TxSigner(keyPageUrl, adiSigner);
@@ -110,8 +113,6 @@ Future<void> createAdiDataAccount(Ed25519KeypairSigner adiSigner,
     String identityUrl, String keyPageUrl, String dataAccountUrl) async {
   CreateDataAccountParam dataAccountParams = CreateDataAccountParam();
   dataAccountParams.url = dataAccountUrl;
-  dataAccountParams.scratch =
-      false; // true enables entires to be "forgotton" by network over time
 
   TxSigner txSigner = TxSigner(keyPageUrl, adiSigner);
   var res =
@@ -140,8 +141,8 @@ Future<void> addDataToAdiDataAccount(
 }
 
 void printKeypairDetails(Ed25519KeypairSigner signer) {
-  String publicKeyHex = HEX.encode(signer.publicKey());
-  String privateKeyHex = HEX.encode(signer.secretKey());
+  String publicKeyHex = hex.encode(signer.publicKey());
+  String privateKeyHex = hex.encode(signer.secretKey());
   String mnemonic = signer.mnemonic();
 
   print("Public Key: $publicKeyHex");

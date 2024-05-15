@@ -2,15 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart' as crypto;
-import 'package:convert/convert.dart'; // Correct package for hex conversion
+import 'package:convert/convert.dart';
 import 'package:accumulate_api/accumulate_api.dart';
 
-// Helper function to convert hex to bytes
 Uint8List hexToBytes(String s) {
   return Uint8List.fromList(hex.decode(s));
 }
 
-// Helper function to simulate your existing key parsing
 Ed25519KeypairSigner loadSignerFromEncodedKey(String privateKeyBase64) {
   Uint8List privateKey = hexToBytes(privateKeyBase64);
   return Ed25519KeypairSigner.fromKeyRaw(privateKey);
@@ -21,7 +19,6 @@ Future<String> signTransaction({
   required String transactionHashHex,
   required String metadataJson,
 }) async {
-  // Decode and load the private key
   Ed25519KeypairSigner signer = loadSignerFromEncodedKey(privateKeyBase64);
 
   // Calculate the hash of the signature metadata
@@ -51,7 +48,7 @@ Future<void> main() async {
   String publicKeyHex =
       "4babeda2c1feda94064997737ad7fd613b91e20546db51f97254960455673845";
   String transactionHashHex =
-      "f6c4fa0f9f159d823eaded569c8b6e83a8814a9f96efeb496392a6a1107ebaea";
+      "1d3395802ecfc268589be1df711f68cec129b535a949f42eb4b181fe87b5438e";
 
   final sigInfo = SignerInfo();
   sigInfo.type = SignatureType.signatureTypeED25519;
@@ -98,9 +95,8 @@ Future<Transaction> unmarshalTx(
     ..memo = data["header"]["memo"]
     ..metadata = maybeDecodeHex(data["header"]["metadata"]);
 
-  // This does not belong here - the timestamp belongs to the signature, not the
-  // transaction - but the only way to set it is via the header options, so you
-  // do what you gotta do
+  // timestamp should only be in the signature, not the transaction
+  // but SDK requires it in the header options
   hopts.timestamp = timestamp;
 
   final header = Header(data["header"]["principal"], hopts);
@@ -112,30 +108,6 @@ Future<Transaction> unmarshalTx(
   }
   return tx;
 }
-
-/*
-Payload decodePayload(dynamic data) {
-  switch (data["type"]) {
-    case "writeData":
-      if (data["entry"]["type"] != "doubleHash") {
-        throw "unsupported data entry type";
-      }
-      final params = WriteDataParam()
-        ..scratch = data["scratch"] ??
-            false // Assuming a default of false if not provided
-        ..writeToState = data["writeToState"] ??
-            false // Assuming a default of false if not provided
-        ..data = data["entry"]["data"]
-            .map((s) => hex.decode(s))
-            .cast<Uint8List>()
-            .toList();
-      return WriteData(params);
-
-    default:
-      throw "unsupported transaction type";
-  }
-}
-*/
 
 int? parseOperationType(String? operationType) {
   if (operationType == null) return null;
@@ -154,6 +126,23 @@ int? parseOperationType(String? operationType) {
     default:
       print("Unknown operation type: $operationType");
       return null;
+  }
+}
+
+int parseAccountAuthOperationType(String operationType) {
+  switch (operationType.toLowerCase()) {
+    case 'enable':
+      return UpdateAccountAuthActionType.Enable;
+    case 'disable':
+      return UpdateAccountAuthActionType.Disable;
+    case 'addauthority':
+      return UpdateAccountAuthActionType.AddAuthority;
+    case 'removeauthority':
+      return UpdateAccountAuthActionType.RemoveAuthority;
+    default:
+      print("Unknown operation type: $operationType, defaulting to Disable");
+      return UpdateAccountAuthActionType
+          .Disable; // Default case to handle unknown types
   }
 }
 
@@ -210,6 +199,506 @@ Payload decodePayload(dynamic data) {
       }
 
       return UpdateKeyPage(updateKeyPageParams);
+
+    case "createIdentity":
+      print("Decoding createIdentity payload");
+      var url = data["url"] as String?;
+      var keyHash = data["keyHash"] as String?;
+      var keyBookUrl = data["keyBookUrl"] as String?;
+      var metadata = data["metadata"] as String?;
+
+      // Converting keyHash from hex string to Uint8List
+      Uint8List? keyHashBytes;
+      if (keyHash != null) {
+        try {
+          keyHashBytes = maybeDecodeHex(keyHash);
+        } catch (e) {
+          print("Failed to decode keyHash: $e");
+        }
+      }
+
+      // Creating the CreateIdentityParam object
+      var createIdentityParam = CreateIdentityParam()
+        ..url = url
+        ..keyHash = keyHashBytes
+        ..keyBookUrl = keyBookUrl
+        ..memo = data["memo"] as String?
+        ..metadata = metadata != null ? maybeDecodeHex(metadata) : null;
+
+      print("CreateIdentityParam created with URL: ${createIdentityParam.url}");
+      if (createIdentityParam.metadata != null) {
+        print("Metadata decoded successfully");
+      } else {
+        print("No metadata or failed to decode");
+      }
+
+      return CreateIdentity(createIdentityParam);
+
+    case "createTokenAccount":
+      print("Decoding createTokenAccount payload");
+      var url = data["url"] as String?;
+      var tokenUrl = data["tokenUrl"] as String?;
+      var memo = data["memo"] as String?;
+      var metadata = data["metadata"] as String?;
+
+      // Convert metadata from hex string to Uint8List if not null
+      Uint8List? metadataBytes;
+      if (metadata != null) {
+        metadataBytes = maybeDecodeHex(metadata);
+        print("Metadata (decoded): $metadataBytes");
+      }
+
+      // Handling authorities if present
+      var authorities = (data["authorities"] as List<dynamic>?)
+          ?.map((authUrl) => AccURL.toAccURL(authUrl))
+          .toList(); // Convert each authority URL string to AccURL objects
+
+      // Creating the CreateTokenAccountParam object
+      var createTokenAccountParam = CreateTokenAccountParam()
+        ..url = url
+        ..tokenUrl = tokenUrl
+        ..memo = memo
+        ..metadata = metadataBytes
+        ..authorities = authorities;
+
+      print(
+          "CreateTokenAccountParam created with URL: ${createTokenAccountParam.url}");
+      if (createTokenAccountParam.metadata != null) {
+        print("Metadata decoded successfully");
+      } else {
+        print("No metadata or failed to decode");
+      }
+
+      return CreateTokenAccount(createTokenAccountParam);
+
+    case "sendTokens":
+      print("Decoding sendTokens payload");
+      var toList = data["to"] as List<dynamic>;
+      List<TokenRecipientParam> recipients = toList.map((recipientData) {
+        var recipient = TokenRecipientParam();
+        recipient.url = recipientData["url"] as String;
+        recipient.amount = recipientData["amount"] as String;
+        return recipient;
+      }).toList();
+
+      var memo = data["memo"] as String?;
+      var metadata = data["metadata"] as String?;
+
+      // Convert metadata from hex string to Uint8List if not null
+      Uint8List? metadataBytes;
+      if (metadata != null) {
+        metadataBytes = maybeDecodeHex(metadata);
+        print("Metadata (decoded): $metadataBytes");
+      }
+
+      // Assuming SendTokensParam can be modified in this manner, matching any required constructor parameters
+      var sendTokensParam = SendTokensParam()
+        ..to = recipients
+        ..memo = memo
+        ..metadata = metadataBytes;
+
+      print(
+          "SendTokensParam created with recipients: ${sendTokensParam.to.length}");
+      if (sendTokensParam.metadata != null) {
+        print("Metadata decoded successfully");
+      } else {
+        print("No metadata or failed to decode");
+      }
+
+      return SendTokens(sendTokensParam);
+
+    case "writeDataTo":
+      if (data["entry"]["type"] != "doubleHash") {
+        throw "Unsupported data entry type";
+      }
+      final params = WriteDataToParam(
+        recipient: data["recipient"],
+        data: (data["entry"]["data"] as List<dynamic>?)
+                ?.map((s) => hex.decode(s as String))
+                .cast<Uint8List>()
+                .toList() ??
+            [],
+      );
+      return WriteDataTo(params);
+
+    case "createToken":
+      print("Decoding createToken payload");
+      var url = data["url"] as String?;
+      var symbol = data["symbol"] as String?;
+      var precision = data["precision"] as int?;
+      var properties = data["properties"];
+      var supplyLimit = data["supplyLimit"];
+      var memo = data["memo"] as String?;
+      var metadata = data["metadata"] as String?;
+
+      // Convert metadata from hex string to Uint8List if not null
+      Uint8List? metadataBytes;
+      if (metadata != null) {
+        metadataBytes = maybeDecodeHex(metadata);
+        print("Metadata (decoded): $metadataBytes");
+      }
+
+      // Handling optional fields such as properties and authorities
+      AccURL? propertiesUrl =
+          properties != null ? AccURL.toAccURL(properties) : null;
+      List<AccURL>? authorities = (data["authorities"] as List<dynamic>?)
+          ?.map((authUrl) => AccURL.toAccURL(authUrl))
+          .toList(); // Convert each authority URL string to AccURL objects
+
+      // Create the CreateTokenParam object
+      var createTokenParam = CreateTokenParam()
+        ..url = url
+        ..symbol = symbol ?? "" // Default to an empty string if null
+        ..precision = precision ?? 0 // Default to 0 if null
+        ..properties = propertiesUrl
+        ..supplyLimit = supplyLimit
+        ..authorities = authorities
+        ..memo = memo
+        ..metadata = metadataBytes;
+
+      print("CreateTokenParam created with URL: ${createTokenParam.url}");
+      if (createTokenParam.metadata != null) {
+        print("Metadata decoded successfully");
+      } else {
+        print("No metadata or failed to decode");
+      }
+
+      return CreateToken(createTokenParam);
+
+    case "issueTokens":
+      print("Decoding issueTokens payload");
+      // Extract fields from the data
+      var toList = data["to"] as List<dynamic>;
+      List<TokenRecipientParam> recipients = toList.map((recipientData) {
+        var recipient = TokenRecipientParam();
+        recipient.url = recipientData["url"] as String;
+        recipient.amount = int.parse(recipientData["amount"]
+            as String); // Convert string amount to integer
+        return recipient;
+      }).toList();
+
+      var memo = data["memo"] as String?;
+      var metadata = data["metadata"] as String?;
+
+      // Convert metadata from hex string to Uint8List if not null
+      Uint8List? metadataBytes;
+      if (metadata != null) {
+        metadataBytes = maybeDecodeHex(metadata);
+        print("Metadata (decoded): $metadataBytes");
+      }
+
+      // Assuming IssueTokensParam can be initialized in this manner, matching any required constructor parameters
+      var issueTokensParam = IssueTokensParam()
+        ..to = recipients
+        ..memo = memo
+        ..metadata = metadataBytes;
+
+      print(
+          "IssueTokensParam created with recipients: ${issueTokensParam.to.length}");
+      if (issueTokensParam.metadata != null) {
+        print("Metadata decoded successfully");
+      } else {
+        print("No metadata or failed to decode");
+      }
+
+      return IssueTokens(issueTokensParam);
+
+    case "addCredits":
+      print("Decoding addCredits payload");
+      var recipientUrl = data["recipient"] as String;
+      var amount = data["amount"]
+          as String; // Amount is expected to be a string that needs to be parsed to int
+      var oracle =
+          data["oracle"] as int; // Oracle value is directly used as an int
+      var memo = data["memo"] as String?;
+      var metadata = data["metadata"] as String?;
+
+      // Convert metadata from hex string to Uint8List if not null
+      Uint8List? metadataBytes;
+      if (metadata != null) {
+        metadataBytes = maybeDecodeHex(metadata);
+        print("Metadata (decoded): $metadataBytes");
+      }
+
+      // Create the AddCreditsParam object
+      var addCreditsParam = AddCreditsParam()
+        ..recipient = recipientUrl
+        ..amount = int.parse(amount) // Parsing the string amount to integer
+        ..oracle = oracle
+        ..memo = memo
+        ..metadata = metadataBytes;
+
+      print("AddCreditsParam created with recipient: $recipientUrl");
+      if (addCreditsParam.metadata != null) {
+        print("Metadata decoded successfully");
+      } else {
+        print("No metadata or failed to decode");
+      }
+
+      return AddCredits(addCreditsParam);
+
+    case "updateAccountAuth":
+      print("Decoding updateAccountAuth payload");
+      List<dynamic> operationsData = data["operations"] as List<dynamic>;
+      List<UpdateAccountAuthOperation> operations =
+          operationsData.map((opData) {
+        var op = UpdateAccountAuthOperation();
+        op.type = parseAccountAuthOperationType(opData["type"] as String);
+        op.authority = opData["authority"] as String;
+        return op;
+      }).toList();
+
+      var memo = data["memo"] as String?;
+      var metadata = data["metadata"] as String?;
+
+      // Convert metadata from hex string to Uint8List if not null
+      Uint8List? metadataBytes;
+      if (metadata != null) {
+        metadataBytes = maybeDecodeHex(metadata);
+        print("Metadata (decoded): $metadataBytes");
+      }
+
+      // Create the UpdateAccountAuthParam object
+      var updateAccountAuthParam = UpdateAccountAuthParam()
+        ..operations = operations
+        ..memo = memo
+        ..metadata = metadataBytes;
+
+      print(
+          "UpdateAccountAuthParam created with ${operations.length} operations");
+      if (updateAccountAuthParam.metadata != null) {
+        print("Metadata decoded successfully");
+      } else {
+        print("No metadata or failed to decode");
+      }
+
+      return UpdateAccountAuth(updateAccountAuthParam);
+
+    case "updateKey":
+      print("Decoding updateKey payload");
+      var newKeyHashStr = data["newKeyHash"] as String?;
+      if (newKeyHashStr == null) {
+        throw FormatException("newKeyHash is missing from the payload.");
+      }
+
+      Uint8List newKeyHash;
+      try {
+        newKeyHash = hexToBytes(newKeyHashStr);
+        print("New key hash decoded.");
+      } catch (e) {
+        throw FormatException("Failed to decode new key hash: $e");
+      }
+
+      // Extract optional memo field
+      var memo = data["memo"] as String?;
+      print("Memo: $memo");
+
+      // Handle optional metadata field
+      var metadataStr = data["metadata"] as String?;
+      Uint8List? metadataBytes;
+      if (metadataStr != null) {
+        try {
+          metadataBytes = hexToBytes(metadataStr);
+          print("Metadata (decoded): $metadataBytes");
+        } catch (e) {
+          throw FormatException("Error decoding metadata: $e");
+        }
+      } else {
+        print("No metadata provided.");
+      }
+
+      // Create the UpdateKeyParam object
+      var updateKeyParam = UpdateKeyParam()
+        ..newKeyHash = newKeyHash
+        ..memo = memo
+        ..metadata = metadataBytes;
+
+      print("UpdateKeyParam created successfully.");
+
+      // Return the constructed UpdateKey object
+      return UpdateKey(updateKeyParam);
+
+    case "burnTokens":
+      print("Decoding burnTokens payload");
+      var amountStr = data["amount"] as String?;
+      if (amountStr == null) {
+        throw FormatException("Amount is missing from the burnTokens payload.");
+      }
+
+      int amount;
+      try {
+        amount = int.parse(amountStr);
+        print("Amount to burn: $amount");
+      } catch (e) {
+        throw FormatException("Failed to parse amount: $e");
+      }
+
+      // Extract optional memo field
+      var memo = data["memo"] as String?;
+      print("Memo: $memo");
+
+      // Handle optional metadata field
+      var metadataStr = data["metadata"] as String?;
+      Uint8List? metadataBytes;
+      if (metadataStr != null) {
+        try {
+          metadataBytes = hexToBytes(metadataStr);
+          print("Metadata (decoded): $metadataBytes");
+        } catch (e) {
+          throw FormatException("Error decoding metadata: $e");
+        }
+      } else {
+        print("No metadata provided.");
+      }
+
+      // Create the BurnTokensParam object
+      var burnTokensParam = BurnTokensParam()
+        ..amount = amount
+        ..memo = memo
+        ..metadata = metadataBytes;
+
+      print("BurnTokensParam created successfully.");
+
+      // Return the constructed BurnTokens object
+      return BurnTokens(burnTokensParam);
+
+    case "createKeyBook":
+      print("Decoding createKeyBook payload");
+
+      // Extracting URL from data
+      var url = data["url"] as String?;
+      if (url == null) {
+        throw FormatException("URL is missing from the createKeyBook payload.");
+      }
+      print("URL: $url");
+
+      // Extracting publicKeyHash and converting from hex
+      var publicKeyHashHex = data["publicKeyHash"] as String?;
+      Uint8List? publicKeyHash;
+      if (publicKeyHashHex != null) {
+        try {
+          publicKeyHash = hexToBytes(publicKeyHashHex);
+          print("Public Key Hash: $publicKeyHashHex");
+        } catch (e) {
+          throw FormatException("Failed to decode public key hash: $e");
+        }
+      } else {
+        throw FormatException(
+            "Public key hash is missing from the createKeyBook payload.");
+      }
+
+      // Extracting optional memo field
+      var memo = data["memo"] as String?;
+      print("Memo: $memo");
+
+      // Handle optional metadata field
+      var metadata = data["metadata"] as String?;
+      Uint8List? metadataBytes;
+      if (metadata != null) {
+        try {
+          metadataBytes = hexToBytes(metadata);
+          print("Metadata (decoded): $metadataBytes");
+        } catch (e) {
+          throw FormatException("Error decoding metadata: $e");
+        }
+      } else {
+        print("No metadata provided.");
+      }
+
+      var createKeyBookParam = CreateKeyBookParam()
+        ..url = url
+        ..publicKeyHash = publicKeyHash
+        ..memo = memo
+        ..metadata = metadataBytes;
+
+      print("CreateKeyBookParam created successfully for URL: $url");
+
+      // Extracting authorities if present convert to AccURL list
+      var authoritiesData = data["authorities"] as List<dynamic>?;
+      if (authoritiesData != null) {
+        createKeyBookParam.authorities = authoritiesData
+            .map((authUrl) => AccURL.toAccURL(authUrl as String))
+            .toList();
+        print(
+            "Authorities: ${createKeyBookParam.authorities?.map((a) => a.toString()).join(', ')}");
+      }
+
+      // Return the constructed CreateKeyBook object
+      return CreateKeyBook(createKeyBookParam);
+
+    case "createDataAccount":
+      print("Decoding createDataAccount payload");
+      var url = data["url"] as String?;
+      var memo = data["memo"] as String?;
+      var metadata = data["metadata"] as String?;
+
+      // Convert metadata from hex string to Uint8List if not null
+      Uint8List? metadataBytes;
+      if (metadata != null) {
+        metadataBytes = maybeDecodeHex(metadata);
+        print("Metadata (decoded): $metadataBytes");
+      }
+
+      // Example handling authorities - update as necessary based on actual data structure
+      var authoritiesData = data["authorities"] as List<dynamic>?;
+      List<AccURL>? authorities = authoritiesData
+          ?.map((authUrl) => AccURL.toAccURL(authUrl as String))
+          .toList();
+
+      var createDataAccountParam = CreateDataAccountParam()
+        ..url = url
+        ..authorities = authorities
+        ..memo = memo
+        ..metadata = metadataBytes;
+
+      print(
+          "CreateDataAccountParam created with URL: ${createDataAccountParam.url}");
+      if (createDataAccountParam.metadata != null) {
+        print("Metadata decoded successfully");
+      } else {
+        print("No metadata or failed to decode");
+      }
+
+      return CreateDataAccount(createDataAccountParam);
+
+    case "createKeyPage":
+      print("Decoding createKeyPage payload");
+      var keysData = data["keys"] as List<
+          dynamic>?; // Assuming keys is a list of map items with 'keyHash'
+      if (keysData == null) {
+        throw FormatException(
+            "Keys data is missing in the createKeyPage payload.");
+      }
+
+      List<Uint8List> keys = [];
+      for (var keyData in keysData) {
+        var keyHash = keyData["keyHash"] as String?;
+        if (keyHash == null) {
+          throw FormatException("Key hash is missing from a key data entry.");
+        }
+        keys.add(hexToBytes(keyHash));
+      }
+
+      var memo = data["memo"] as String?;
+      var metadata = data["metadata"] as String?;
+
+      Uint8List? metadataBytes;
+      if (metadata != null) {
+        try {
+          metadataBytes = hexToBytes(metadata);
+          print("Metadata (decoded): $metadataBytes");
+        } catch (e) {
+          throw FormatException("Error decoding metadata: $e");
+        }
+      }
+
+      var createKeyPageParam = CreateKeyPageParam()
+        ..keys = keys
+        ..memo = memo
+        ..metadata = metadataBytes;
+
+      print("CreateKeyPageParam created.");
+      return CreateKeyPage(createKeyPageParam);
 
     default:
       throw "Unsupported transaction type ${data['type']}";
