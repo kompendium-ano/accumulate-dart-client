@@ -1,3 +1,4 @@
+
 class SignatureType {
   static const signatureTypeMultiHash =
       1; //  main signature type after v1.02 for MHz wallets

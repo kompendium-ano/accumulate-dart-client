@@ -94,7 +94,7 @@ Future<void> main() async {
   String publicKeyHex =
       "ec66e2c540db4169f24973fdf2f6451ff02215383dea790c6ec16717fe2f0d53";
   String transactionHashHex =
-      "f78715e684db2fd71de8680d3d7a53fe531db7e83372ae356ebc962ad6d1301a";
+      "de8d0b483acecec5a7a98b188b738492500847ff6e966aac6394d4ec49320c8f";
 
   final sigInfo = SignerInfo()
     ..type = SignatureType.signatureTypeED25519

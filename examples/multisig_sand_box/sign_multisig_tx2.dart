@@ -1,5 +1,3 @@
-// examples\sign_multisig_tx2.dart
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -7,125 +5,485 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'package:convert/convert.dart';
 import 'package:accumulate_api/accumulate_api.dart';
 
-// Convert hex to bytes with validation
+// Helper function to convert hex to bytes
 Uint8List hexToBytes(String s) {
-  try {
-    return Uint8List.fromList(hex.decode(s));
-  } catch (e) {
-    print("hexToBytes error decoding hex string: $s");
-    rethrow;
-  }
+  return Uint8List.fromList(hex.decode(s));
 }
 
+// Helper function to simulate your existing key parsing
 Ed25519KeypairSigner loadSignerFromEncodedKey(String privateKeyBase64) {
   Uint8List privateKey = hexToBytes(privateKeyBase64);
   return Ed25519KeypairSigner.fromKeyRaw(privateKey);
 }
 
-Future<String> signTransaction({
+// Helper function to get the correct signer version
+Future<int> getSignerVersion(ACMEClient client, AccURL keyPageUrl) async {
+  var response = await client.queryUrl(keyPageUrl);
+  return response["result"]["data"]["version"];
+}
+
+class KeyNode {
+  String? keyHash;
+  String? publicKeyHash;
+  String? url;
+  List<KeyNode> delegates = [];
+
+  KeyNode({this.keyHash, this.publicKeyHash, this.url});
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {
+      if (url != null) 'url': url,
+      if (keyHash != null) 'keyHash': keyHash,
+      if (publicKeyHash != null) 'publicKeyHash': publicKeyHash,
+      if (delegates.isNotEmpty) 'delegates': delegates.map((delegate) => delegate.toJson()).toList(),
+    };
+
+    return data;
+  }
+
+  Map<String, dynamic> toCustomJson() {
+    final customJson = <String, dynamic>{
+      if (url != null && url!.contains('/book/')) 'keyPageUrl': url,
+      if (url != null && !url!.contains('/book/')) 'keyBookUrl': url,
+      if (publicKeyHash != null) 'publicKeyHash': publicKeyHash,
+      'delegates': delegates.map((delegate) => delegate.toCustomJson()).toList(),
+    };
+
+    return customJson;
+  }
+}
+
+// Function to query a transaction ID and get the signer
+Future<Map<String, String?>> queryTransaction(String txID) async {
+  final endPoint = "https://testnet.accumulatenetwork.io/v2";
+  final client = ACMEClient(endPoint);
+
+  final response = await client.call('query-tx', {"txid": txID});
+  final data = response["result"];
+
+  String? signer;
+  String? origin;
+
+  if (data.containsKey("signatures") && data["signatures"].isNotEmpty) {
+    signer = data["signatures"][0]["signer"];
+  }
+
+  if (data.containsKey("origin")) {
+    origin = data["origin"];
+  }
+
+  return {"signer": signer, "origin": origin};
+}
+
+// Function to query an ADI key page URL and map out the key page keys and delegates
+Future<KeyNode> queryKeyPage(String keyPageUrl) async {
+  final endPoint = "https://testnet.accumulatenetwork.io/v2";
+  final client = ACMEClient(endPoint);
+
+  final response = await client.queryUrl(AccURL(keyPageUrl));
+  final data = response["result"]["data"];
+
+  KeyNode keyNode = KeyNode(url: keyPageUrl);
+
+  // Extract keys and delegates from the response
+  List<dynamic> keys = data["keys"];
+  for (var keyData in keys) {
+    if (keyData.containsKey("hash")) {
+      keyNode.keyHash = keyData["hash"];
+    } else if (keyData.containsKey("publicKeyHash")) {
+      keyNode.publicKeyHash = keyData["publicKeyHash"];
+    }
+
+    if (keyData.containsKey("delegate")) {
+      String? delegate = keyData["delegate"];
+      if (delegate != null) {
+        KeyNode delegateNode = await queryKeyBook(delegate);
+        keyNode.delegates.add(delegateNode);
+      }
+    }
+  }
+
+  return keyNode;
+}
+
+// Function to query a key book URL and find all key pages
+Future<KeyNode> queryKeyBook(String keyBookUrl) async {
+  final endPoint = "https://testnet.accumulatenetwork.io/v2";
+  final client = ACMEClient(endPoint);
+
+  final response = await client.queryUrl(AccURL(keyBookUrl));
+  final data = response["result"]["data"];
+
+  KeyNode rootNode = KeyNode(url: keyBookUrl);
+
+  // Check the number of pages in the key book
+  if (data.containsKey("pageCount") && data["pageCount"] is int) {
+    int pageCount = data["pageCount"];
+    for (int i = 1; i <= pageCount; i++) {
+      String keyPageUrl = "$keyBookUrl/$i";
+      KeyNode keyPageNode = await queryKeyPage(keyPageUrl);
+      rootNode.delegates.add(keyPageNode);
+    }
+  }
+
+  return rootNode;
+}
+
+// Function to check if a public key is in the key nodes and retrieve key page URL
+bool isPublicKeyInKeyNodes(KeyNode keyNode, String publicKeyHash, List<String> path, {String? keyPageUrl}) {
+  if (keyNode.publicKeyHash == publicKeyHash) {
+    if (keyPageUrl != null && !path.contains(keyPageUrl)) path.add(keyPageUrl);
+    return true;
+  }
+  for (var delegate in keyNode.delegates) {
+    if (isPublicKeyInKeyNodes(delegate, publicKeyHash, path, keyPageUrl: keyNode.url != null ? keyNode.url! + "/1" : null)) {
+      if (keyNode.url != null && !path.contains(keyNode.url! + "/1")) path.add(keyNode.url! + "/1"); // Use key page URL
+      return true;
+    }
+  }
+  return false;
+}
+
+// Function to get the signing path using the key tree structure JSON
+List<String> getSigningPath(Map<String, dynamic> node, String publicKeyHash) {
+  List<String> path = [];
+  _findPath(node, publicKeyHash, path);
+  return path;
+}
+
+bool _findPath(Map<String, dynamic> node, String publicKeyHash, List<String> path) {
+  if (node['publicKeyHash'] == publicKeyHash) {
+    if (node['keyPageUrl'] != null && !path.contains(node['keyPageUrl'])) {
+      path.add(node['keyPageUrl']);
+    }
+    return true;
+  }
+  if (node.containsKey('delegates')) {
+    for (var delegate in node['delegates']) {
+      if (_findPath(delegate, publicKeyHash, path)) {
+        if (node['keyPageUrl'] != null && !path.contains(node['keyPageUrl'])) {
+          path.insert(0, node['keyPageUrl']);
+        }
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// Function to check if the provided public key can sign the transaction and get details
+Future<List<Map<String, String>>> getEligibleSigners(String adiUrl, String publicKeyHash, String keyTreeStructure) async {
+  final endPoint = "https://testnet.accumulatenetwork.io/v2";
+  final client = ACMEClient(endPoint);
+
+  final response = await client.queryUrl(AccURL(adiUrl));
+  final data = response["result"]["data"];
+
+  List<Map<String, String>> eligibleSigners = [];
+
+  // Check the key books associated with the ADI
+  if (data.containsKey("authorities")) {
+    for (var authority in data["authorities"]) {
+      String keyBookUrl = authority["url"];
+      KeyNode keyBookNode = await queryKeyBook(keyBookUrl);
+      List<String> path = [];
+      if (isPublicKeyInKeyNodes(keyBookNode, publicKeyHash, path, keyPageUrl: keyBookUrl + "/1")) {
+        path = getSigningPath(jsonDecode(keyTreeStructure), publicKeyHash);
+        eligibleSigners.add({
+          'Key Book': keyBookUrl,
+          'Key Page': path.last,
+          'Public Key Hash': publicKeyHash,
+          'Signing Path': path.join(' -> ')
+        });
+      }
+    }
+  }
+
+  return eligibleSigners;
+}
+
+// Sign + wrap signature with delegation
+Future<Map<String, dynamic>> signTransactionWithDelegation({
+  required ACMEClient client,
   required String privateKeyBase64,
   required String transactionHashHex,
-  required String metadataJson,
+  required SignerInfo sigInfo,
+  required List<SignerInfo> delegators,
 }) async {
-  // Decode and load the private key
+  // Decode/load private key
   Ed25519KeypairSigner signer = loadSignerFromEncodedKey(privateKeyBase64);
 
-  // Calculate the hash of the signature metadata
-  Uint8List metadataBytes = utf8.encode(metadataJson);
-  Uint8List metadataHash =
-      crypto.sha256.convert(metadataBytes).bytes as Uint8List;
+  // Helper: sign hash
+  Uint8List signHash(Uint8List hash) {
+    return signer.signRaw(hash);
+  }
 
-  // Decode transaction hash
+  // Get version of initial signer
+  int signerVersion = await getSignerVersion(client, sigInfo.url!);
+
+  // Create initial signature map
+  Map<String, dynamic> signature = {
+    "type": "ed25519",
+    "publicKey": hex.encode(sigInfo.publicKey!),
+    "signer": sigInfo.url.toString(),
+    "signerVersion": signerVersion,
+    "timestamp": DateTime.now().microsecondsSinceEpoch,
+  };
+
+  // Save a reference to the inner signature
+  var innerSignature = signature;
+
+  // Wrap signature with delegators in order
+  for (SignerInfo delegator in delegators) {
+    // Get version for each delegator
+    int delegatorVersion = await getSignerVersion(client, delegator.url!);
+
+    // Update delegator version
+    delegator.version = delegatorVersion;
+
+    // Wrap existing signature in a delegated signature
+    innerSignature = {
+      "type": "delegated",
+      "signature": innerSignature,
+      "delegator": delegator.url.toString()
+    };
+  }
+
+  // Calculate and sign the hash
+  Uint8List metadataBytes = signatureMarshalBinary(innerSignature);
+  print('Signature: ${hex.encode(metadataBytes)}');
+  Uint8List metadataHash =
+      Uint8List.fromList(crypto.sha256.convert(metadataBytes).bytes);
   Uint8List transactionHash =
       Uint8List.fromList(hex.decode(transactionHashHex));
-
-  // Concatenate metadata hash and transaction hash, then hash the result
   Uint8List toSign = Uint8List.fromList([...metadataHash, ...transactionHash]);
-  Uint8List finalHash = crypto.sha256.convert(toSign).bytes as Uint8List;
+  Uint8List finalHash = Uint8List.fromList(crypto.sha256.convert(toSign).bytes);
 
-  // Sign the hash
-  Uint8List signature = signer.signRaw(finalHash);
+  // Debugging: Print intermediate hashes
+  print('Metadata Hash: ${hex.encode(metadataHash)}');
+  print('Transaction Hash: ${transactionHashHex}');
+  print('Final Hash to Sign: ${hex.encode(finalHash)}');
 
-  // Convert signature to hex string for display or use in JSON
-  String signatureHex = hex.encode(signature);
-  return signatureHex;
+  // Populate signature and transactionHash on the inner signature.
+  signature["signature"] = hex.encode(signHash(finalHash));
+  signature["transactionHash"] = transactionHashHex;
+
+  // Debugging: Print inner signature details
+  print('Inner Signature: ${json.encode(innerSignature)}');
+
+  return innerSignature;
 }
 
 Future<void> main() async {
-  String privateKeyBase64 =
-      "a7eb9f1c576107510b91e2dc048a20adca2ed275590159eed47b51f460fa4a5e8e6fae262a98aba53d3ae0863de0b67ab3fb261f8cbc0f7d00edc25bdb20a814";
-  String publicKeyHex =
-      "8e6fae262a98aba53d3ae0863de0b67ab3fb261f8cbc0f7d00edc25bdb20a814";
-  String transactionHashHex =
-      "3be7576d9342555ad22dd4872a62ded24bf7672fd71a078ae10cb009996d47a4";
+  // Step 1: Check eligibility
+  String txID = "da97039804132e20c30cc6dbd04f45bb957fd24613a5802307673e43a8e04ed4";
+  String adiUrl = "acc://custom-adi-name-1720351349389.acme";
+  String publicKeyHash = "cb8eb8381e0ffea2fd6e5df846e642a9f6975e39b2ab3085cc845e04eac6a405";
 
-  final sigInfo = SignerInfo();
-  sigInfo.type = SignatureType.signatureTypeED25519;
-  sigInfo.url = AccURL("acc://accumulate.acme/core-dev/book/2");
-  sigInfo.publicKey = hex.decode(publicKeyHex) as Uint8List?;
-  sigInfo.version = 3;
+  Map<String, String?> txInfo = await queryTransaction(txID);
 
-  final endPoint = "https://mainnet.accumulatenetwork.io/v2";
-  final client = ACMEClient(endPoint);
-  final data = (await client
-      .queryTx("acc://${transactionHashHex}@unknown"))["result"]["transaction"];
-  print("Data from query tx: $data");
+  if (txInfo["signer"] != null) {
+    KeyNode rootNode = await queryKeyPage(txInfo["signer"]!);
 
-  final hopts = HeaderOptions();
-  hopts.timestamp = 1712853539622;
-  hopts.memo = data["header"]["memo"];
-  hopts.initiator = hex.decode(data["header"]["initiator"]) as Uint8List?;
-  print("Data from hopts.initiator: ${hopts.initiator}");
-  final header = Header(data["header"]["principal"], hopts);
+    var result = {
+      'transactionId': txID,
+      'origin': txInfo["origin"],
+      'keyTreeStructure': rootNode.toCustomJson(),
+    };
 
-  final params = WriteDataParam()
-    ..data = [
-      hexToBytes("6964656e746974793d506176696c696f6e2e61636d65"),
-      hexToBytes("5765206163636570742064656c656761746573")
-    ];
-  final payload = WriteData(params);
-  final tx = Transaction(payload, header);
+    String keyTreeStructureJson = jsonEncode(result['keyTreeStructure']);
+    print(jsonEncode(result));
 
-  final signer = loadSignerFromEncodedKey(privateKeyBase64);
-  final signature = Signature();
-  signature.signerInfo = sigInfo;
-  signature.signature =
-      signer.signRaw(tx.dataForSignature(sigInfo).asUint8List());
-  print("Data from signature.signature: ${signature.signature}");
-
-  print("Signature: ${hex.encode(signature.signature!)}");
-  print("Serialized Transaction Data: ${hex.encode(payload.marshalBinary())}");
-
-  // Prepare JSON envelope
-  Map<String, dynamic> transactionEnvelope = {
-    "envelope": {
-      "signatures": [
-        {
-          "type": "ed25519",
-          "publicKey": publicKeyHex,
-          "signer": sigInfo.url.toString(),
-          "signerVersion": sigInfo.version,
-          "timestamp": hopts.timestamp,
-          "signature": hex.encode(signature.signature!),
-          "transactionHash": transactionHashHex
-        }
-      ],
-      "transaction": {
-        "header": {
-          "principal": header.principal.toString(),
-          "initiator": hex.encode(hopts.initiator!)
-        },
-        "body": {
-          "type": payload.runtimeType.toString(),
-          "data": hex.encode(payload.marshalBinary())
-        }
+    List<Map<String, String>> eligibleSigners = await getEligibleSigners(adiUrl, publicKeyHash, keyTreeStructureJson);
+    if (eligibleSigners.isNotEmpty) {
+      print('Number of found eligible signers: ${eligibleSigners.length}');
+      for (int i = 0; i < eligibleSigners.length; i++) {
+        print('Signer #: ${i + 1}');
+        print('Key Book: ${eligibleSigners[i]['Key Book']}');
+        print('Key Page: ${eligibleSigners[i]['Key Page']}');
+        print('Public Key Hash: ${eligibleSigners[i]['Public Key Hash']}');
+        print('Signing Path:');
+        print(eligibleSigners[i]['Signing Path']);
+        print('');
       }
+
+      // Step 2: Sign the transaction
+      String privateKeyBase64 =
+          "c58bc5f2643f5ed139c9434bfb772701c373d8aba766e01ff401307799e4fab9ec66e2c540db4169f24973fdf2f6451ff02215383dea790c6ec16717fe2f0d53";
+      String publicKeyHex =
+          "cb8eb8381e0ffea2fd6e5df846e642a9f6975e39b2ab3085cc845e04eac6a405";
+      String transactionHashHex =
+          "da97039804132e20c30cc6dbd04f45bb957fd24613a5802307673e43a8e04ed4";
+
+      final sigInfo = SignerInfo()
+        ..type = SignatureType.signatureTypeED25519
+        ..url = AccURL(eligibleSigners[0]['Key Page']!)
+        ..publicKey = hexToBytes(publicKeyHex);
+
+      final endPoint = "https://testnet.accumulatenetwork.io/v2";
+      final client = ACMEClient(endPoint);
+      final resp = await client.queryTx("acc://${transactionHashHex}@unknown");
+      final rawTx = resp["result"]["transaction"];
+
+      final List<SignerInfo> delegators = eligibleSigners.sublist(1).map((signer) {
+        return SignerInfo()
+          ..type = SignatureType.signatureTypeED25519
+          ..url = AccURL(signer['Key Page']!)
+          ..publicKey = hexToBytes(publicKeyHex);
+      }).toList();
+
+      final signature = await signTransactionWithDelegation(
+        client: client,
+        privateKeyBase64: privateKeyBase64,
+        transactionHashHex: transactionHashHex,
+        sigInfo: sigInfo,
+        delegators: delegators,
+      );
+
+      print("Signature: ${json.encode(signature)}");
+
+      // Modify the signature for the RPC call to include delegator levels
+      var finalSignature = signature;
+      for (var i = delegators.length - 1; i >= 0; i--) {
+        finalSignature = {
+          "type": "delegated",
+          "signature": finalSignature,
+          "delegator": delegators[i].url.toString(),
+        };
+      }
+
+      final executeResponse = await client.call("execute-direct", {
+        "envelope": {
+          "transaction": [rawTx],
+          "signatures": [finalSignature],
+        },
+      });
+      print("Execute response: ${executeResponse}");
+    } else {
+      print('The provided public key is not eligible to sign the transaction.');
     }
-  };
+  } else {
+    print('No signer found for transaction ID: $txID');
+  }
+}
 
-  print("Full Transaction JSON: ${json.encode(transactionEnvelope)}");
+// Additional utility functions
+Uint8List signatureMarshalBinary(Map<String, dynamic> signature) {
+  List<int> data = [];
 
-  // Send the transaction
-  var response = await client.executeDirect(transactionEnvelope);
-  print("Transaction response: $response");
+  var type = signatureTypeCode(signature["type"]);
+  var vote = voteTypeCode(signature["vote"]);
+  switch (type) {
+    case 1: // legacy
+      throw Exception("Legacy ED25519 signatures are not supported");
+
+    case 11: // delegated
+      data.addAll(uvarintMarshalBinary(type, 1));
+      if (signature["signature"] != null) {
+        data.addAll(bytesMarshalBinary(
+            signatureMarshalBinary(signature["signature"]), 2));
+      }
+      if (signature["delegator"] != null) {
+        data.addAll(stringMarshalBinary(signature["delegator"], 3));
+      }
+      break;
+
+    default:
+      data.addAll(uvarintMarshalBinary(type, 1));
+      if (signature["publicKey"] != null) {
+        data.addAll(bytesMarshalBinary(
+            hex.decode(signature["publicKey"]).asUint8List(), 2));
+      }
+      if (signature["signature"] != null) {
+        data.addAll(bytesMarshalBinary(
+            hex.decode(signature["signature"]).asUint8List(), 3));
+      }
+      if (signature["signer"] != null) {
+        data.addAll(stringMarshalBinary(signature["signer"], 4));
+      }
+      if (signature["signerVersion"] != null) {
+        data.addAll(uvarintMarshalBinary(signature["signerVersion"], 5));
+      }
+      if (signature["timestamp"] != null) {
+        data.addAll(uvarintMarshalBinary(signature["timestamp"], 6));
+      }
+      if (vote != 0) {
+        data.addAll(uvarintMarshalBinary(vote, 7));
+      }
+      if (signature["transactionHash"] != null) {
+        data.addAll(bytesMarshalBinary(
+            hex.decode(signature["transactionHash"]).asUint8List(), 8));
+      }
+      if (signature["memo"] != null) {
+        data.addAll(stringMarshalBinary(signature["memo"], 9));
+      }
+      if (signature["data"] != null) {
+        data.addAll(bytesMarshalBinary(
+            hex.decode(signature["data"]).asUint8List(), 10));
+      }
+  }
+
+  return data.asUint8List();
+}
+
+int signatureTypeCode(String type) {
+  switch (type.toLowerCase()) {
+    case "legacyed25519":
+      return 1;
+    case "ed25519":
+      return 2;
+    case "rcd1":
+      return 3;
+    case "btc":
+      return 8;
+    case "btclegacy":
+      return 9;
+    case "eth":
+      return 10;
+    case "delegated":
+      return 11;
+  }
+  throw Exception("Invalid signature type ${type}");
+}
+
+int voteTypeCode(String? type) {
+  if (type == null || type == "") {
+    return 0;
+  }
+  switch (type.toLowerCase()) {
+    case "accept":
+      return 0;
+    case "reject":
+      return 1;
+    case "abstain":
+      return 2;
+    case "suggest":
+      return 3;
+  }
+  throw Exception("Invalid vote type ${type}");
+}
+
+List<int> uvarintMarshalBinary(int value, int fieldNumber) {
+  List<int> result = [];
+  int number = (fieldNumber << 3) | 0;
+  result.add(number);
+  while (value >= 0x80) {
+    result.add((value & 0x7F) | 0x80);
+    value >>= 7;
+  }
+  result.add(value);
+  return result;
+}
+
+List<int> bytesMarshalBinary(Uint8List value, int fieldNumber) {
+  List<int> result = [];
+  int number = (fieldNumber << 3) | 2;
+  result.add(number);
+  result.addAll(uvarintMarshalBinary(value.length, 0));
+  result.addAll(value);
+  return result;
+}
+
+List<int> stringMarshalBinary(String value, int fieldNumber) {
+  return bytesMarshalBinary(Uint8List.fromList(utf8.encode(value)), fieldNumber);
 }

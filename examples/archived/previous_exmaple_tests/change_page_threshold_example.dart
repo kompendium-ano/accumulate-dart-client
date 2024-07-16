@@ -1,5 +1,3 @@
-// examples\multisig_sand_box\add_delegate_example.dart
-
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:convert/convert.dart';
@@ -17,27 +15,30 @@ TxSigner initSigner(String privateKeyHex, String keyPageUrl) {
       Ed25519KeypairSigner.fromKeyRaw(privateKeyBytes);
 
   // Use the keyPageUrl as the URL for the TxSigner
-  return TxSigner(
-      keyPageUrl, edSigner); // Ensure the TxSigner can accept these parameters
+  return TxSigner(keyPageUrl, edSigner); // Ensure the TxSigner can accept these parameters
 }
 
 void main() async {
   final client = ACMEClient("https://testnet.accumulatenetwork.io/v2");
-  final keyPageUrl = "acc://custom-adi-name1-1715157265265.acme/book/1";
-  final delegateKeyBook = "acc://custom-adi-name-1714297678838.acme/book";
+  final keyPageUrl = "acc://custom-adi-name-1720349551259.acme/book/1";
   final privateKeyHex =
-      "1e9b7585fe686749dd22332580a918f0bf68c8b91dd17824a2689eb729bba36f1821fb65b99bebe73f401991026e3ca08d5e5c77fdb585f29a2ff42a8140f62d";
+      "1e67465a1fde2290b04d1575b68b9f0256f6475fed33411b23107f984544701cbbecf13ec50ccfcf9d86896ce8ab0260434e7a11b9c9e605bf02d68de16f70da";
 
-  final TxSigner signer = initSigner(privateKeyHex, keyPageUrl);
+  // Initialize the signer
+  TxSigner signer = initSigner(privateKeyHex, keyPageUrl);
 
-  // Create an operation to add a delegate
+  // Update signer version
+  var response = await client.queryUrl(signer.url);
+  signer = TxSigner.withNewVersion(signer, response["result"]["data"]["version"]);
+
+  // Create an operation to update the threshold
   final operation = KeyOperation()
-    ..type = KeyPageOperationType.Add
-    ..key = (KeySpec()..delegate = delegateKeyBook);
+    ..type = KeyPageOperationType.SetThreshold
+    ..threshold = 2;
 
   final updateParams = UpdateKeyPageParam()
     ..operations = [operation]
-    ..memo = "Adding delegate to key page";
+    ..memo = "Updating key page threshold from 1 to 2";
 
   try {
     var result = await client.updateKeyPage(keyPageUrl, updateParams, signer);

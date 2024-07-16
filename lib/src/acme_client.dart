@@ -57,27 +57,10 @@ class ACMEClient {
       {bool suppressLog = false}) {
     return call("execute", tx.toTxRequest().toMap, suppressLog);
   }
-/* Orignal impelemtnaiton of executeDirect
-  Future<Map<String, dynamic>> executeDirect() {
-    return call(
-      "execute-direct",
-    );
-  }
-*/
 
   Future<Map<String, dynamic>> executeDirect(Map<String, dynamic> params) {
     return call("execute-direct", params);
   }
-
-  // Future<Map<String, dynamic>> signPending(AccURL principal, TxSigner signer, String txHash) async {
-  //   HeaderOptions? options;
-  //
-  //   final header = Header(principal, options);
-  //   final tx = Transaction(payload, header);
-  //   await tx.sign(signer);
-  //
-  //   return execute(tx);
-  // }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
 

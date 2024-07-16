@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart' as crypto;
-import 'package:convert/convert.dart'; // Correct package for hex conversion
+import 'package:convert/convert.dart';
 import 'package:accumulate_api/accumulate_api.dart';
 
 // Helper function to convert hex to bytes
@@ -14,6 +14,12 @@ Uint8List hexToBytes(String s) {
 Ed25519KeypairSigner loadSignerFromEncodedKey(String privateKeyBase64) {
   Uint8List privateKey = hexToBytes(privateKeyBase64);
   return Ed25519KeypairSigner.fromKeyRaw(privateKey);
+}
+
+// Helper function to get the correct signer version
+Future<int> getSignerVersion(ACMEClient client, AccURL keyPageUrl) async {
+  var response = await client.queryUrl(keyPageUrl);
+  return response["result"]["data"]["version"];
 }
 
 Future<String> signTransaction({
@@ -47,21 +53,25 @@ Future<String> signTransaction({
 
 Future<void> main() async {
   String privateKeyBase64 =
-      "a7eb9f1c576107510b91e2dc048a20adca2ed275590159eed47b51f460fa4a5e8e6fae262a98aba53d3ae0863de0b67ab3fb261f8cbc0f7d00edc25bdb20a814";
+      "b3b2b01471277fd30160a8d239b36c2e3741aca29a6177da3907b93b996e0fbaed06a050ca69313abb80feabf4e7c4b8e789d9a4f7fbe59826f2211c5ad3c747";
   String publicKeyHex =
-      "8e6fae262a98aba53d3ae0863de0b67ab3fb261f8cbc0f7d00edc25bdb20a814";
+      "ed06a050ca69313abb80feabf4e7c4b8e789d9a4f7fbe59826f2211c5ad3c747";
   String transactionHashHex =
-      "27bf94f1a7aeaba6d28b661412436ffaaeca84bec3eacc6a440046396a4232c9";
+      "d8601570db73bda6d1d6319b3a73a4abb156136f18b01a2279a3da927ecfad6e";
 
   final sigInfo = SignerInfo();
   sigInfo.type = SignatureType.signatureTypeED25519;
-  sigInfo.url = AccURL("acc://whatever38.acme/book/1");
+  sigInfo.url = AccURL("acc://custom-adi-name-1720351293054.acme/book/1");
   sigInfo.publicKey = hex.decode(publicKeyHex) as Uint8List?;
-  sigInfo.version = 1;
-  final timestamp = 1712853539622;
 
-  final endPoint = "https://kermit.accumulatenetwork.io/v2";
+  final endPoint = "https://testnet.accumulatenetwork.io/v2";
   final client = ACMEClient(endPoint);
+
+  // Update the signer version
+  int signerVersion = await getSignerVersion(client, sigInfo.url!);
+  sigInfo.version = signerVersion;
+
+  final timestamp = DateTime.now().microsecondsSinceEpoch;
   final resp = await client.queryTx("acc://${transactionHashHex}@unknown");
   final rawTx = resp["result"]["transaction"];
   final tx = await unmarshalTx(rawTx, transactionHashHex, timestamp);
@@ -73,7 +83,7 @@ Future<void> main() async {
       signer.signRaw(tx.dataForSignature(sigInfo).asUint8List());
 
   print("Signature: ${hex.encode(signature.signature!)}");
-  client.call("execute-direct", {
+  await client.call("execute-direct", {
     "envelope": {
       "transaction": [rawTx],
       "signatures": [
@@ -99,8 +109,7 @@ Future<Transaction> unmarshalTx(
     ..metadata = maybeDecodeHex(data["header"]["metadata"]);
 
   // This does not belong here - the timestamp belongs to the signature, not the
-  // transaction - but the only way to set it is via the header options, so you
-  // do what you gotta do
+  // transaction - but the only way to set it is via the header options
   hopts.timestamp = timestamp;
 
   final header = Header(data["header"]["principal"], hopts);
@@ -108,7 +117,7 @@ Future<Transaction> unmarshalTx(
   final tx = Transaction(payload, header);
   final hash2 = hex.encode(tx.hash());
   if (txHash != hash2) {
-    throw "hash does not match";
+    throw "hash does not match: expected $txHash, but got $hash2";
   }
   return tx;
 }
@@ -120,16 +129,17 @@ Payload decodePayload(dynamic data) {
         throw "unsupported data entry type";
       }
       final params = WriteDataParam()
-        ..scratch = maybeDecodeBool(data["scratch"])
-        ..writeToState = maybeDecodeBool(data["writeToState"])
-        ..data = data["entry"]["data"]
-            .map((s) => hex.decode(s))
-            .cast<Uint8List>()
-            .toList() as List<Uint8List>;
+        ..scratch = data["scratch"] == null ? null : maybeDecodeBool(data["scratch"])
+        ..writeToState = data["writeToState"] == null ? null : maybeDecodeBool(data["writeToState"])
+        ..data = (data["entry"]["data"] as List<dynamic>?)
+                ?.map((s) => hex.decode(s as String))
+                .cast<Uint8List>()
+                .toList() ??
+            [];
       return WriteData(params);
 
     default:
-      throw "unsupported transaction type";
+      throw "unsupported transaction type ${data['type']}";
   }
 }
 
@@ -147,9 +157,9 @@ int? maybeDecodeInt(String? s) {
   return int.parse(s);
 }
 
-bool? maybeDecodeBool(String? s) {
-  if (s == null) {
-    return null;
+bool maybeDecodeBool(dynamic value) {
+  if (value is String) {
+    return value.toLowerCase() == 'true';
   }
-  return bool.parse(s);
+  return value ?? false;
 }

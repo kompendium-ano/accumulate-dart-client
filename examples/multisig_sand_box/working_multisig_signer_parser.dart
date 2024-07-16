@@ -5,13 +5,21 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'package:convert/convert.dart';
 import 'package:accumulate_api/accumulate_api.dart';
 
+// Helper function to convert hex to bytes
 Uint8List hexToBytes(String s) {
   return Uint8List.fromList(hex.decode(s));
 }
 
+// Helper function to simulate your existing key parsing
 Ed25519KeypairSigner loadSignerFromEncodedKey(String privateKeyBase64) {
   Uint8List privateKey = hexToBytes(privateKeyBase64);
   return Ed25519KeypairSigner.fromKeyRaw(privateKey);
+}
+
+// Helper function to get the correct signer version
+Future<int> getSignerVersion(ACMEClient client, AccURL keyPageUrl) async {
+  var response = await client.queryUrl(keyPageUrl);
+  return response["result"]["data"]["version"];
 }
 
 Future<String> signTransaction({
@@ -44,24 +52,28 @@ Future<String> signTransaction({
 
 Future<void> main() async {
   String privateKeyBase64 =
-      "026e5f575a40cbfec29ef9cf9de63ccc0a9289046fa80750bfb9f2d7626a30274babeda2c1feda94064997737ad7fd613b91e20546db51f97254960455673845";
+      "b3b2b01471277fd30160a8d239b36c2e3741aca29a6177da3907b93b996e0fbaed06a050ca69313abb80feabf4e7c4b8e789d9a4f7fbe59826f2211c5ad3c747";
   String publicKeyHex =
-      "4babeda2c1feda94064997737ad7fd613b91e20546db51f97254960455673845";
+      "ed06a050ca69313abb80feabf4e7c4b8e789d9a4f7fbe59826f2211c5ad3c747";
   String transactionHashHex =
-      "1d3395802ecfc268589be1df711f68cec129b535a949f42eb4b181fe87b5438e";
+      "adb0e71ccfe5f953dfbe53544aa235983b851ff03ac4db88f672cd01dd7dba6a";
 
   final sigInfo = SignerInfo();
   sigInfo.type = SignatureType.signatureTypeED25519;
-  sigInfo.url = AccURL("acc://custom-adi-name-1714297678838.acme/book/1");
+  sigInfo.url = AccURL("acc://custom-adi-name-1720351293054.acme/book/1");
   sigInfo.publicKey = hex.decode(publicKeyHex) as Uint8List?;
-  sigInfo.version = 1;
+
   final timestamp = DateTime.now().microsecondsSinceEpoch;
 
-  final endPoint = "https://kermit.accumulatenetwork.io/v2";
+  final endPoint = "https://testnet.accumulatenetwork.io/v2";
   final client = ACMEClient(endPoint);
   final resp = await client.queryTx("acc://${transactionHashHex}@unknown");
   final rawTx = resp["result"]["transaction"];
   final tx = await unmarshalTx(rawTx, transactionHashHex, timestamp);
+
+  // Update the signer version
+  int signerVersion = await getSignerVersion(client, sigInfo.url!);
+  sigInfo.version = signerVersion;
 
   final signer = loadSignerFromEncodedKey(privateKeyBase64);
   final signature = Signature();

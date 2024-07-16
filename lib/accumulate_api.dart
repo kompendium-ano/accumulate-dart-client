@@ -2,6 +2,7 @@
 library accumulate_api;
 
 export 'src/client/acc_url.dart';
+export 'src/v3/acme_client.dart';
 export 'src/acme_client.dart';
 export 'src/model/api_types.dart';
 export 'src/encoding.dart';
