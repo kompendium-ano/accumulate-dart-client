@@ -129,8 +129,11 @@ Payload decodePayload(dynamic data) {
         throw "unsupported data entry type";
       }
       final params = WriteDataParam()
-        ..scratch = data["scratch"] == null ? null : maybeDecodeBool(data["scratch"])
-        ..writeToState = data["writeToState"] == null ? null : maybeDecodeBool(data["writeToState"])
+        ..scratch =
+            data["scratch"] == null ? null : maybeDecodeBool(data["scratch"])
+        ..writeToState = data["writeToState"] == null
+            ? null
+            : maybeDecodeBool(data["writeToState"])
         ..data = (data["entry"]["data"] as List<dynamic>?)
                 ?.map((s) => hex.decode(s as String))
                 .cast<Uint8List>()

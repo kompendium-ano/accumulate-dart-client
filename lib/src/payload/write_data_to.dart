@@ -12,7 +12,8 @@ class WriteDataToParam {
   Uint8List? metadata;
 
   // Adding a constructor that properly initializes all fields
-  WriteDataToParam({this.recipient, required this.data, this.memo, this.metadata});
+  WriteDataToParam(
+      {this.recipient, required this.data, this.memo, this.metadata});
 }
 
 class WriteDataTo extends BasePayload {
@@ -32,7 +33,6 @@ class WriteDataTo extends BasePayload {
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = _marshalBinary();
 
-
     return forConcat.asUint8List();
   }
 
@@ -49,10 +49,8 @@ class WriteDataTo extends BasePayload {
     return forConcat.asUint8List();
   }
 
-
   @override
   Uint8List hash() {
-
     if (_customHash != null) {
       return _customHash!;
     }
@@ -71,7 +69,7 @@ class WriteDataTo extends BasePayload {
 
     // DoubleHashDataEntry DataEntryType 3
     forConcat.addAll(uvarintMarshalBinary(3, 1));
-    
+
     // Data
     for (Uint8List val in data) {
       forConcat.addAll(bytesMarshalBinary(val, 2));

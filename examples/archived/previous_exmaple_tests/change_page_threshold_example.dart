@@ -15,7 +15,8 @@ TxSigner initSigner(String privateKeyHex, String keyPageUrl) {
       Ed25519KeypairSigner.fromKeyRaw(privateKeyBytes);
 
   // Use the keyPageUrl as the URL for the TxSigner
-  return TxSigner(keyPageUrl, edSigner); // Ensure the TxSigner can accept these parameters
+  return TxSigner(
+      keyPageUrl, edSigner); // Ensure the TxSigner can accept these parameters
 }
 
 void main() async {
@@ -29,7 +30,8 @@ void main() async {
 
   // Update signer version
   var response = await client.queryUrl(signer.url);
-  signer = TxSigner.withNewVersion(signer, response["result"]["data"]["version"]);
+  signer =
+      TxSigner.withNewVersion(signer, response["result"]["data"]["version"]);
 
   // Create an operation to update the threshold
   final operation = KeyOperation()

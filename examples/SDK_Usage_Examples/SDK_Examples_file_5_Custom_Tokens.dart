@@ -99,21 +99,26 @@ Future<void> createCustomToken(
     String tokenUrl,
     String symbol,
     int precision) async {
+  print("Starting createCustomToken");
+  print("Parameters:");
+  print("identityUrl: $identityUrl");
+  print("keyPageUrl: $keyPageUrl");
+  print("tokenUrl: $tokenUrl");
+  print("symbol: $symbol");
+  print("precision: $precision");
+
   CreateTokenParam createTokenParam = CreateTokenParam();
   createTokenParam.url = tokenUrl;
   createTokenParam.symbol = symbol;
   createTokenParam.precision = precision;
-  // Optional: Set properties, supply limit, authorities, memo, and metadata as needed
-  // createTokenParam.properties = ...;
-  // createTokenParam.supplyLimit = ...;
-  // createTokenParam.authorities = ...;
-  // createTokenParam.memo = "Custom Token Creation";
-  // createTokenParam.metadata = ...;
 
   TxSigner txSigner = TxSigner(keyPageUrl, adiSigner);
 
   print("Creating custom token: $symbol at $tokenUrl");
   var res = await client.createToken(identityUrl, createTokenParam, txSigner);
+  print("Response from createToken:");
+  print(res);
+
   var txId = res["result"]["txid"];
   print("Custom token creation submitted, Transaction ID: $txId");
 
@@ -121,20 +126,28 @@ Future<void> createCustomToken(
   await delayBeforePrint();
 
   // Query and log the result of token creation
-  // This is to check the status of the created token, similar to the given examples
+  var queryRes = await client.queryTx(txId);
+  print("Query response for token creation:");
+  print(queryRes);
 }
 
-// create a token account for a custom token
 Future<void> createCustomTokenAccount(
     Ed25519KeypairSigner adiSigner,
     String identityUrl,
     String keyPageUrl,
     String tokenUrl,
     String accountName) async {
+  print("Starting createCustomTokenAccount");
+  print("Parameters:");
+  print("identityUrl: $identityUrl");
+  print("keyPageUrl: $keyPageUrl");
+  print("tokenUrl: $tokenUrl");
+  print("accountName: $accountName");
+
   String tokenAccountUrl = "$identityUrl/$accountName";
   CreateTokenAccountParam createTokenAccountParam = CreateTokenAccountParam();
   createTokenAccountParam.url = tokenAccountUrl;
-  createTokenAccountParam.tokenUrl = tokenUrl; // Custom token URL
+  createTokenAccountParam.tokenUrl = tokenUrl;
 
   TxSigner txSigner = TxSigner(keyPageUrl, adiSigner);
 
@@ -142,10 +155,22 @@ Future<void> createCustomTokenAccount(
       "Creating custom token account at: $tokenAccountUrl for token: $tokenUrl");
   var res = await client.createTokenAccount(
       identityUrl, createTokenAccountParam, txSigner);
-  print("Custom token account creation response: $res");
+  print("Response from createTokenAccount:");
+  print(res);
+
+  var txId = res["result"]["txid"];
+  print("Custom token account creation submitted, Transaction ID: $txId");
+
+  // Optionally, wait for transaction to be confirmed
+  await delayBeforePrint();
+
+  // Query and log the result of token account creation
+  var queryRes = await client.queryTx(txId);
+  print("Query response for token account creation:");
+  print(queryRes);
 }
 
-// issue a custom token to a cusotm token account
+// issue a custom token to a custom token account
 Future<void> issueCustomTokens(
     Ed25519KeypairSigner adiSigner,
     String keyPageUrl,
@@ -167,7 +192,7 @@ Future<void> issueCustomTokens(
   print("Token issuance response: $res");
 }
 
-// Send Custom token to a cusotm token account
+// Send Custom token to a custom token account
 Future<void> sendCustomTokens({
   required String fromAccount,
   required String toAccount,
@@ -190,8 +215,10 @@ Future<void> sendCustomTokens({
 
   try {
     // Execute the sendTokens transaction for the custom token
-    var response = await client.sendTokens(fromAccount, sendTokensParam,
-        txSigner); // Notice the tokenUrl parameter
+    print(
+        "Sending $amount tokens from $fromAccount to $toAccount using tokenUrl: $tokenUrl");
+    var response =
+        await client.sendTokens(fromAccount, sendTokensParam, txSigner);
     print("Custom Token Send tx submitted, response: $response");
   } catch (e) {
     print("Error sending custom tokens: $e");

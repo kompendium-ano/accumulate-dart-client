@@ -56,11 +56,11 @@ Future<void> main() async {
   String publicKeyHex =
       "ed06a050ca69313abb80feabf4e7c4b8e789d9a4f7fbe59826f2211c5ad3c747";
   String transactionHashHex =
-      "adb0e71ccfe5f953dfbe53544aa235983b851ff03ac4db88f672cd01dd7dba6a";
+      "94eb63b7404982a30ad9b53a0bf4921529bfab1a1f4bec105f8fa7fb9e48322c";
 
   final sigInfo = SignerInfo();
   sigInfo.type = SignatureType.signatureTypeED25519;
-  sigInfo.url = AccURL("acc://custom-adi-name-1720351293054.acme/book/1");
+  sigInfo.url = AccURL("acc://testtest1120.acme/book/1");
   sigInfo.publicKey = hex.decode(publicKeyHex) as Uint8List?;
 
   final timestamp = DateTime.now().microsecondsSinceEpoch;

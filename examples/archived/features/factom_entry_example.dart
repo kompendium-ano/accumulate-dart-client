@@ -3,16 +3,16 @@ import 'package:accumulate_api/accumulate_api.dart';
 import 'dart:async';
 import 'package:convert/convert.dart';
 
-
-
 Future<void> testFactomFunction() async {
   // Mock principal URL
 
-  String principal = '3e81762ce2ecd5a1ab5e153ec7544d7dae950aabdfc198f506552d9c8688e355';
+  String principal =
+      '3e81762ce2ecd5a1ab5e153ec7544d7dae950aabdfc198f506552d9c8688e355';
 
   final Uint8List privateKeyBytes = Uint8List.fromList(hex.decode(
       "0ef5c455b2c05313d758e6b4e85fa452cec088fce6f0ab9afa067d07024703d22fe75075325860681febc68484167e51f7b432f8fecc9690ac4985a7622d3c8b"));
-  final Ed25519KeypairSigner signer = Ed25519KeypairSigner.fromKeyRaw(privateKeyBytes);
+  final Ed25519KeypairSigner signer =
+      Ed25519KeypairSigner.fromKeyRaw(privateKeyBytes);
   // public key: '2fe75075325860681febc68484167e51f7b432f8fecc9690ac4985a7622d3c8b';
 
   LiteIdentity lid = LiteIdentity(signer);

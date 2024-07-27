@@ -3,13 +3,15 @@ import 'dart:convert';
 import 'package:accumulate_api/accumulate_api.dart';
 
 // Function to query details for a URL
-Future<Map<String, dynamic>> queryUrlDetails(ACMEClientV3 client, String url) async {
+Future<Map<String, dynamic>> queryUrlDetails(
+    ACMEClientV3 client, String url) async {
   final response = await client.queryUrl(url);
   return response["result"];
 }
 
 // Function to query transaction chain with pagination
-Future<List<Map<String, dynamic>>> queryTxChain(ACMEClientV3 client, String url, String type) async {
+Future<List<Map<String, dynamic>>> queryTxChain(
+    ACMEClientV3 client, String url, String type) async {
   int start = 0;
   int count = 10;
   List<Map<String, dynamic>> allRecords = [];
@@ -31,7 +33,8 @@ Future<List<Map<String, dynamic>>> queryTxChain(ACMEClientV3 client, String url,
       });
       print('$type Chain Response: $response');
       if (response["result"] != null && response["result"]["records"] != null) {
-        List<Map<String, dynamic>> records = List<Map<String, dynamic>>.from(response["result"]["records"]);
+        List<Map<String, dynamic>> records =
+            List<Map<String, dynamic>>.from(response["result"]["records"]);
         allRecords.addAll(records);
         start += count;
         if (records.length < count) {
@@ -49,7 +52,8 @@ Future<List<Map<String, dynamic>>> queryTxChain(ACMEClientV3 client, String url,
 }
 
 // Function to query transaction details
-Future<Map<String, dynamic>> queryTransactionDetails(ACMEClientV3 client, String txHash) async {
+Future<Map<String, dynamic>> queryTransactionDetails(
+    ACMEClientV3 client, String txHash) async {
   try {
     final response = await client.queryTransaction(txHash);
     return response["result"];
@@ -60,7 +64,8 @@ Future<Map<String, dynamic>> queryTransactionDetails(ACMEClientV3 client, String
 }
 
 // Function to process and print signature hashes along with transaction hashes and their types
-Future<List<String>> processSignatures(ACMEClientV3 client, List<Map<String, dynamic>> signatures, String url) async {
+Future<List<String>> processSignatures(ACMEClientV3 client,
+    List<Map<String, dynamic>> signatures, String url) async {
   List<String> signingPaths = [];
   print('Signature Hashes, their Transaction Hashes, and Transaction Types:');
   for (var signature in signatures) {
@@ -69,8 +74,11 @@ Future<List<String>> processSignatures(ACMEClientV3 client, List<Map<String, dyn
     if (txID != null) {
       var txHash = txID.split('@')[0].split('//')[1];
       var txDetails = await queryTransactionDetails(client, txHash);
-      var txType = txDetails['message']?['transaction']?['body']?['type'] ?? 'unknown';
-      var principal = txDetails['message']?['transaction']?['header']?['principal'] ?? 'unknown';
+      var txType =
+          txDetails['message']?['transaction']?['body']?['type'] ?? 'unknown';
+      var principal = txDetails['message']?['transaction']?['header']
+              ?['principal'] ??
+          'unknown';
 
       print('Signature Hash: $signatureHash, Transaction Hash: $txHash');
       print('Principal: $principal');
@@ -78,7 +86,8 @@ Future<List<String>> processSignatures(ACMEClientV3 client, List<Map<String, dyn
 
       // If the transaction type is updateKeyPage, parse out the operation details
       if (txType == 'updateKeyPage') {
-        var operations = txDetails['message']?['transaction']?['body']?['operation'] ?? [];
+        var operations =
+            txDetails['message']?['transaction']?['body']?['operation'] ?? [];
         for (var operation in operations) {
           var operationType = operation['type'];
           var delegate = operation['entry']?['delegate'];
@@ -86,7 +95,8 @@ Future<List<String>> processSignatures(ACMEClientV3 client, List<Map<String, dyn
             var signingPath = '$url -> $principal';
             print('Operation Type: $operationType, Delegate: $delegate');
             print('Signing Path: $signingPath');
-            print('This $url can sign for this external keyBook as a delegate.');
+            print(
+                'This $url can sign for this external keyBook as a delegate.');
             signingPaths.add(signingPath);
           }
         }
@@ -99,7 +109,11 @@ Future<List<String>> processSignatures(ACMEClientV3 client, List<Map<String, dyn
 }
 
 // Function to recursively query delegating books and their signing paths
-Future<void> queryDelegatingBooks(ACMEClientV3 client, List<String> signingPaths, List<String> allSigningPaths, String initialPath) async {
+Future<void> queryDelegatingBooks(
+    ACMEClientV3 client,
+    List<String> signingPaths,
+    List<String> allSigningPaths,
+    String initialPath) async {
   for (var path in signingPaths) {
     var keyPage = path.split('->')[1].trim();
     var delegatingBook = keyPage.split('/1')[0];
@@ -114,20 +128,24 @@ Future<void> queryDelegatingBooks(ACMEClientV3 client, List<String> signingPaths
     print(jsonEncode(details));
 
     // Collect transaction chains for the delegating book
-    List<Map<String, dynamic>> signatures = await queryTxChain(client, delegatingBook, 'signature');
+    List<Map<String, dynamic>> signatures =
+        await queryTxChain(client, delegatingBook, 'signature');
 
     print('Signatures for delegating book: $delegatingBook');
     signatures.forEach((sig) => print(jsonEncode(sig)));
 
     // Process signatures to find and handle related transactions
-    List<String> newSigningPaths = await processSignatures(client, signatures, delegatingBook);
+    List<String> newSigningPaths =
+        await processSignatures(client, signatures, delegatingBook);
 
     // Print the list of discovered updateKeyPage signing paths
-    print('Discovered updateKeyPage signing paths for delegating book: $delegatingBook');
+    print(
+        'Discovered updateKeyPage signing paths for delegating book: $delegatingBook');
     newSigningPaths.forEach((path) => print(path));
 
     // Recursively query new delegating books
-    await queryDelegatingBooks(client, newSigningPaths, allSigningPaths, fullPath);
+    await queryDelegatingBooks(
+        client, newSigningPaths, allSigningPaths, fullPath);
   }
 }
 
@@ -136,7 +154,8 @@ Future<void> collectData(ACMEClientV3 client, String initialUrl) async {
   List<String> allSigningPaths = [];
 
   // Query the initial URL details
-  Map<String, dynamic> initialDetails = await queryUrlDetails(client, initialUrl);
+  Map<String, dynamic> initialDetails =
+      await queryUrlDetails(client, initialUrl);
   print('Details for $initialUrl:');
   print(jsonEncode(initialDetails));
 
@@ -162,14 +181,16 @@ Future<void> collectData(ACMEClientV3 client, String initialUrl) async {
   signatures.forEach((sig) => print(jsonEncode(sig)));
 
   // Process signatures to find and handle related transactions
-  List<String> signingPaths = await processSignatures(client, signatures, initialKeyBookUrl);
+  List<String> signingPaths =
+      await processSignatures(client, signatures, initialKeyBookUrl);
 
   // Print the list of discovered updateKeyPage signing paths
   print('Discovered updateKeyPage signing paths:');
   signingPaths.forEach((path) => print(path));
 
   // Query all delegating books
-  await queryDelegatingBooks(client, signingPaths, allSigningPaths, initialKeyBookUrl);
+  await queryDelegatingBooks(
+      client, signingPaths, allSigningPaths, initialKeyBookUrl);
 
   // Print all discovered signing paths
   print('All discovered signing paths:');
@@ -178,9 +199,10 @@ Future<void> collectData(ACMEClientV3 client, String initialUrl) async {
 
 // Main function to execute the script
 Future<void> main() async {
-  final endPoint = "https://mainnet.accumulatenetwork.io/v3";
+  final endPoint = "https://testnet.accumulatenetwork.io/v3";
   final client = ACMEClientV3(endPoint);
-  final initialUrl = "acc://kompendium.acme/book/1"; // or provide a key page URL
+  final initialUrl =
+      "acc://testtest1120.acme/book/1"; // or provide a key page URL
 
   // Collect and print data
   await collectData(client, initialUrl);

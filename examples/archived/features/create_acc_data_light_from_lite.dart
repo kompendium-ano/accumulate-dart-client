@@ -36,16 +36,15 @@ Future<void> testLiteDataAccountCreation() async {
   await writeDataToExample(lid, dataEntries);
 }
 
-Future<void> writeDataToExample(LiteIdentity lid, List<Uint8List> dataEntries) async {
+Future<void> writeDataToExample(
+    LiteIdentity lid, List<Uint8List> dataEntries) async {
   TxSigner txSigner = TxSigner(lid.url, lid.signer);
 
   String publicKeyHex = hex.encode(lid.signer.publicKey());
   String recipientUrl = 'acc://$publicKeyHex';
 
-  WriteDataToParam writeDataToParam = WriteDataToParam(
-    recipient: recipientUrl,
-    data: dataEntries
-  );
+  WriteDataToParam writeDataToParam =
+      WriteDataToParam(recipient: recipientUrl, data: dataEntries);
 
   print("Transaction Parameters:");
   print("Recipient URL: $recipientUrl");
@@ -53,11 +52,12 @@ Future<void> writeDataToExample(LiteIdentity lid, List<Uint8List> dataEntries) a
 
   try {
     print("Sending WriteDataTo transaction...");
-    var res = await client.writeDataTo(lid.acmeTokenAccount, writeDataToParam, txSigner);
+    var res = await client.writeDataTo(
+        lid.acmeTokenAccount, writeDataToParam, txSigner);
     var txId = res["result"]["txid"];
     print("writeDataTo Transaction ID: $txId");
 
-print("Fetching transaction result for TX ID: $txId");
+    print("Fetching transaction result for TX ID: $txId");
     res = await client.queryTx(txId);
     print("Query Transaction Response - writeDataTo: $res");
   } catch (e) {

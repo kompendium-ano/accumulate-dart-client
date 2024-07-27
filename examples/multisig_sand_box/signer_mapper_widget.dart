@@ -35,7 +35,8 @@ class KeyNode {
       if (url != null) 'url': url,
       if (keyHash != null) 'keyHash': keyHash,
       if (publicKeyHash != null) 'publicKeyHash': publicKeyHash,
-      if (delegates.isNotEmpty) 'delegates': delegates.map((delegate) => delegate.toJson()).toList(),
+      if (delegates.isNotEmpty)
+        'delegates': delegates.map((delegate) => delegate.toJson()).toList(),
     };
 
     return data;
@@ -46,7 +47,8 @@ class KeyNode {
       if (url != null && url!.contains('/book/')) 'keyPageUrl': url,
       if (url != null && !url!.contains('/book/')) 'keyBookUrl': url,
       if (publicKeyHash != null) 'publicKeyHash': publicKeyHash,
-      'delegates': delegates.map((delegate) => delegate.toCustomJson()).toList(),
+      'delegates':
+          delegates.map((delegate) => delegate.toCustomJson()).toList(),
     };
 
     return customJson;
@@ -130,14 +132,18 @@ Future<KeyNode> queryKeyBook(String keyBookUrl) async {
 }
 
 // Function to check if a public key is in the key nodes and retrieve key page URL
-bool isPublicKeyInKeyNodes(KeyNode keyNode, String publicKeyHash, List<String> path, {String? keyPageUrl}) {
+bool isPublicKeyInKeyNodes(
+    KeyNode keyNode, String publicKeyHash, List<String> path,
+    {String? keyPageUrl}) {
   if (keyNode.publicKeyHash == publicKeyHash) {
     if (keyPageUrl != null && !path.contains(keyPageUrl)) path.add(keyPageUrl);
     return true;
   }
   for (var delegate in keyNode.delegates) {
-    if (isPublicKeyInKeyNodes(delegate, publicKeyHash, path, keyPageUrl: keyNode.url != null ? keyNode.url! + "/1" : null)) {
-      if (keyNode.url != null && !path.contains(keyNode.url! + "/1")) path.add(keyNode.url! + "/1"); // Use key page URL
+    if (isPublicKeyInKeyNodes(delegate, publicKeyHash, path,
+        keyPageUrl: keyNode.url != null ? keyNode.url! + "/1" : null)) {
+      if (keyNode.url != null && !path.contains(keyNode.url! + "/1"))
+        path.add(keyNode.url! + "/1"); // Use key page URL
       return true;
     }
   }
@@ -145,7 +151,8 @@ bool isPublicKeyInKeyNodes(KeyNode keyNode, String publicKeyHash, List<String> p
 }
 
 // Function to check if the provided public key can sign the transaction and get details
-Future<List<Map<String, String>>> getEligibleSigners(String adiUrl, String publicKeyHash, String keyTreeStructure) async {
+Future<List<Map<String, String>>> getEligibleSigners(
+    String adiUrl, String publicKeyHash, String keyTreeStructure) async {
   final endPoint = "https://testnet.accumulatenetwork.io/v2";
   final client = ACMEClient(endPoint);
 
@@ -160,7 +167,8 @@ Future<List<Map<String, String>>> getEligibleSigners(String adiUrl, String publi
       String keyBookUrl = authority["url"];
       KeyNode keyBookNode = await queryKeyBook(keyBookUrl);
       List<String> path = [];
-      if (isPublicKeyInKeyNodes(keyBookNode, publicKeyHash, path, keyPageUrl: keyBookUrl + "/1")) {
+      if (isPublicKeyInKeyNodes(keyBookNode, publicKeyHash, path,
+          keyPageUrl: keyBookUrl + "/1")) {
         path = getSigningPath(publicKeyHash, keyTreeStructure, path);
         eligibleSigners.add({
           'Key Book': keyBookUrl,
@@ -176,13 +184,15 @@ Future<List<Map<String, String>>> getEligibleSigners(String adiUrl, String publi
 }
 
 // Function to get the signing path using the key tree structure JSON
-List<String> getSigningPath(String publicKeyHash, String keyTreeStructure, List<String> path) {
+List<String> getSigningPath(
+    String publicKeyHash, String keyTreeStructure, List<String> path) {
   Map<String, dynamic> keyTree = jsonDecode(keyTreeStructure);
   _traverseKeyTree(keyTree, publicKeyHash, path);
   return path.toSet().toList(); // Ensure unique paths
 }
 
-bool _traverseKeyTree(Map<String, dynamic> node, String publicKeyHash, List<String> path) {
+bool _traverseKeyTree(
+    Map<String, dynamic> node, String publicKeyHash, List<String> path) {
   if (node['publicKeyHash'] == publicKeyHash) {
     if (node['keyPageUrl'] != null && !path.contains(node['keyPageUrl'])) {
       path.add(node['keyPageUrl']);
@@ -203,9 +213,11 @@ bool _traverseKeyTree(Map<String, dynamic> node, String publicKeyHash, List<Stri
 }
 
 Future<void> main() async {
-  String txID = "0ba9ff4f2605ba23e12481b3be0374641636c3c24792ef7877105e039ebba116";
+  String txID =
+      "0ba9ff4f2605ba23e12481b3be0374641636c3c24792ef7877105e039ebba116";
   String adiUrl = "acc://custom-adi-name-1720351293054.acme";
-  String publicKeyHash = "b48c9ba2e68ca80d6078a4c1bd0e3dda4d8d67df71f3ed02245422f2d274b372";
+  String publicKeyHash =
+      "b48c9ba2e68ca80d6078a4c1bd0e3dda4d8d67df71f3ed02245422f2d274b372";
 
   Map<String, String?> txInfo = await queryTransaction(txID);
 
@@ -221,7 +233,8 @@ Future<void> main() async {
     String keyTreeStructureJson = jsonEncode(result['keyTreeStructure']);
     print(jsonEncode(result));
 
-    List<Map<String, String>> eligibleSigners = await getEligibleSigners(adiUrl, publicKeyHash, keyTreeStructureJson);
+    List<Map<String, String>> eligibleSigners =
+        await getEligibleSigners(adiUrl, publicKeyHash, keyTreeStructureJson);
     if (eligibleSigners.isNotEmpty) {
       print('Number of found eligible signers: ${eligibleSigners.length}');
       for (int i = 0; i < eligibleSigners.length; i++) {

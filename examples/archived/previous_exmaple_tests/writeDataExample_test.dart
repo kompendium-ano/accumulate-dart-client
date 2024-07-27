@@ -18,9 +18,7 @@ Future<void> main() async {
   final String dataAccountUrl =
       "acc://custom-adi-name-1720349551259.acme/data-account";
 
-  List<Uint8List> dataEntries = [
-    utf8.encode("Dummy Entry6").asUint8List()
-  ];
+  List<Uint8List> dataEntries = [utf8.encode("Dummy Entry_10").asUint8List()];
 
   WriteDataParam writeDataParam = WriteDataParam()
     ..data = dataEntries

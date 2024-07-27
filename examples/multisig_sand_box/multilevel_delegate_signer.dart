@@ -121,10 +121,7 @@ Future<void> main() async {
     privateKeyBase64: privateKeyBase64,
     transactionHashHex: transactionHashHex,
     sigInfo: sigInfo,
-    delegators: [
-      delegator1,
-      delegator2
-    ],
+    delegators: [delegator1, delegator2],
   );
 
   print("Signature: ${json.encode(signature)}");

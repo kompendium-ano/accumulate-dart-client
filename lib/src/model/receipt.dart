@@ -8,6 +8,21 @@ import 'package:hex/hex.dart';
 class ReceiptEntry {
   bool? right;
   dynamic hash;
+
+  ReceiptEntry({
+    this.right,
+    this.hash,
+  });
+
+  factory ReceiptEntry.fromMap(Map<String, dynamic> json) => ReceiptEntry(
+        right: json["right"] == null ? null : json["right"],
+        hash: json["hash"] == null ? null : json["hash"],
+      );
+
+  Map<String, dynamic> toMap() => {
+        "right": right == null ? null : right,
+        "hash": hash == null ? null : hash,
+      };
 }
 
 class Receipt {
@@ -21,11 +36,11 @@ class Receipt {
   Receipt() {}
 
   Receipt.fromProof(proof, entries2) {
-    start = getBytes(proof.start);
+    start = proof.start != null ? getBytes(proof.start) : Uint8List(0);
     startIndex = proof.startIndex;
-    end = getBytes(proof.end);
+    end = proof.end != null ? getBytes(proof.end) : Uint8List(0);
     endIndex = proof.endIndex;
-    anchor = getBytes(proof.anchor);
+    anchor = proof.anchor != null ? getBytes(proof.anchor) : Uint8List(0);
     entries = entries2;
   }
 
@@ -60,13 +75,16 @@ class Receipt {
   }
 
   static Uint8List getBytes(dynamic hash) {
-    if ((hash is Uint8List)) {
+    if (hash == null) {
+      return Uint8List(0); // Return an empty Uint8List if hash is null
+    }
+    if (hash is Uint8List) {
       return hash;
     }
-
-    if ((hash is List<int>)) {
-      return hash.asUint8List();
+    if (hash is List<int>) {
+      return Uint8List.fromList(hash);
     }
-    return HEX.decode(hash).asUint8List(); //utf8.encode(hash).asUint8List();
+    return Uint8List.fromList(
+        HEX.decode(hash)); // Convert List<int> to Uint8List
   }
 }

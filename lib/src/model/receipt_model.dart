@@ -1,9 +1,8 @@
-// lib\src\model\receipt.dart
-// To parse this JSON data, do
-//
-//     final receiptModel = receiptModelFromMap(jsonString);
+// lib\src\model\receipt_model.dart
 
 import 'dart:convert';
+
+import 'package:accumulate_api/src/model/receipt.dart';
 
 ReceiptModel receiptModelFromMap(String str) =>
     ReceiptModel.fromMap(json.decode(str));
@@ -218,7 +217,7 @@ class Proof {
   String? end;
   int? endIndex;
   String? anchor;
-  List<Entry>? entries;
+  List<ReceiptEntry>? entries; // Use ReceiptEntry here instead of Entry
 
   factory Proof.fromMap(Map<String, dynamic> json) => Proof(
         start: json["start"] == null ? null : json["start"],
@@ -228,7 +227,8 @@ class Proof {
         anchor: json["anchor"] == null ? null : json["anchor"],
         entries: json["entries"] == null
             ? null
-            : List<Entry>.from(json["entries"].map((x) => Entry.fromMap(x))),
+            : List<ReceiptEntry>.from(json["entries"]
+                .map((x) => ReceiptEntry.fromMap(x))), // Use ReceiptEntry here
       );
 
   Map<String, dynamic> toMap() => {
@@ -239,7 +239,8 @@ class Proof {
         "anchor": anchor == null ? null : anchor,
         "entries": entries == null
             ? null
-            : List<dynamic>.from(entries!.map((x) => x.toMap())),
+            : List<dynamic>.from(
+                entries!.map((x) => x.toMap())), // Use ReceiptEntry here
       };
 }
 

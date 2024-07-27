@@ -10,7 +10,8 @@ ACMEClient client = ACMEClient(endPoint);
 Future<void> main() async {
   final Uint8List privateKeyBytes = Uint8List.fromList(hex.decode(
       "0ef5c455b2c05313d758e6b4e85fa452cec088fce6f0ab9afa067d07024703d22fe75075325860681febc68484167e51f7b432f8fecc9690ac4985a7622d3c8b"));
-  final Ed25519KeypairSigner signer = Ed25519KeypairSigner.fromKeyRaw(privateKeyBytes);
+  final Ed25519KeypairSigner signer =
+      Ed25519KeypairSigner.fromKeyRaw(privateKeyBytes);
   // public key: '2fe75075325860681febc68484167e51f7b432f8fecc9690ac4985a7622d3c8b';
 
   LiteIdentity lid = LiteIdentity(signer);
@@ -24,11 +25,10 @@ Future<void> main() async {
   ];
 
   // Ensure the recipient URL is correct
-  String recipientUrl = 'acc://e553bacf3bc87d262eb8505a579c235c345dbae6e7bf95cd6ff597fb8ccfe128';
-  WriteDataToParam writeDataToParam = WriteDataToParam(
-    recipient: recipientUrl,
-    data: dataEntries
-  );
+  String recipientUrl =
+      'acc://e553bacf3bc87d262eb8505a579c235c345dbae6e7bf95cd6ff597fb8ccfe128';
+  WriteDataToParam writeDataToParam =
+      WriteDataToParam(recipient: recipientUrl, data: dataEntries);
 
   print("Transaction Parameters:");
   print("Recipient URL: $recipientUrl");
