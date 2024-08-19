@@ -6,7 +6,7 @@ import 'SDK_Examples_file_2_Accumulate_Identities.dart';
 
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);
-int delayBeforePrintSeconds = 180;
+int delayBeforePrintSeconds = 45;
 
 Future<void> main() async {
   print(endPoint);
@@ -30,28 +30,11 @@ Future<void> testFeatures() async {
   print("First lite account URL: ${lid.acmeTokenAccount}\n");
   await addFundsToAccount(lid.acmeTokenAccount, times: 20);
 
-  // Second lite token account
-  print("Second lite account URL: ${secondLid.acmeTokenAccount}\n");
-  await addFundsToAccount(secondLid.acmeTokenAccount, times: 5);
-
   // Retrieve oracle value for credit calculation
   final oracle = await client.valueFromOracle();
 
   // Add 2000 credits to the first lite account
   await addCredits(lid, 2000000, oracle);
-
-  // Add 1000 credits to the second lite account
-  await addCredits(secondLid, 10000, oracle);
-
-  // Sending 7 tokens from lid to secondLid
-  await sendTokens(
-    fromType: AccountType.lite,
-    fromAccount: lid.acmeTokenAccount.toString(),
-    toType: AccountType.lite,
-    toAccount: secondLid.acmeTokenAccount.toString(),
-    amount: 7,
-    signer: signer1,
-  );
 
   // Create an ADI
   String adiName = "custom-adi-name-${DateTime.now().millisecondsSinceEpoch}";
@@ -67,11 +50,11 @@ Future<void> testFeatures() async {
       "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
   print("keyPageUrl Name: $keyPageUrl");
   await addCreditsToAdiKeyPage(
-      lid, keyPageUrl, 7000000, oracle); // Adjust the credit amount as needed
+      lid, keyPageUrl, 4000000, oracle); // Adjust the credit amount as needed
 
   // Pause to allow the addCredits transaction to settle
   print("Pausing to allow addCredits transaction to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 30)); // Pause for 30 seconds
 
   // Create the first ADI ACME token account
   String identityUrl = "acc://$adiName.acme";
@@ -86,22 +69,22 @@ Future<void> testFeatures() async {
 
   // Pause to allow the create token accoutns to settle
   print("Pausing to allow the create token accoutns to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 30)); // Pause for 30 seconds
 
-  // Sending 30 tokens from lid to tokenAccountUrl1
+  // Sending 22 tokens from lid to tokenAccountUrl1
   await sendTokens(
     fromType: AccountType.lite,
     fromAccount: lid.acmeTokenAccount.toString(),
     toType: AccountType.adi,
     toAccount: tokenAccountUrl1,
-    amount: 30,
+    amount: 22,
     signer: signer1,
   );
-  print("Sending 30 tokens from lid to tokenAccountUrl1");
+  print("Sending 22 tokens from lid to tokenAccountUrl1");
 
   // Pause to allow sendTokens transaction to settlee
   print("Pausing to allow sendTokens transaction to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 20)); // Pause for 2 minutes
 
   // Sending 9 from tokenAccountUrl1 to tokenAccountUrl2
   await sendTokens(

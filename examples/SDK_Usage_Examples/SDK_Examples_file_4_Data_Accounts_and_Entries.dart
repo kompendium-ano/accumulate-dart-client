@@ -50,11 +50,11 @@ Future<void> testFeatures() async {
       "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
   print("keyPageUrl Name: $keyPageUrl");
   await addCreditsToAdiKeyPage(
-      lid, keyPageUrl, 7000000, oracle); // Adjust the credit amount as needed
+      lid, keyPageUrl, 5000000, oracle); // Adjust the credit amount as needed
 
   // Pause to allow the addCredits transaction to settle
   print("Pausing to allow addCredits transaction to settle...");
-  await Future.delayed(Duration(seconds: 40)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 20)); // Pause for 2 minutes
 
   // Create an ADI Data Account
   String identityUrl = "acc://$adiName.acme";
@@ -65,7 +65,7 @@ Future<void> testFeatures() async {
   // Pause to allow the Create an ADI Data Account transaction to settle
   print(
       "Pausing to allow the Create an ADI Data Account transaction to settle...");
-  await Future.delayed(Duration(seconds: 40)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 20)); // Pause for 2 minutes
 
   // Add Data Entries to the Data Account
   List<Uint8List> dataEntries = [
@@ -80,7 +80,7 @@ Future<void> testFeatures() async {
   await addDataToAdiDataAccount(
       client, adiSigner, keyPageUrl, dataAccountUrl, writeDataParam);
 
-  // Use writeDataTo a lite token account to create a lite data account & add data entires
+  // Use writeDataTo a lit public key hex to create a lite data account & add data entires
   final String dataAccountUrl2 =
       "acc://fb8e87b944b562098bc5ba3cfb099660610c5ffc7606dd12fab5d4bcb445bdcb";
   print("dataAccountUrl2");
@@ -89,7 +89,7 @@ Future<void> testFeatures() async {
     utf8.encode("").asUint8List(),
     utf8.encode("Testing").asUint8List(),
     utf8.encode("Lite").asUint8List(),
-    utf8.encode("Data Accounts").asUint8List(),
+    utf8.encode("Data Account").asUint8List(),
   ];
 
   // NOTE - write to state is NOT ALLOWED for LDAs

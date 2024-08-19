@@ -30,20 +30,17 @@ Future<void> testFeatures() async {
 
   // First lite token account
   print("First lite account URL: ${lid.acmeTokenAccount}\n");
-  await addFundsToAccount(lid.acmeTokenAccount, times: 50);
+  await addFundsToAccount(lid.acmeTokenAccount, times: 10);
 
   // Second lite token account
   print("Second lite account URL: ${secondLid.acmeTokenAccount}\n");
-  await addFundsToAccount(secondLid.acmeTokenAccount, times: 5);
+  await addFundsToAccount(secondLid.acmeTokenAccount, times: 8);
 
   // Retrieve oracle value for credit calculation
   final oracle = await client.valueFromOracle();
 
   // Add 2000 credits to the first lite account
-  await addCredits(lid, 2000000, oracle);
-
-  // Add 1000 credits to the second lite account
-  await addCredits(secondLid, 10000, oracle);
+  await addCredits(lid, 200000, oracle);
 
   // Sending 7 tokens from lid to secondLid
   await sendTokens(
@@ -101,7 +98,7 @@ Future<void> sendTokens({
 Future<void> addFundsToAccount(AccURL accountUrl, {int times = 10}) async {
   for (int i = 0; i < times; i++) {
     await client.faucet(accountUrl);
-    await Future.delayed(Duration(seconds: 10));
+    await Future.delayed(Duration(seconds: 4));
   }
 }
 

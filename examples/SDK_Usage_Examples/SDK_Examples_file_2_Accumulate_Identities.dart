@@ -7,7 +7,7 @@ import 'SDK_Examples_file_1_lite_identities.dart';
 
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);
-int delayBeforePrintSeconds = 180;
+int delayBeforePrintSeconds = 60;
 
 Future<void> main() async {
   print(endPoint);
@@ -25,7 +25,7 @@ Future<void> testFeatures() async {
 
   // First lite token account
   print("First lite account URL: ${lid.acmeTokenAccount}\n");
-  await addFundsToAccount(lid.acmeTokenAccount, times: 50);
+  await addFundsToAccount(lid.acmeTokenAccount, times: 30);
 
   // Retrieve oracle value for credit calculation
   final oracle = await client.valueFromOracle();
@@ -47,11 +47,11 @@ Future<void> testFeatures() async {
       "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
   print("keyPageUrl Name: $keyPageUrl");
   await addCreditsToAdiKeyPage(
-      lid, keyPageUrl, 7000000, oracle); // Adjust the credit amount as needed
+      lid, keyPageUrl, 4000000, oracle); // Adjust the credit amount as needed
 
   // Pause to allow the addCredits transaction to settle
   print("Pausing to allow addCredits transaction to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 40)); // Pause for 40 seconds
 }
 
 // Create an Accumulate ADI Identity
