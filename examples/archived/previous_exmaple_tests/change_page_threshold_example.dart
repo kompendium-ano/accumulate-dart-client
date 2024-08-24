@@ -10,7 +10,7 @@ Uint8List hexToBytes(String hexString) {
 
 // Initialize a signer with the proper key handling
 TxSigner initSigner(String privateKeyHex, String keyPageUrl) {
-  Uint8List privateKeyBytes = hexToBytes(privateKeyHex);
+  Uint8List privateKeyBytes = ToBytes(privateKeyHex);
   Ed25519KeypairSigner edSigner =
       Ed25519KeypairSigner.fromKeyRaw(privateKeyBytes);
 
