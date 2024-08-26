@@ -644,8 +644,17 @@ class ACMEClient {
 
     TxHistoryQueryOptions txHistoryQueryOptions = TxHistoryQueryOptions();
 
+    // Log the RPC request
+    print("callGetTokenTransactionHistory | Sending RPC request with path: $path");
+    print("callGetTokenTransactionHistory | QueryPagination: start=${queryPagination.start}, count=${queryPagination.count}");
+    print("callGetTokenTransactionHistory | TxHistoryQueryOptions: $txHistoryQueryOptions");
+
+
     final res =
         await queryTxHistory(path, queryPagination, txHistoryQueryOptions);
+
+    // Log the RPC response
+    print("callGetTokenTransactionHistory | Received response: $res");
 
     // Collect transaction iteratively
     List<txModel.Transaction> txs = [];
