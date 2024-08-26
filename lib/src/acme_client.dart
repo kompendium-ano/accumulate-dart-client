@@ -636,8 +636,7 @@ class ACMEClient {
 
   ///
   /// RPC: "query-tx-history" (in v1 - "token-account-history")
-  Future<List<txModel.Transaction>> callGetTokenTransactionHistory(
-      String path) async {
+  Future<List<txModel.Transaction>> callGetTokenTransactionHistory(String path) async {
     QueryPagination queryPagination = QueryPagination();
     queryPagination.start = 0;
     queryPagination.count = 100;
@@ -649,9 +648,7 @@ class ACMEClient {
     print("callGetTokenTransactionHistory | QueryPagination: start=${queryPagination.start}, count=${queryPagination.count}");
     print("callGetTokenTransactionHistory | TxHistoryQueryOptions: $txHistoryQueryOptions");
 
-
-    final res =
-        await queryTxHistory(path, queryPagination, txHistoryQueryOptions);
+    final res = await queryTxHistory(path, queryPagination, txHistoryQueryOptions);
 
     // Log the RPC response
     print("callGetTokenTransactionHistory | Received response: $res");
@@ -661,8 +658,11 @@ class ACMEClient {
     var records = res['result']["items"];
 
     if (records == null) {
+      print("callGetTokenTransactionHistory | No records found (items is null) in the response for path: $path");
       return [];
     }
+
+    print("callGetTokenTransactionHistory | Number of records found: ${records.length}");
 
     for (var i = 0; i < records.length; i++) {
       var tx = records[i];
