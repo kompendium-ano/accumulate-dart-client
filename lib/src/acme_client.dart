@@ -653,9 +653,8 @@ class ACMEClient {
     // Log the RPC response
     print("callGetTokenTransactionHistory | Received response: $res");
 
-    // Collect transaction iteratively
-    List<txModel.Transaction> txs = [];
-    var records = res['result']["items"];
+    // Safely access 'result' and 'items'
+    var records = res['result']?["items"];
 
     if (records == null) {
       print("callGetTokenTransactionHistory | No records found (items is null) in the response for path: $path");
@@ -664,9 +663,15 @@ class ACMEClient {
 
     print("callGetTokenTransactionHistory | Number of records found: ${records.length}");
 
+    // Collect transactions iteratively
+    List<txModel.Transaction> txs = [];
     for (var i = 0; i < records.length; i++) {
       var tx = records[i];
       String? type = tx["type"];
+
+      // Log transaction details for debugging
+      print("callGetTokenTransactionHistory | Processing transaction $i of type $type with data: $tx");
+
 
       switch (type) {
         case "faucet": // that's faucet
