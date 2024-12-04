@@ -788,47 +788,64 @@ class ACMEClient {
           break;
         case "syntheticDepositTokens":
           String? txid = tx["txid"];
-          String? amountIn = tx["data"]["amount"];
-          String? token = tx["data"]["token"];
-          String? status = tx["status"]["code"];
+          String? amountIn = tx["data"]?["amount"]; // Use safe access operator
+          String? token = tx["data"]?["token"]; // Use safe access operator
+          String? status = tx["status"]?["code"]; // Use safe access operator
           var sigs = tx["signatures"];
-          var sig = sigs[sigs.length - 1];
-          int? ts = sig["timestamp"];
 
-          String? from = tx["data"]["source"];
+          // Check if 'signatures' is not null and has elements
+          if (sigs is List && sigs.isNotEmpty) {
+            var sig = sigs[sigs.length - 1];
+            int? ts = sig["timestamp"];
 
-          int amount = int.parse(amountIn!);
+            String? from = tx["data"]?["source"]; // Use safe access operator
 
-          txModel.Transaction txl = txModel.Transaction("Incoming",
-              "send_token", txid, from, path, amount, "$token", status);
-          if (ts! == 1) {
-            // Get Timestamp as time from block
-            int height = tx["status"]["received"];
-            String bvnFrom = tx["status"]["sourceNetwork"];
-            String bvn = tx["status"]["destinationNetwork"];
-            String bvnDest = "";
+            // Ensure 'amountIn' is not null before parsing
+            int amount = int.tryParse(amountIn ?? "0") ?? 0;
 
-            QueryPaginationForBlocks queryParams = QueryPaginationForBlocks();
-            queryParams.start = height;
-            queryParams.limit = 10;
+            txModel.Transaction txl = txModel.Transaction(
+              "Incoming",
+              "send_token",
+              txid,
+              from,
+              path,
+              amount,
+              "$token",
+              status,
+            );
 
-            MinorBlocksQueryOptions queryFilter = MinorBlocksQueryOptions()
-              ..txFetchMode = 0
-              ..blockFilterMode = 1;
+            if (ts == 1) {
+              // Get Timestamp as time from block
+              int height = tx["status"]["received"];
+              String bvnFrom = tx["status"]["sourceNetwork"];
+              String bvn = tx["status"]["destinationNetwork"];
+              String bvnDest = "";
 
-            var minorBlocks =
-                await queryMinorBlocks(bvn, queryParams, queryFilter);
-            var blockInfo = minorBlocks["result"]["items"][0]; //our block start
-            var blockTime = blockInfo["blockTime"];
-            var blockTimeD = DateTime.parse(blockTime);
+              QueryPaginationForBlocks queryParams = QueryPaginationForBlocks();
+              queryParams.start = height;
+              queryParams.limit = 10;
 
-            txl.created = blockTimeD.millisecondsSinceEpoch;
+              MinorBlocksQueryOptions queryFilter = MinorBlocksQueryOptions()
+                ..txFetchMode = 0
+                ..blockFilterMode = 1;
+
+              var minorBlocks = await queryMinorBlocks(bvn, queryParams, queryFilter);
+              var blockInfo = minorBlocks["result"]?["items"]?[0]; // Safe access
+              var blockTime = blockInfo?["blockTime"]; // Safe access
+              var blockTimeD = blockTime != null ? DateTime.parse(blockTime) : null;
+
+              if (blockTimeD != null) {
+                txl.created = blockTimeD.millisecondsSinceEpoch;
+              }
+            } else {
+              txl.created = DateTime.fromMicrosecondsSinceEpoch(ts ?? 0).millisecondsSinceEpoch;
+            }
+
+            txs.add(txl);
           } else {
-            txl.created =
-                DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
+            // Log an error or handle cases where signatures are missing
+            print("No signatures found for txid: $txid");
           }
-
-          txs.add(txl);
           break;
         case "updateAccountAuth":
           String? txid = tx["txid"];
