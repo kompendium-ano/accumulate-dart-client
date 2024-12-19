@@ -605,19 +605,46 @@ class ACMEClientV3 {
           break;
         default:
           print("  default handler");
-          String? txid = res['result']["data"]["txid"];
-          String? from = res['result']["data"]["from"];
-          //ApiRespTxTo to = res.result["data"]["to"];
-          LinkedHashMap dataTo = res['result']["data"]["to"][0];
-          String? to = dataTo["url"];
-          int? amount = dataTo["amount"];
-          LinkedHashMap sigs = res['result']["signatures"][0];
-          int? ts = sigs["timestamp"];
 
-          tx = txModel.Transaction(
-              "Outgoing", "", txid, from, to, amount, "ACME");
-          tx.created =
-              DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          try {
+            // Safely access nested data with null checks
+            String? txid = res['result']?["data"]?["txid"] as String?;
+            String? from = res['result']?["data"]?["from"] as String?;
+
+            // Correct ternary operator usage
+            Map<String, dynamic>? dataTo = (res['result']?["data"]?["to"] is List &&
+                    (res['result']?["data"]?["to"] as List).isNotEmpty)
+                ? (res['result']?["data"]?["to"] as List).first as Map<String, dynamic>?
+                : null;
+
+            String? to = dataTo?["url"] as String?;
+            int? amount = dataTo?["amount"] as int?;
+            Map<String, dynamic>? sigs = (res['result']?["signatures"] is List &&
+                    (res['result']?["signatures"] as List).isNotEmpty)
+                ? (res['result']?["signatures"] as List).first as Map<String, dynamic>?
+                : null;
+
+            int? ts = sigs?["timestamp"] as int?;
+
+            if (txid != null && from != null && to != null && amount != null && ts != null) {
+              tx = txModel.Transaction(
+                "Outgoing",
+                "default-handler",
+                txid,
+                from,
+                to,
+                amount,
+                "ACME",
+              );
+              tx.created = DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
+            } else {
+              print("  Incomplete transaction data, skipping...");
+            }
+          } catch (e) {
+            print("  Transaction Parsing Error: $e");
+          }
+
+
       }
     }
 
