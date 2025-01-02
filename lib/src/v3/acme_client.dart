@@ -50,9 +50,10 @@ class ACMEClientV3 {
     return call("execute", tx.toTxRequest().toMap);
   }
 
-  Future<Map<String, dynamic>> executeDirect() {
-    return call("execute-direct");
+  Future<Map<String, dynamic>> executeDirect(Map<String, dynamic> params) {
+    return call("execute-direct", params);
   }
+
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
