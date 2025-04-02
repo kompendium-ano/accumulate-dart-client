@@ -184,6 +184,21 @@ class MockTxSigner extends _i1.Mock implements _i5.TxSigner {
           ),
         ),
       ) as _i2.Signature);
+
+  @override
+  _i2.Signature signMultisigTransaction(String? txHash) => (super.noSuchMethod(
+        Invocation.method(
+          #signMultisigTransaction,
+          [txHash],
+        ),
+        returnValue: _FakeSignature_3(
+          this,
+          Invocation.method(
+            #signMultisigTransaction,
+            [txHash],
+          ),
+        ),
+      ) as _i2.Signature);
 }
 
 /// A class which mocks [Signer].
@@ -534,10 +549,12 @@ class MockACMEClient extends _i1.Mock implements _i11.ACMEClient {
       ) as _i9.Future<Map<String, dynamic>>);
 
   @override
-  _i9.Future<Map<String, dynamic>> executeDirect() => (super.noSuchMethod(
+  _i9.Future<Map<String, dynamic>> executeDirect(
+          Map<String, dynamic>? params) =>
+      (super.noSuchMethod(
         Invocation.method(
           #executeDirect,
-          [],
+          [params],
         ),
         returnValue:
             _i9.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
