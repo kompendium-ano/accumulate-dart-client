@@ -37,7 +37,6 @@ void testLiteDataAccountCreation() async {
   print("new account ${lid.acmeTokenAccount.toString()}");
   print("\n");
 
-
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Add Credits to allow actions
 
@@ -90,7 +89,8 @@ void testLiteDataAccountCreation() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Create ADI
 
-  identityUrl = "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor() }.acme";
+  identityUrl =
+      "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}.acme";
   final keyForAdi = Ed25519KeypairSigner.generate();
   final bookUrl = identityUrl + "/cosm-book";
 
@@ -112,7 +112,8 @@ void testLiteDataAccountCreation() async {
   qp.start = 0;
   qp.count = 20;
 
-  res = await client.queryDirectory(identityUrl, qp, null); // NB: now returns only ADI and KeyBook, no keypage
+  res = await client.queryDirectory(identityUrl, qp,
+      null); // NB: now returns only ADI and KeyBook, no keypage
   sleep(Duration(seconds: 10));
   print(res);
 
@@ -161,10 +162,12 @@ void testLiteDataAccountCreation() async {
   final lightDataAccountUrl = identityUrl + "/datalight1";
   print("lightDataAccountUrl $lightDataAccountUrl");
 
-  CreateLiteDataAccountParam lightDataAccountParams = CreateLiteDataAccountParam();
+  CreateLiteDataAccountParam lightDataAccountParams =
+      CreateLiteDataAccountParam();
   lightDataAccountParams.url = lightDataAccountUrl;
 
-  res = await client.createLiteDataAccount(identityUrl, lightDataAccountParams, identityKeyPageTxSigner);
+  res = await client.createLiteDataAccount(
+      identityUrl, lightDataAccountParams, identityKeyPageTxSigner);
 
   txId = res["result"]["txid"];
   print("Create light data account $txId");
@@ -187,5 +190,4 @@ void testLiteDataAccountCreation() async {
   //
   // res = await client.queryData(lightDataAccountUrl);
   // print("Light Data account write $res");
-
 }

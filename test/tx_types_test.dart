@@ -25,7 +25,5 @@ void main() {
       expect(TransactionType.updateAccountAuth, 0x15);
       expect(TransactionType.updateKey, 0x16);
     });
-
   });
 }
-

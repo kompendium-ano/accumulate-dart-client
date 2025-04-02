@@ -52,7 +52,8 @@ void main() {
     test('Transaction should correctly initialize and sign', () {
       // Setup
       var payload = DummyPayload();
-      var headerOptions = HeaderOptions(timestamp: DateTime.now().microsecondsSinceEpoch, memo: "Test Memo");
+      var headerOptions = HeaderOptions(
+          timestamp: DateTime.now().microsecondsSinceEpoch, memo: "Test Memo");
       var header = Header(AccURL.parse('acc://example.com'), headerOptions);
       var transaction = Transaction(payload, header);
 

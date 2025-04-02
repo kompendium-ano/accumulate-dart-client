@@ -39,14 +39,19 @@ Uint8List fieldMarshalBinary(int field, Uint8List val) {
 
 Uint8List uvarintMarshalBinaryAlt(int val, [int? field]) {
   const int radix = 8; // Set radix value
-  BigInt bigInt = BigInt.from(val); // converting int to BigInt for Unsigned bit data conversion
-  final data =
-      ByteData((bigInt.bitLength / radix).ceil()); // Create Empty byte array with  length(in bytes) in given number
+  BigInt bigInt = BigInt.from(
+      val); // converting int to BigInt for Unsigned bit data conversion
+  final data = ByteData((bigInt.bitLength / radix)
+      .ceil()); // Create Empty byte array with  length(in bytes) in given number
   var _bigInt = bigInt;
   var i = 0;
 
   for (i = 0; i < data.lengthInBytes; i++) {
-    data.setUint8(i, _bigInt.toUnsigned(radix).toInt()); // Extract last 8 bits and convert them into decimal
+    data.setUint8(
+        i,
+        _bigInt
+            .toUnsigned(radix)
+            .toInt()); // Extract last 8 bits and convert them into decimal
 
     _bigInt = _bigInt >> 7;
   }
@@ -78,7 +83,8 @@ Uint8List uvarintMarshalBinary(int val, [int? field]) {
   }
 
   var tmpBigInt = _bigInt.toUnsigned(radix);
-  if ((tmpBigInt > BigInt.from(127)) && ((tmpBigInt + BigInt.from(128)) < BigInt.from(255))) {
+  if ((tmpBigInt > BigInt.from(127)) &&
+      ((tmpBigInt + BigInt.from(128)) < BigInt.from(255))) {
     tmpBigInt += BigInt.from(128);
   }
 
@@ -113,7 +119,6 @@ Uint8List stringMarshalBinary(String val, [int? field]) {
 }
 
 Uint8List bytesMarshalBinary(Uint8List val, [int? field]) {
-
   final length = uvarintMarshalBinary(val.length);
 
   List<int> forConcat = [];
@@ -135,7 +140,8 @@ Uint8List withFieldNumber(Uint8List data, [int? field]) {
   return field != null ? fieldMarshalBinary(field, data) : data;
 }
 
-Uint8List bigIntToUint8List(BigInt bigInt) => bigIntToByteData(bigInt).buffer.asUint8List();
+Uint8List bigIntToUint8List(BigInt bigInt) =>
+    bigIntToByteData(bigInt).buffer.asUint8List();
 
 ByteData bigIntToByteData(BigInt bigInt) {
   final data = ByteData((bigInt.bitLength / 8).ceil());

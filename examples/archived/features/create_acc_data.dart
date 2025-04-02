@@ -86,7 +86,8 @@ void testDataAccountCreation() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Create ADI
 
-  identityUrl = "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}.acme";
+  identityUrl =
+      "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}.acme";
   final keyForAdi = Ed25519KeypairSigner.generate();
   final bookUrl = identityUrl + "/cosm-book";
 
@@ -108,7 +109,8 @@ void testDataAccountCreation() async {
   qp.start = 0;
   qp.count = 20;
 
-  res = await client.queryDirectory(identityUrl, qp, null); // NB: now returns only ADI and KeyBook, no keypage
+  res = await client.queryDirectory(identityUrl, qp,
+      null); // NB: now returns only ADI and KeyBook, no keypage
   sleep(Duration(seconds: 15));
   print(res);
 
@@ -147,14 +149,15 @@ void testDataAccountCreation() async {
 
   print("======== DATA ACC CREATE =============================");
 
-  final dataAccountUrl = identityUrl + "/data-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}";
+  final dataAccountUrl = identityUrl +
+      "/data-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}";
   print("dataAccountUrl $dataAccountUrl");
 
   CreateDataAccountParam dataAccountParams = CreateDataAccountParam();
   dataAccountParams.url = dataAccountUrl;
-  dataAccountParams.scratch = false;
 
-  res = await client.createDataAccount(identityUrl, dataAccountParams, identityKeyPageTxSigner);
+  res = await client.createDataAccount(
+      identityUrl, dataAccountParams, identityKeyPageTxSigner);
 
   txId = res["result"]["txid"];
   print("Create data account $txId");
@@ -171,8 +174,13 @@ void testDataAccountCreation() async {
   writeDataParam.data = [
     utf8.encode("source=mobile").asUint8List(),
     utf8.encode("type=delegated").asUint8List(),
-    utf8.encode("staking account= acc://tetrahedron1.acme/staking").asUint8List(),
-    utf8.encode("awards=acc://a31d6d7d33a1a2b55fb84e931f98fbf72403ecfef0a453a7/acme").asUint8List(),
+    utf8
+        .encode("staking account= acc://tetrahedron1.acme/staking")
+        .asUint8List(),
+    utf8
+        .encode(
+            "awards=acc://a31d6d7d33a1a2b55fb84e931f98fbf72403ecfef0a453a7/acme")
+        .asUint8List(),
     utf8.encode("delegation_to=acc://kompendium.acme/staking").asUint8List(),
     utf8
         .encode(
@@ -180,7 +188,8 @@ void testDataAccountCreation() async {
         .asUint8List()
   ];
 
-  res = await client.writeData(dataAccountUrl, writeDataParam, identityKeyPageTxSigner);
+  res = await client.writeData(
+      dataAccountUrl, writeDataParam, identityKeyPageTxSigner);
   txId = res["result"]["txid"];
   print("Data write $txId");
   await client.waitOnTx(DateTime.now().millisecondsSinceEpoch, txId);

@@ -19,14 +19,12 @@ class AddValidator extends BasePayload {
 
   AddValidator(AddValidatorParam addValidatorParam) : super() {
     _publicKey = addValidatorParam.publicKey;
-    if(addValidatorParam.owner != null)
-    {
+    if (addValidatorParam.owner != null) {
       _owner = AccURL.toAccURL(addValidatorParam.owner);
     }
 
     super.memo = addValidatorParam.memo;
     super.metadata = addValidatorParam.metadata;
-
   }
 
   @override

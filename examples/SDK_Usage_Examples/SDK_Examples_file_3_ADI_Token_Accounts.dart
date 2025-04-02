@@ -2,11 +2,11 @@
 import 'dart:async';
 import 'package:accumulate_api/accumulate_api.dart';
 import 'SDK_Examples_file_1_lite_identities.dart';
-import 'SDK_Examples_file_2_Accumulate_Identities_(ADI).dart';
+import 'SDK_Examples_file_2_Accumulate_Identities.dart';
 
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);
-int delayBeforePrintSeconds = 180;
+int delayBeforePrintSeconds = 45;
 
 Future<void> main() async {
   print(endPoint);
@@ -30,70 +30,61 @@ Future<void> testFeatures() async {
   print("First lite account URL: ${lid.acmeTokenAccount}\n");
   await addFundsToAccount(lid.acmeTokenAccount, times: 20);
 
-  // Second lite token account
-  print("Second lite account URL: ${secondLid.acmeTokenAccount}\n");
-  await addFundsToAccount(secondLid.acmeTokenAccount, times: 5);
-
   // Retrieve oracle value for credit calculation
   final oracle = await client.valueFromOracle();
 
   // Add 2000 credits to the first lite account
   await addCredits(lid, 2000000, oracle);
 
-  // Add 1000 credits to the second lite account
-  await addCredits(secondLid, 10000, oracle);
-
-  // Sending 7 tokens from lid to secondLid
-  await sendTokens(
-    fromType: AccountType.lite,
-    fromAccount: lid.acmeTokenAccount.toString(),
-    toType: AccountType.lite,
-    toAccount: secondLid.acmeTokenAccount.toString(),
-    amount: 7,
-    signer: signer1,
-  );
-
   // Create an ADI
   String adiName = "custom-adi-name-${DateTime.now().millisecondsSinceEpoch}";
   Ed25519KeypairSigner adiSigner = Ed25519KeypairSigner.generate();
-  await createAdi(lid, adiSigner, adiName, );
+  await createAdi(
+    lid,
+    adiSigner,
+    adiName,
+  );
 
   // Add credits to custom-adi-name key book's key page
-  String keyPageUrl = "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
+  String keyPageUrl =
+      "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
   print("keyPageUrl Name: $keyPageUrl");
-  await addCreditsToAdiKeyPage(lid, keyPageUrl, 7000000, oracle); // Adjust the credit amount as needed
+  await addCreditsToAdiKeyPage(
+      lid, keyPageUrl, 4000000, oracle); // Adjust the credit amount as needed
 
   // Pause to allow the addCredits transaction to settle
   print("Pausing to allow addCredits transaction to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 30)); // Pause for 30 seconds
 
   // Create the first ADI ACME token account
   String identityUrl = "acc://$adiName.acme";
   String tokenAccountUrl1 = "$identityUrl/acme-token-account-1";
-  await createAdiAcmeTokenAccount(adiSigner, identityUrl, keyPageUrl, tokenAccountUrl1);
+  await createAdiAcmeTokenAccount(
+      adiSigner, identityUrl, keyPageUrl, tokenAccountUrl1);
 
   // Create the second ADI ACME token account
   String tokenAccountUrl2 = "$identityUrl/acme-token-account-2";
-  await createAdiAcmeTokenAccount(adiSigner, identityUrl, keyPageUrl, tokenAccountUrl2);
+  await createAdiAcmeTokenAccount(
+      adiSigner, identityUrl, keyPageUrl, tokenAccountUrl2);
 
   // Pause to allow the create token accoutns to settle
   print("Pausing to allow the create token accoutns to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 30)); // Pause for 30 seconds
 
-  // Sending 30 tokens from lid to tokenAccountUrl1
+  // Sending 22 tokens from lid to tokenAccountUrl1
   await sendTokens(
     fromType: AccountType.lite,
     fromAccount: lid.acmeTokenAccount.toString(),
     toType: AccountType.adi,
     toAccount: tokenAccountUrl1,
-    amount: 30,
+    amount: 22,
     signer: signer1,
   );
-    print("Sending 30 tokens from lid to tokenAccountUrl1");
+  print("Sending 22 tokens from lid to tokenAccountUrl1");
 
   // Pause to allow sendTokens transaction to settlee
   print("Pausing to allow sendTokens transaction to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 20)); // Pause for 2 minutes
 
   // Sending 9 from tokenAccountUrl1 to tokenAccountUrl2
   await sendTokens(
@@ -105,7 +96,7 @@ Future<void> testFeatures() async {
     signer: adiSigner,
     keyPageUrl: "acc://$adiName.acme/book/1", // Key page URL
   );
-    print("Sending 9 from tokenAccountUrl1 to tokenAccountUrl2");
+  print("Sending 9 from tokenAccountUrl1 to tokenAccountUrl2");
 
   // Sending 5 tokens from tokenAccountUrl1 to lid
   await sendTokens(
@@ -117,23 +108,27 @@ Future<void> testFeatures() async {
     signer: adiSigner,
     keyPageUrl: "acc://$adiName.acme/book/1", // Key page URL for source account
   );
-      print("Sending 5 tokens from tokenAccountUrl1 to lid");
+  print("Sending 5 tokens from tokenAccountUrl1 to lid");
 }
 
 // Function to create an ACME token account under the ADI
-Future<void> createAdiAcmeTokenAccount(Ed25519KeypairSigner adiSigner, String identityUrl, String keyPageUrl, String tokenAccountUrl) async {
+Future<void> createAdiAcmeTokenAccount(Ed25519KeypairSigner adiSigner,
+    String identityUrl, String keyPageUrl, String tokenAccountUrl) async {
   // Prepare the parameters for creating a token account
   CreateTokenAccountParam createTokenAccountParam = CreateTokenAccountParam();
-  createTokenAccountParam.url = tokenAccountUrl; // Use the specific token account URL
+  createTokenAccountParam.url =
+      tokenAccountUrl; // Use the specific token account URL
   createTokenAccountParam.tokenUrl = "acc://ACME";
-  
+
   print("Creating ADI ACME token account at: $tokenAccountUrl");
 
   // And use the TxSigner initialized with the key from the key page
-  TxSigner txSigner = TxSigner(keyPageUrl, adiSigner); // Use the signer with authority
-  
+  TxSigner txSigner =
+      TxSigner(keyPageUrl, adiSigner); // Use the signer with authority
+
   // Execute the transaction
-  var res = await client.createTokenAccount(identityUrl, createTokenAccountParam, txSigner);
-  
+  var res = await client.createTokenAccount(
+      identityUrl, createTokenAccountParam, txSigner);
+
   print("Create ADI ACME token account response: $res");
 }

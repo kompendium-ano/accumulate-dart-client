@@ -17,7 +17,10 @@ class MultiHash {
     hashList.setAll(0, [1].asUint8List());
     hashList.setAll(1, pubkey!);
 
-    _multiHash = sha256.convert(sha256.convert(hashList).bytes.asUint8List()).bytes.asUint8List();
+    _multiHash = sha256
+        .convert(sha256.convert(hashList).bytes.asUint8List())
+        .bytes
+        .asUint8List();
 
     return _multiHash;
   }

@@ -1,9 +1,9 @@
 // lib\src\transaction.dart
 
 import "dart:typed_data";
-
 import "package:crypto/crypto.dart";
 import 'package:hex/hex.dart';
+import 'package:logging/logging.dart';
 
 import 'client/acc_url.dart';
 import 'client/signature_type.dart';
@@ -13,13 +13,18 @@ import 'encoding.dart';
 import 'payload.dart';
 import 'utils/utils.dart';
 
+final Logger _logger = Logger('Transaction');
+
 class HeaderOptions {
-  int? timestamp;
+  int timestamp;
   String? memo;
   Uint8List? metadata;
   Uint8List? initiator;
 
-  HeaderOptions({this.timestamp, this.memo, this.metadata, this.initiator});
+  HeaderOptions({int? timestamp, this.memo, this.metadata, this.initiator})
+      : this.timestamp = timestamp ?? DateTime.now().microsecondsSinceEpoch {
+    _logger.info('LOG: HeaderOptions initialized with timestamp: $this.timestamp, memo: ${this.memo}');
+  }
 }
 
 class Header {
@@ -42,23 +47,22 @@ class Header {
     if (options?.metadata != null) {
       _metadata = options!.metadata!.asUint8List();
     }
+
+    _logger.info('LOG: Header initialized with principal: $_principal, timestamp: $_timestamp');
   }
 
   AccURL get principal => _principal;
 
   int get timestamp => _timestamp;
 
-  String? get memo {
-    return _memo;
-  }
+  String? get memo => _memo;
 
-  Uint8List? get metadata {
-    return _metadata;
-  }
+  Uint8List? get metadata => _metadata;
 
   Uint8List computeInitiator(SignerInfo signerInfo) {
-    List<int> binary = [];
+    _logger.info('LOG: Computing initiator hash for signer: ${signerInfo.url}');
 
+    List<int> binary = [];
     binary.addAll(uvarintMarshalBinary(signerInfo.type!, 1));
     binary.addAll(bytesMarshalBinary(signerInfo.publicKey!, 2));
     binary.addAll(stringMarshalBinary(signerInfo.url.toString(), 4));
@@ -67,6 +71,7 @@ class Header {
 
     _initiator = sha256.convert(binary).bytes.asUint8List();
 
+    _logger.fine('LOG: Computed initiator hash: ${HEX.encode(_initiator)}');
     return _initiator;
   }
 
@@ -75,8 +80,8 @@ class Header {
       throw Exception(
           "Initiator hash missing. Must be initialized by calling computeInitiator");
     }
-    List<int> forConcat = [];
 
+    List<int> forConcat = [];
     forConcat.addAll(stringMarshalBinary(_principal.toString(), 1));
     forConcat.addAll(hashMarshalBinary(_initiator, 2));
 
@@ -88,20 +93,16 @@ class Header {
       forConcat.addAll(bytesMarshalBinary(_metadata!, 4));
     }
 
+    _logger.fine('LOG: Marshalled header binary: ${HEX.encode(forConcat)}');
     return forConcat.asUint8List();
   }
 }
 
 class Transaction {
   late Header _header;
-
   late Uint8List _payloadBinary;
-
-  // Signer used to create transaction
   TxSigner? _signerInUse;
-
   Signature? _signature;
-
   Uint8List? _hash;
   late Uint8List _bodyHash;
 
@@ -110,6 +111,8 @@ class Transaction {
     _header = header;
     _signature = signature;
     _bodyHash = payload.hash();
+
+    _logger.info('LOG: Transaction created with payload size: ${_payloadBinary.length}, header: $_header');
   }
 
   List<int> hash() {
@@ -118,24 +121,26 @@ class Transaction {
     }
 
     final headerHash = sha256.convert(_header.marshalBinary()).bytes;
-
     List<int> tempHash = [];
     tempHash.addAll(headerHash);
     tempHash.addAll(_bodyHash.toList());
 
     _hash = sha256.convert(tempHash).bytes.asUint8List();
 
+    _logger.fine('LOG: Computed transaction hash: ${HEX.encode(_hash!)}');
     return _hash!.toList();
   }
 
   List<int> dataForSignature(SignerInfo signerInfo) {
     Uint8List sigHash = header.computeInitiator(signerInfo);
+    _logger.fine('LOG: Computed signature hash: ${HEX.encode(sigHash)}');
 
     List<int> tempHash = List<int>.from(sigHash.toList());
-
     tempHash.addAll(hash());
 
-    return sha256.convert(tempHash).bytes;
+    final signatureData = sha256.convert(tempHash).bytes;
+    _logger.fine('LOG: Final data for signature: ${HEX.encode(signatureData)}');
+    return signatureData;
   }
 
   Uint8List get payload => _payloadBinary;
@@ -151,13 +156,17 @@ class Transaction {
   }
 
   sign(TxSigner signer) {
+    _logger.info('LOG: Signing transaction using signer: ${signer.url}');
     _signature = signer.sign(this);
     _signerInUse = signer;
+    _logger.info('LOG: Transaction signed successfully.');
   }
 
   TxRequest toTxRequest({bool? checkOnly}) {
+    _logger.info('LOG: Creating TxRequest for transaction with timestamp: ${header.timestamp}');
+
     if (_signature == null) {
-      throw Exception("Unsigned transaction cannot be converted to TxRequest");
+      throw Exception("LOG: Unsigned transaction cannot be converted to TxRequest");
     }
 
     final signerInfo = _signature!.signerInfo;
@@ -167,15 +176,16 @@ class Transaction {
     txRequest.origin = _header.principal.toString();
     txRequest.signer = {
       "url": signerInfo!.url.toString(),
-      "publicKey": HEX.encode(signerInfo.publicKey!), //HEX.encode(_signerInUse!.publicKeyHash),
+      "publicKey": HEX.encode(signerInfo.publicKey!),
       "version": signerInfo.version,
       "timestamp": _header.timestamp,
       "signatureType": "${SignatureType().marshalJSON(signerInfo.type!)}",
       "useSimpleHash": true
     };
-    txRequest.signature = HEX.encode(_signature!.signature!); //HEX.encode(sha256.convert(_signature!.signature!).bytes.asUint8List()); //
+    txRequest.signature = HEX.encode(_signature!.signature!);
     txRequest.txHash = HEX.encode(_hash!.toList());
     txRequest.payload = HEX.encode(_payloadBinary.toList());
+
     if (_header._memo != null) {
       txRequest.memo = _header._memo!;
     }
@@ -184,6 +194,7 @@ class Transaction {
       txRequest.metadata = HEX.encode(_header.metadata!.toList());
     }
 
+    _logger.info('TxRequest created successfully.');
     return txRequest;
   }
 }
@@ -192,11 +203,9 @@ class TxRequest {
   bool? checkOnly;
   bool? isEnvelope;
   late String origin;
-
   late Map<String, dynamic> signer;
   late String signature;
   String? txHash;
-
   late String payload;
   String? memo;
   String? metadata;

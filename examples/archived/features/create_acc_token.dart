@@ -88,7 +88,8 @@ void testAdiCreation() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Create ADI
 
-  identityUrl = "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}.acme";
+  identityUrl =
+      "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}.acme";
   final keyForAdi = Ed25519KeypairSigner.generate();
   final bookUrl = identityUrl + "/cosm-book";
   final keyPageUrl = bookUrl + "/1";
@@ -111,7 +112,8 @@ void testAdiCreation() async {
   qp.start = 0;
   qp.count = 20;
 
-  res = await client.queryDirectory(identityUrl, qp, null); // NB: now returns only ADI and KeyBook, no keypage
+  res = await client.queryDirectory(identityUrl, qp,
+      null); // NB: now returns only ADI and KeyBook, no keypage
   sleep(Duration(seconds: 10));
   print(res);
 
@@ -133,7 +135,8 @@ void testAdiCreation() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // CREATE CUSTOM TOKEN
 
-  final tokenName = "tkn-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}";
+  final tokenName =
+      "tkn-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}";
   final tokenUrl = identityUrl + "/$tokenName";
   CreateTokenParam createTokenParam = CreateTokenParam();
   createTokenParam.url = tokenUrl;
@@ -142,7 +145,8 @@ void testAdiCreation() async {
 
   identityKeyPageTxSigner = TxSigner(keyPageUrl, keyForAdi);
 
-  res = await client.createToken(identityUrl, createTokenParam, identityKeyPageTxSigner);
+  res = await client.createToken(
+      identityUrl, createTokenParam, identityKeyPageTxSigner);
   txId = res["result"]["txid"];
   print("CustomToken txId $txId");
   sleep(Duration(seconds: waitTimeInSeconds));
@@ -156,7 +160,8 @@ void testAdiCreation() async {
   createTokenAccountParam.tokenUrl = tokenUrl;
   //createTokenAccountParam.authorities = ;
 
-  res = await client.createTokenAccount(identityUrl, createTokenAccountParam, identityKeyPageTxSigner);
+  res = await client.createTokenAccount(
+      identityUrl, createTokenAccountParam, identityKeyPageTxSigner);
   sleep(Duration(seconds: waitTimeInSeconds));
 
   txId = res["result"]["txid"];
@@ -173,9 +178,9 @@ void testAdiCreation() async {
   tokenRecipientParam.amount = issuanceAmount;
   issueTokensParam.to = [tokenRecipientParam];
 
-  res = await client.issueTokens(tokenUrl, issueTokensParam, identityKeyPageTxSigner);
+  res = await client.issueTokens(
+      tokenUrl, issueTokensParam, identityKeyPageTxSigner);
   txId = res["result"]["txid"];
   print("issueTokens txId $txId");
   sleep(Duration(seconds: waitTimeInSeconds));
-
 }

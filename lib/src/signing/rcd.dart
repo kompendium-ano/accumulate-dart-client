@@ -16,7 +16,10 @@ class RCD {
     hashList.setAll(0, [1].asUint8List());
     hashList.setAll(1, pubkey!);
 
-    _rcd1Hash = sha256.convert(sha256.convert(hashList).bytes.asUint8List()).bytes.asUint8List();
+    _rcd1Hash = sha256
+        .convert(sha256.convert(hashList).bytes.asUint8List())
+        .bytes
+        .asUint8List();
 
     return _rcd1Hash;
   }
@@ -52,15 +55,16 @@ Uint8List getRCDFromFactoidAddress(String faAddress) {
   Uint8List faPrefix = [0x5f, 0xb1].asUint8List();
   var decodedFA = base58.decode(faAddress);
 
-  if (!( ListEquality().equals(decodedFA.sublist(0, 2), faPrefix))) {
+  if (!(ListEquality().equals(decodedFA.sublist(0, 2), faPrefix))) {
     print("invalid factoid base58 encoding prefix: $faAddress");
     return _rcd1Hash;
   }
 
-  var checksumPre  = sha256.convert(decodedFA.sublist(0, 34));
-  var checksum =  sha256.convert(checksumPre.bytes.asUint8List()).bytes.asUint8List();
+  var checksumPre = sha256.convert(decodedFA.sublist(0, 34));
+  var checksum =
+      sha256.convert(checksumPre.bytes.asUint8List()).bytes.asUint8List();
 
-  if( !(ListEquality().equals(decodedFA.sublist(34), checksum.sublist(0,4)) )){
+  if (!(ListEquality().equals(decodedFA.sublist(34), checksum.sublist(0, 4)))) {
     print("invalid checksum on factoid address: $faAddress");
     return _rcd1Hash;
   }
@@ -76,22 +80,24 @@ AccURL getLiteAccountFromFactoidAddress(String address) {
 }
 
 // Additional
-String getAcmeLiteAccountFromFactoidAddress(String address){
+String getAcmeLiteAccountFromFactoidAddress(String address) {
   Uint8List rcd1Hash = getRCDFromFactoidAddress(address);
   AccURL liteTokenAddressFromHash = LiteIdentity.computeUrl(rcd1Hash);
   return "${liteTokenAddressFromHash.toString()}/acme";
 }
 
 // Additional
-LiteIdentity getLiteIdentityFromFactoidFs(String fs){
+LiteIdentity getLiteIdentityFromFactoidFs(String fs) {
   Factoid factoidInfo = getFactoidAddressRcdHashPkeyFromPrivateFs(fs);
-  Ed25519Keypair ed25519keypair = Ed25519Keypair.fromSecretKey(factoidInfo.keypair!.secretKey);
-  Ed25519KeypairSigner ed25519keypairSigner = Ed25519KeypairSigner(ed25519keypair);
+  Ed25519Keypair ed25519keypair =
+      Ed25519Keypair.fromSecretKey(factoidInfo.keypair!.secretKey);
+  Ed25519KeypairSigner ed25519keypairSigner =
+      Ed25519KeypairSigner(ed25519keypair);
   LiteIdentity lid = LiteIdentity(ed25519keypairSigner);
   return lid;
 }
 
-LiteIdentity getLiteIdentityFromFactoidFs_Ext(String fs){
+LiteIdentity getLiteIdentityFromFactoidFs_Ext(String fs) {
   Factoid factoidInfo = getFactoidAddressRcdHashPkeyFromPrivateFs(fs);
   RCD1KeypairSigner rcdKeyPairSigner = RCD1KeypairSigner(factoidInfo.keypair!);
   LiteIdentity lid = LiteIdentity(rcdKeyPairSigner);
@@ -99,7 +105,6 @@ LiteIdentity getLiteIdentityFromFactoidFs_Ext(String fs){
 }
 
 String getFactoidAddressFromRCDHash(Uint8List rcd1Hash) {
-
   if (rcd1Hash.length != 32) {
     print("invalid RCH Hash length must be 32 bytes");
     return "";
@@ -117,8 +122,9 @@ String getFactoidAddressFromRCDHash(Uint8List rcd1Hash) {
 
   // checkSum := sha256.Sum256(hash[:])
   // checkSum = sha256.Sum256(checkSum[:])
-  var checksumPre  = sha256.convert(hash);
-  var checksum =  sha256.convert(checksumPre.bytes.asUint8List()).bytes.asUint8List();
+  var checksumPre = sha256.convert(hash);
+  var checksum =
+      sha256.convert(checksumPre.bytes.asUint8List()).bytes.asUint8List();
 
   // fa := make([]byte, 38)
   Uint8List fa = Uint8List(38);
@@ -126,12 +132,12 @@ String getFactoidAddressFromRCDHash(Uint8List rcd1Hash) {
   // copy(fa[:34], hash)
   // copy(fa[34:], checkSum[:4])
   fa.setAll(0, hash);
-  fa.setAll(34, checksum.sublist(0,4));
+  fa.setAll(34, checksum.sublist(0, 4));
 
   // FA := base58.Encode(fa)
   String faAddress = base58.encode(fa);
 
-  if(!faAddress.startsWith("FA")){
+  if (!faAddress.startsWith("FA")) {
     print("invalid factoid address prefix, expecting FA but $faAddress");
     return "";
   }
@@ -157,15 +163,16 @@ Factoid getFactoidAddressRcdHashPkeyFromPrivateFs(String fsAddress) {
   Uint8List fsPrefix = [0x64, 0x78].asUint8List();
   var decodedFS = base58.decode(fsAddress);
 
-  if (!( ListEquality().equals(decodedFS.sublist(0, 2), fsPrefix))) {
+  if (!(ListEquality().equals(decodedFS.sublist(0, 2), fsPrefix))) {
     print("invalid factoid base58 encoding prefix: $fsAddress");
     return f;
   }
 
-  var checksumPre  = sha256.convert(decodedFS.sublist(0, 34));
-  var checksum =  sha256.convert(checksumPre.bytes.asUint8List()).bytes.asUint8List();
+  var checksumPre = sha256.convert(decodedFS.sublist(0, 34));
+  var checksum =
+      sha256.convert(checksumPre.bytes.asUint8List()).bytes.asUint8List();
 
-  if( !(ListEquality().equals(decodedFS.sublist(34), checksum.sublist(0,4)) )){
+  if (!(ListEquality().equals(decodedFS.sublist(34), checksum.sublist(0, 4)))) {
     print("invalid checksum on factoid address: $fsAddress");
     return f;
   }
@@ -176,7 +183,8 @@ Factoid getFactoidAddressRcdHashPkeyFromPrivateFs(String fsAddress) {
   var faAddress = getFactoidAddressFromRCDHash(rcdHash);
 
   Factoid f2 = Factoid();
-  f2..faAddress = faAddress
+  f2
+    ..faAddress = faAddress
     ..keypair = keyPair
     ..rcdHash = rcdHash;
 
@@ -184,7 +192,6 @@ Factoid getFactoidAddressRcdHashPkeyFromPrivateFs(String fsAddress) {
 }
 
 String getFactoidSecretFromPrivKey(Uint8List pk) {
-
   if (pk.length != 64) {
     print("invalid private key must be 64 bytes long");
     return "";
@@ -196,12 +203,13 @@ String getFactoidSecretFromPrivKey(Uint8List pk) {
   hash.setAll(0, faPrefix);
   hash.setAll(2, pk.sublist(0, 32));
 
-  var checksumPre  = sha256.convert(hash);
-  var checksum = sha256.convert(checksumPre.bytes.asUint8List()).bytes.asUint8List();
+  var checksumPre = sha256.convert(hash);
+  var checksum =
+      sha256.convert(checksumPre.bytes.asUint8List()).bytes.asUint8List();
 
   Uint8List fsraw = Uint8List(38);
   fsraw.setAll(0, hash);
-  fsraw.setAll(34, checksum.sublist(0,4));
+  fsraw.setAll(34, checksum.sublist(0, 4));
 
   String fs = base58.encode(fsraw);
   return fs;

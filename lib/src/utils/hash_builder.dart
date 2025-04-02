@@ -24,7 +24,7 @@ class HashBuilder {
 
   void addUrl(AccURL value) {
     _add(utf8.encode(value.toString()).asUint8List());
-    }
+  }
 
   void _add(Uint8List value) {
     if (value.length > 0) {
@@ -43,6 +43,9 @@ class HashBuilder {
 
   Uint8List getCheckSum() {
     var data = concatUint8List(_hashList);
-    return sha256.convert(data.toList()).bytes.asUint8List(); // TODO check if this is correct
+    return sha256
+        .convert(data.toList())
+        .bytes
+        .asUint8List(); // TODO check if this is correct
   }
 }

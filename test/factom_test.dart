@@ -31,7 +31,8 @@ void main() {
       entry.addExtRef(extRefString);
 
       expect(entry.extRefs.length, equals(1));
-      expect(Uint8List.fromList(entry.extRefs.first.data), equals(utf8.encode(extRefString).asUint8List()));
+      expect(Uint8List.fromList(entry.extRefs.first.data),
+          equals(utf8.encode(extRefString).asUint8List()));
     });
 
     test('Get ExtRefs from FactomEntry', () {
@@ -46,7 +47,8 @@ void main() {
 
       expect(extRefs.length, equals(extRefStrings.length));
       for (var i = 0; i < extRefStrings.length; i++) {
-        expect(Uint8List.fromList(extRefs[i]), equals(utf8.encode(extRefStrings[i]).asUint8List()));
+        expect(Uint8List.fromList(extRefs[i]),
+            equals(utf8.encode(extRefStrings[i]).asUint8List()));
       }
     });
 
@@ -91,8 +93,8 @@ void main() {
       final extRef = FactomExtRef.fromString(extRefString);
 
       expect(extRef.data, isNotNull);
-      expect(Uint8List.fromList(extRef.data), equals(utf8.encode(extRefString).asUint8List()));
+      expect(Uint8List.fromList(extRef.data),
+          equals(utf8.encode(extRefString).asUint8List()));
     });
   });
 }
-

@@ -64,7 +64,8 @@ void testAdiCreation() async {
   final oracle = await client.valueFromOracle();
 
   // Construct parameters structure
-  int creditAmount = 50000 * 10; // web shows 10 to 10,000 credits which is wrong conversion
+  int creditAmount =
+      50000 * 10; // web shows 10 to 10,000 credits which is wrong conversion
   AddCreditsParam addCreditsParam = AddCreditsParam();
   addCreditsParam.recipient = lid.url;
   addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
@@ -86,7 +87,8 @@ void testAdiCreation() async {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Create ADI
 
-  identityUrl = "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}.acme";
+  identityUrl =
+      "acc://adi-cosmonaut-${(DateTime.now().millisecondsSinceEpoch / 1000).floor()}.acme";
   final keyForAdi = Ed25519KeypairSigner.generate();
   final bookUrl = identityUrl + "/cosm-book";
 
@@ -108,14 +110,15 @@ void testAdiCreation() async {
   qp.start = 0;
   qp.count = 20;
 
-  res = await client.queryDirectory(identityUrl, qp, null); // NB: now returns only ADI and KeyBook, no keypage
+  res = await client.queryDirectory(identityUrl, qp,
+      null); // NB: now returns only ADI and KeyBook, no keypage
   sleep(Duration(seconds: 10));
   print(res);
 
   /// Add Credits to a page
   ///
   AddCreditsParam addCreditsParamForPage = AddCreditsParam();
-  addCreditsParamForPage.recipient = bookUrl+"/1"; // this is default keypage
+  addCreditsParamForPage.recipient = bookUrl + "/1"; // this is default keypage
   addCreditsParamForPage.amount = (creditAmount * pow(10, 8)) ~/ oracle;
   addCreditsParamForPage.oracle = oracle;
   print(addCreditsParam.amount);
@@ -132,12 +135,12 @@ void testAdiCreation() async {
   createTokenAccountParam.url = tokenAccountUrl;
   createTokenAccountParam.tokenUrl = "acc://acme";
 
-  TxSigner identityKeyPageTxSigner = TxSigner(bookUrl+"/1", keyForAdi);
+  TxSigner identityKeyPageTxSigner = TxSigner(bookUrl + "/1", keyForAdi);
 
-  res = await client.createTokenAccount(identityUrl, createTokenAccountParam, identityKeyPageTxSigner);
+  res = await client.createTokenAccount(
+      identityUrl, createTokenAccountParam, identityKeyPageTxSigner);
   sleep(Duration(seconds: waitTimeInSeconds));
 
   txId = res["result"]["txid"];
   print("Create token account txId $txId");
-
 }

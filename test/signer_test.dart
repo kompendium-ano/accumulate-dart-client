@@ -38,7 +38,8 @@ class MockSigner extends Mock implements Signer {
   @override
   // If `type` is a property that should be mocked, consider using mockito annotations or manually defining it.
   // For now, let's define a getter to return a mock value, assuming `type` is an integer representing the signer type.
-  int get type => 0; // Example mock implementation; adjust as necessary for your application logic.
+  int get type =>
+      0; // Example mock implementation; adjust as necessary for your application logic.
 }
 
 void main() {

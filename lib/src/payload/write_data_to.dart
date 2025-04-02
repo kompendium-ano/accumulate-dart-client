@@ -1,34 +1,30 @@
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
-
 import '../utils/utils.dart';
-
 import '../encoding.dart';
 import '../client/tx_types.dart';
 import "base_payload.dart";
 
 class WriteDataToParam {
-  String? recepient;
-  late List<Uint8List> data;
-  bool? scratch;
-  bool? writeToState;
+  String? recipient;
+  List<Uint8List> data;
   String? memo;
   Uint8List? metadata;
+
+  // Adding a constructor that properly initializes all fields
+  WriteDataToParam(
+      {this.recipient, required this.data, this.memo, this.metadata});
 }
 
 class WriteDataTo extends BasePayload {
   late List<Uint8List> _data;
-  late String _recepient;
-  late bool _scratch;
-  late bool _writeToState;
+  late String _recipient;
   Uint8List? _dataHash;
   Uint8List? _customHash;
 
   WriteDataTo(WriteDataToParam writeDataToParam) : super() {
     _data = writeDataToParam.data;
-    _scratch = writeDataToParam.scratch ?? false;
-    _writeToState = writeDataToParam.writeToState ?? false;
-    _recepient = writeDataToParam.recepient!;
+    _recipient = writeDataToParam.recipient!;
     super.memo = writeDataToParam.memo;
     super.metadata = writeDataToParam.metadata;
   }
@@ -37,7 +33,6 @@ class WriteDataTo extends BasePayload {
   Uint8List extendedMarshalBinary() {
     List<int> forConcat = _marshalBinary();
 
-
     return forConcat.asUint8List();
   }
 
@@ -45,15 +40,17 @@ class WriteDataTo extends BasePayload {
     List<int> forConcat = [];
 
     forConcat.addAll(uvarintMarshalBinary(TransactionType.writeDataTo, 1));
-    forConcat.addAll(stringMarshalBinary(this._recepient, 2));
-    forConcat.addAll(withFieldNumber(marshalDataEntry(this._data), 3));
+    forConcat.addAll(stringMarshalBinary(this._recipient, 2));
+
+    if (!withoutEntry) {
+      forConcat.addAll(withFieldNumber(marshalDataEntry(this._data), 3));
+    }
 
     return forConcat.asUint8List();
   }
 
   @override
   Uint8List hash() {
-
     if (_customHash != null) {
       return _customHash!;
     }
@@ -72,6 +69,7 @@ class WriteDataTo extends BasePayload {
 
     // DoubleHashDataEntry DataEntryType 3
     forConcat.addAll(uvarintMarshalBinary(3, 1));
+
     // Data
     for (Uint8List val in data) {
       forConcat.addAll(bytesMarshalBinary(val, 2));

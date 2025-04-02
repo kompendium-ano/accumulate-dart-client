@@ -37,7 +37,8 @@ class RpcClient {
 
   int get idCounter => _idCounter;
 
-  Future<Map<String, dynamic>> call(String function, [Map<String, dynamic>? params, bool? suppressLog = false]) async {
+  Future<Map<String, dynamic>> call(String function,
+      [Map<String, dynamic>? params, bool? suppressLog = false]) async {
     params ??= {};
     suppressLog ??= false;
 
@@ -45,7 +46,7 @@ class RpcClient {
       'jsonrpc': '2.0',
       'method': function,
       'params': params,
-      'id': _idCounter++
+      'id': _idCounter++,
     };
 
     // Log the request payload if not suppressed
@@ -53,29 +54,36 @@ class RpcClient {
       print("RPC Request Payload: ${json.encode(requestPayload)}");
     }
 
-    final response = await _client.post(
-      Uri.parse(_endpoint),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(requestPayload),
-    );
+    try {
+      final response = await _client.post(
+        Uri.parse(_endpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(requestPayload),
+      );
 
-    // Log the HTTP response
-    if (!suppressLog) {
-      print("RPC Response: HTTP ${response.statusCode} ${response.body}");
+      // Log the full HTTP response
+      if (!suppressLog) {
+        print("RPC Response: HTTP ${response.statusCode} ${response.body}");
+      }
+
+      final data = json.decode(response.body) as Map<String, dynamic>;
+
+      if (data.containsKey('error')) {
+        final error = data['error'];
+        final code = error['code'] as int?;
+        final message = error['message'] as String?;
+        final errorData = error['data'];
+        print(
+            "[RpcClient] Error received: Code $code, Message $message, Data $errorData");
+        print(
+            "[RpcClient] Request causing error: Method: $function, Params: $params, Endpoint: $_endpoint");
+        throw RPCError(code, message, errorData);
+      }
+      return data;
+    } catch (e, stackTrace) {
+      print("[RpcClient] Exception occurred: $e");
+      print(stackTrace);
+      rethrow;
     }
-
-    final data = json.decode(response.body) as Map<String, dynamic>;
-
-    if (data.containsKey('error')) {
-      final error = data['error'];
-      final code = error['code'] as int?;
-      final message = error['message'] as String?;
-      final errorData = error['data'];
-      // Log the error before throwing
-      print("[RpcClient] Error received: Code $code, Message $message, Data $errorData");
-      throw RPCError(code, message, errorData);
-    }
-
-    return data;
   }
 }

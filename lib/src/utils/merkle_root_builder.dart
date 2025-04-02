@@ -36,7 +36,9 @@ class MerkleRootBuilder {
   }
 
   void padPending() {
-    if (pending.isEmpty || !compareUint8Lists(pending.elementAt(pending.length - 1), emptyUint8List)) {
+    if (pending.isEmpty ||
+        !compareUint8Lists(
+            pending.elementAt(pending.length - 1), emptyUint8List)) {
       pending.add(emptyUint8List);
     }
   }

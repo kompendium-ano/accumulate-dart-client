@@ -13,7 +13,8 @@ import 'package:hex/hex.dart';
 
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);
-int delayBeforePrintSeconds = 300; // Set this variable to adjust the delay time.
+int delayBeforePrintSeconds =
+    300; // Set this variable to adjust the delay time.
 
 Future<void> main() async {
   print(endPoint);
@@ -71,14 +72,16 @@ Future<void> testFeatures() async {
   addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
   addCreditsParam.oracle = oracle;
   addCreditsParam.memo = "Add credits memo test";
-  addCreditsParam.metadata = utf8.encode("Add credits metadata test").asUint8List();
+  addCreditsParam.metadata =
+      utf8.encode("Add credits metadata test").asUint8List();
 
   print("Preparing to add credits:");
   print("Recipient URL: ${addCreditsParam.recipient}");
   print("Credit Amount: ${addCreditsParam.amount}");
   print("Oracle Value: ${addCreditsParam.oracle}");
   print("Memo: ${addCreditsParam.memo}");
-  print("Metadata: ${addCreditsParam.metadata != null ? HEX.encode(addCreditsParam.metadata!) : 'None'}");
+  print(
+      "Metadata: ${addCreditsParam.metadata != null ? HEX.encode(addCreditsParam.metadata!) : 'None'}");
   res = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
 
   await delayBeforePrint(); // Wait before printing
@@ -87,8 +90,8 @@ Future<void> testFeatures() async {
 
   // Extract and log transaction ID from the response if available
   if (res != null && res["result"] != null && res["result"]["txid"] != null) {
-      String addCreditsTxId = res["result"]["txid"];
-      print("addCredits Transaction ID: $addCreditsTxId");
+    String addCreditsTxId = res["result"]["txid"];
+    print("addCredits Transaction ID: $addCreditsTxId");
   }
 
   // Log the transaction ID from the addCredits response
@@ -131,7 +134,7 @@ Future<void> testFeatures() async {
   final keyPageUrl = bookUrl + "/1";
 
   creditAmount = 90000 * 10;
-  
+
   await delayBeforePrint(); // Wait before proceeding
 
   // Log the attempt to add credits to a key page
@@ -142,14 +145,15 @@ Future<void> testFeatures() async {
   addCreditsParam = AddCreditsParam();
   addCreditsParam.recipient = keyPageUrl;
   addCreditsParam.amount = (creditAmount * pow(10, 8)) ~/ oracle;
-  addCreditsParam.oracle = oracle;;
+  addCreditsParam.oracle = oracle;
+  ;
 
   res = await client.addCredits(lid.acmeTokenAccount, addCreditsParam, lid);
   txId = res["result"]["txid"];
   await delayBeforePrint(); // Wait before printing
   print("Add credits response: $res");
   print("Add credits transaction ID: $txId");
-  
+
   await delayBeforePrint(); // Ensure network processing of the addCredits transaction
 
   final tokenUrl = identityUrl + "/JKGok";
@@ -162,7 +166,8 @@ Future<void> testFeatures() async {
 
   // Preparing to create a custom token
   print("Preparing to create custom token at URL: $tokenUrl");
-  print("Token symbol: ${createTokenParam.symbol}, Precision: ${createTokenParam.precision}");
+  print(
+      "Token symbol: ${createTokenParam.symbol}, Precision: ${createTokenParam.precision}");
 
   identityKeyPageTxSigner = TxSigner(keyPageUrl, identitySigner);
   await delayBeforePrint(); // Ensure network processing of the custom token transaction
@@ -170,12 +175,14 @@ Future<void> testFeatures() async {
   // Before creating the token, log the key page URL and signer details
   print("Key Page URL for token creation: $keyPageUrl");
   print("Signer Public Key: ${HEX.encode(identityKeyPageTxSigner.publicKey)}");
-  print("Signer Public Key Hash: ${HEX.encode(identityKeyPageTxSigner.publicKeyHash)}");
+  print(
+      "Signer Public Key Hash: ${HEX.encode(identityKeyPageTxSigner.publicKeyHash)}");
   print("Signer Version: ${identityKeyPageTxSigner.version}");
 
   await delayBeforePrint(); // Wait for network processing
 
-  res = await client.createToken(identityUrl, createTokenParam, identityKeyPageTxSigner);
+  res = await client.createToken(
+      identityUrl, createTokenParam, identityKeyPageTxSigner);
   txId = res["result"]["txid"];
 
   await delayBeforePrint(); // Wait for network processing
@@ -206,11 +213,13 @@ Future<void> testFeatures() async {
   ReceiptM.Proof proof2 = receipts[0].proof!;
 
   if (transaction.body!.type != "createToken") {
-    print('Expected first transaction of ${tokenUrl} to be createToken but got ${transaction.body!.type}');
+    print(
+        'Expected first transaction of ${tokenUrl} to be createToken but got ${transaction.body!.type}');
   }
 
   trans.HeaderOptions headerOptions = trans.HeaderOptions();
-  headerOptions.initiator = HEX.decode(transaction.header!.initiator!).asUint8List();
+  headerOptions.initiator =
+      HEX.decode(transaction.header!.initiator!).asUint8List();
   dynamic header = trans.Header(transaction.header!.principal!, headerOptions);
   createTokenParam = CreateTokenParam();
   createTokenParam.url = transaction.body!.url!;
@@ -238,7 +247,8 @@ Future<void> testFeatures() async {
   print("Print 5 - anchorRes ${proof2.anchor!}");
   // Prove the BVN anchor
   dynamic anchorRes = await client.queryAnchor(proof2.anchor!);
-  ReceiptM.Proof proof3 = ReceiptM.Proof.fromMap(anchorRes["result"]["receipt"]["proof"]);
+  ReceiptM.Proof proof3 =
+      ReceiptM.Proof.fromMap(anchorRes["result"]["receipt"]["proof"]);
 
   Receipt receipt2 = Receipt();
   receipt2.start = hexStringtoUint8List(proof2.start!);
@@ -271,7 +281,8 @@ Future<void> testFeatures() async {
   receipt3.entries = entries3;
 
   // Assemble the full proof
-  dynamic receiptFinal = combineReceipts(combineReceipts(proof1, receipt2), receipt3);
+  dynamic receiptFinal =
+      combineReceipts(combineReceipts(proof1, receipt2), receipt3);
 
   // Create a token account for the TEST token
   var tokenAccountUrl = identityUrl + "/JasonTokenAcc";
@@ -280,12 +291,12 @@ Future<void> testFeatures() async {
   createTokenAccountParam.tokenUrl = tokenUrl;
   TokenIssuerProofParam tokenIssuerProofParam = TokenIssuerProofParam();
 
-
   tokenIssuerProofParam.receipt = receiptFinal;
   tokenIssuerProofParam.transaction = body;
   createTokenAccountParam.proof = tokenIssuerProofParam;
 
-  res = await client.createTokenAccount(identityUrl, createTokenAccountParam, identityKeyPageTxSigner);
+  res = await client.createTokenAccount(
+      identityUrl, createTokenAccountParam, identityKeyPageTxSigner);
 
   txId = res["result"]["txid"];
   print("Create Custom Token Account $txId");
@@ -293,18 +304,20 @@ Future<void> testFeatures() async {
 
   res = await client.queryUrl(tokenAccountUrl);
 
-
   print("Print 6 - DONE");
 }
 
-Receipt combineReceipts(Receipt r1,Receipt r2){
+Receipt combineReceipts(Receipt r1, Receipt r2) {
+  dynamic anchorStr = ((r1.anchor is Uint8List) || (r1.anchor is List<int>))
+      ? HEX.encode(r1.anchor as List<int>)
+      : r1.anchor;
+  dynamic startStr = ((r2.start is Uint8List) || (r2.start is List<int>))
+      ? HEX.encode(r2.start as List<int>)
+      : r2.start;
 
-  dynamic anchorStr = ((r1.anchor is Uint8List) || (r1.anchor is List<int>)) ? HEX.encode(r1.anchor as List<int>) : r1.anchor;
-  dynamic startStr =
-    ((r2.start is Uint8List) || (r2.start is List<int>)) ? HEX.encode(r2.start as List<int>) : r2.start;
-
-if (anchorStr != startStr) {
-  print("Receipts cannot be combined, anchor ${anchorStr} doesn't match root merkle tree ${startStr}");
+  if (anchorStr != startStr) {
+    print(
+        "Receipts cannot be combined, anchor ${anchorStr} doesn't match root merkle tree ${startStr}");
   }
 
   Receipt result = cloneReceipt(r1);
@@ -315,38 +328,35 @@ if (anchorStr != startStr) {
   return result;
 }
 
-Receipt cloneReceipt(Receipt receipt){
+Receipt cloneReceipt(Receipt receipt) {
   Receipt newReceipt = Receipt();
   newReceipt.start = copyHash(receipt.start);
   newReceipt.startIndex = receipt.startIndex;
   newReceipt.end = copyHash(receipt.end);
-  newReceipt.endIndex =  receipt.endIndex;
-  newReceipt.anchor =  copyHash(receipt.anchor);
-  newReceipt.entries =  receipt.entries.map(copyReceiptEntry).toList();
+  newReceipt.endIndex = receipt.endIndex;
+  newReceipt.anchor = copyHash(receipt.anchor);
+  newReceipt.entries = receipt.entries.map(copyReceiptEntry).toList();
 
-return newReceipt;
+  return newReceipt;
 }
 
 ReceiptEntry copyReceiptEntry(ReceiptEntry re) {
   ReceiptEntry result = ReceiptEntry();
   result.hash = copyHash(re.hash);
 
-if (re.right != null && re.right!) {
-   result.right = true;
-   }
-return result;
+  if (re.right != null && re.right!) {
+    result.right = true;
+  }
+  return result;
 }
 
-Uint8List copyHash(dynamic hash){
-  if((hash is Uint8List)){
+Uint8List copyHash(dynamic hash) {
+  if ((hash is Uint8List)) {
     return hash;
-
   }
 
-  if((hash is List<int>)){
+  if ((hash is List<int>)) {
     return hash.asUint8List();
-
   }
-return utf8.encode(hash).asUint8List();
+  return utf8.encode(hash).asUint8List();
 }
-

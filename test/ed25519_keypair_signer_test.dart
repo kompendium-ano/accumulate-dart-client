@@ -66,6 +66,4 @@ void main() {
       expect(mnemonic.split(' ').length, equals(12));
     });
   });
-
 }
-

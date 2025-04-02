@@ -24,9 +24,9 @@ class FactomEntry {
     extRefs.add(FactomExtRef.fromString(val));
   }
 
-  List<Uint8List> getExtRefs(){
+  List<Uint8List> getExtRefs() {
     List<Uint8List> ll = [];
-    for(FactomExtRef fref in extRefs){
+    for (FactomExtRef fref in extRefs) {
       ll.add(fref.data);
     }
     return ll;

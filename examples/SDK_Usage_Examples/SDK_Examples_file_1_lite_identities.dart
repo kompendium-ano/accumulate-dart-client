@@ -22,28 +22,27 @@ Future<void> delayBeforePrint() async {
 Future<void> testFeatures() async {
   Ed25519KeypairSigner signer1 = Ed25519KeypairSigner.generate();
   LiteIdentity lid = LiteIdentity(signer1);
+   print('signer1');
   printKeypairDetails(signer1);
 
   Ed25519KeypairSigner signer2 = Ed25519KeypairSigner.generate();
   LiteIdentity secondLid = LiteIdentity(signer2);
+  print('signer2');
   printKeypairDetails(signer2);
 
   // First lite token account
-  print("First lite account URL: ${lid.acmeTokenAccount}\n");
-  await addFundsToAccount(lid.acmeTokenAccount, times: 50);
+  print("First lite account URL - signer1: ${lid.acmeTokenAccount}\n");
+  await addFundsToAccount(lid.acmeTokenAccount, times: 10);
 
   // Second lite token account
-  print("Second lite account URL: ${secondLid.acmeTokenAccount}\n");
-  await addFundsToAccount(secondLid.acmeTokenAccount, times: 5);
+  print("Second lite account URL - signer2: ${secondLid.acmeTokenAccount}\n");
+  //await addFundsToAccount(secondLid.acmeTokenAccount, times: 8);
 
   // Retrieve oracle value for credit calculation
   final oracle = await client.valueFromOracle();
 
   // Add 2000 credits to the first lite account
-  await addCredits(lid, 2000000, oracle);
-
-  // Add 1000 credits to the second lite account
-  await addCredits(secondLid, 10000, oracle);
+  await addCredits(lid, 200000, oracle);
 
   // Sending 7 tokens from lid to secondLid
   await sendTokens(
@@ -75,7 +74,8 @@ Future<void> sendTokens({
   } else if (fromType == AccountType.adi && keyPageUrl != null) {
     txSigner = TxSigner(keyPageUrl, signer);
   } else {
-    throw Exception("Invalid account type or missing key page URL for ADI account.");
+    throw Exception(
+        "Invalid account type or missing key page URL for ADI account.");
   }
 
   // Construct the parameters for sending tokens
@@ -89,7 +89,8 @@ Future<void> sendTokens({
 
   try {
     // Execute the sendTokens transaction
-    var response = await client.sendTokens(fromAccount, sendTokensParam, txSigner);
+    var response =
+        await client.sendTokens(fromAccount, sendTokensParam, txSigner);
     print("ACME Send tx submitted, response: $response");
   } catch (e) {
     print("Error sending ACME tokens: $e");
@@ -99,7 +100,7 @@ Future<void> sendTokens({
 Future<void> addFundsToAccount(AccURL accountUrl, {int times = 10}) async {
   for (int i = 0; i < times; i++) {
     await client.faucet(accountUrl);
-    await Future.delayed(Duration(seconds: 10));
+    await Future.delayed(Duration(seconds: 4));
   }
 }
 
@@ -120,7 +121,8 @@ Future<void> addCredits(LiteIdentity lid, int creditAmount, int oracle) async {
   addCreditsParam.oracle = oracle;
   addCreditsParam.memo = "Add credits memo test";
   // Convert metadata to Uint8List
-  Uint8List metadata = Uint8List.fromList(utf8.encode("Add credits metadata test"));
+  Uint8List metadata =
+      Uint8List.fromList(utf8.encode("Add credits metadata test"));
   addCreditsParam.metadata = metadata;
 
   print("Preparing to add credits:");

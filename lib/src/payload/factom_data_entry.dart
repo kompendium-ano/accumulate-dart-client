@@ -1,7 +1,6 @@
 // lib\src\payload\factom_data_entry.dart
 import 'dart:core';
 import 'dart:typed_data';
-
 import 'package:accumulate_api/src/encoding.dart';
 import 'package:accumulate_api/src/payload/base_payload.dart';
 import 'package:accumulate_api/src/utils/utils.dart';
@@ -32,7 +31,7 @@ class FactomDataEntry extends BasePayload {
     forConcat.addAll(bytesMarshalBinary(_accountId!, 1));
     //forConcat.addAll(uvarintMarshalBinary(_data!.length, 2));
     //forConcat.addAll(bytesMarshalBinary(_data!, 3));
-    if(_extIds.length > 0) {
+    if (_extIds.length > 0) {
       Uint8List refsBinary = marshallExtIds();
       //forConcat.addAll(bytesMarshalBinary(refsBinary, 3));
     }

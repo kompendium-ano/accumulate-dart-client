@@ -1,14 +1,13 @@
 import 'dart:convert';
 
 class Data {
-  Data({
-    this.url,
-    this.tokenUrl,
-    this.balance,
-    this.txcount,
-    this.nonce,
-    this.creditBalance
-  });
+  Data(
+      {this.url,
+      this.tokenUrl,
+      this.balance,
+      this.txcount,
+      this.nonce,
+      this.creditBalance});
 
   int? balance;
   int? txcount;
@@ -22,28 +21,27 @@ class Data {
   String toRawJson() => json.encode(toJson());
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-    balance: json["balance"],
-    tokenUrl: json["tokenURL"],
-    url: json["url"],
-  );
+        balance: json["balance"],
+        tokenUrl: json["tokenURL"],
+        url: json["url"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "balance": balance,
-    "tokenURL": tokenUrl,
-    "url": url,
-  };
+        "balance": balance,
+        "tokenURL": tokenUrl,
+        "url": url,
+      };
 }
 
 class DataDirectory {
-  DataDirectory({
-    this.url,
-    this.tokenUrl,
-    this.balance,
-    this.keybooksCount,
-    this.tokenAccountsCount,
-    this.creditBalance,
-    this.entities
-  });
+  DataDirectory(
+      {this.url,
+      this.tokenUrl,
+      this.balance,
+      this.keybooksCount,
+      this.tokenAccountsCount,
+      this.creditBalance,
+      this.entities});
 
   int? balance;
   int? keybooksCount;
@@ -53,21 +51,22 @@ class DataDirectory {
   String? url;
   List<String>? entities;
 
-  factory DataDirectory.fromRawJson(String str) => DataDirectory.fromJson(json.decode(str));
+  factory DataDirectory.fromRawJson(String str) =>
+      DataDirectory.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory DataDirectory.fromJson(Map<String, dynamic> json) => DataDirectory(
-    balance: json["balance"],
-    tokenUrl: json["tokenURL"],
-    url: json["url"],
-  );
+        balance: json["balance"],
+        tokenUrl: json["tokenURL"],
+        url: json["url"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "balance": balance,
-    "tokenURL": tokenUrl,
-    "url": url,
-  };
+        "balance": balance,
+        "tokenURL": tokenUrl,
+        "url": url,
+      };
 }
 
 class DataKeybook {
@@ -78,7 +77,6 @@ class DataKeybook {
 
   String? url;
   String? mdroot;
-
 }
 
 class DataKeyPage {
@@ -91,19 +89,17 @@ class DataKeyPage {
   int? balanceCredits;
   String? url;
   String? mdroot;
-
 }
 
 class DataChain {
-  DataChain({
-    this.url,
-    this.tokenUrl,
-    this.balance,
-    this.keybooksCount,
-    this.tokenAccountsCount,
-    this.creditBalance,
-    this.entities
-  });
+  DataChain(
+      {this.url,
+      this.tokenUrl,
+      this.balance,
+      this.keybooksCount,
+      this.tokenAccountsCount,
+      this.creditBalance,
+      this.entities});
 
   int? balance;
   int? keybooksCount;
@@ -113,19 +109,20 @@ class DataChain {
   String? url;
   List<String>? entities;
 
-  factory DataChain.fromRawJson(String str) => DataChain.fromJson(json.decode(str));
+  factory DataChain.fromRawJson(String str) =>
+      DataChain.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory DataChain.fromJson(Map<String, dynamic> json) => DataChain(
-    balance: json["balance"],
-    tokenUrl: json["tokenURL"],
-    url: json["url"],
-  );
+        balance: json["balance"],
+        tokenUrl: json["tokenURL"],
+        url: json["url"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "balance": balance,
-    "tokenURL": tokenUrl,
-    "url": url,
-  };
+        "balance": balance,
+        "tokenURL": tokenUrl,
+        "url": url,
+      };
 }

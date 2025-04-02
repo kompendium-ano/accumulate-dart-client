@@ -25,11 +25,13 @@ class ACMEClient {
     _rpcClient = RpcClient(endpoint);
   }
 
-  Future<Map<String, dynamic>> call(String method, [Map<String, dynamic>? params, bool? supressLog]) {
+  Future<Map<String, dynamic>> call(String method,
+      [Map<String, dynamic>? params, bool? supressLog]) {
     return _rpcClient.call(method, params, supressLog);
   }
 
-  Future<Map<String, dynamic>> _execute(AccURL principal, Payload payload, TxSigner signer) async {
+  Future<Map<String, dynamic>> _execute(
+      AccURL principal, Payload payload, TxSigner signer) async {
     HeaderOptions? options;
     if (payload.memo != null) {
       options = HeaderOptions();
@@ -51,25 +53,14 @@ class ACMEClient {
   }
 
   // Adjust execute method to accept suppressLog
-  Future<Map<String, dynamic>> execute(Transaction tx, {bool suppressLog = false}) {
+  Future<Map<String, dynamic>> execute(Transaction tx,
+      {bool suppressLog = false}) {
     return call("execute", tx.toTxRequest().toMap, suppressLog);
   }
 
-  Future<Map<String, dynamic>> executeDirect() {
-    return call(
-      "execute-direct",
-    );
+  Future<Map<String, dynamic>> executeDirect(Map<String, dynamic> params) {
+    return call("execute-direct", params);
   }
-
-  // Future<Map<String, dynamic>> signPending(AccURL principal, TxSigner signer, String txHash) async {
-  //   HeaderOptions? options;
-  //
-  //   final header = Header(principal, options);
-  //   final tx = Transaction(payload, header);
-  //   await tx.sign(signer);
-  //
-  //   return execute(tx);
-  // }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -100,7 +91,8 @@ class ACMEClient {
     return call("query", params);
   }
 
-  Future<Map<String, dynamic>> queryTx(String txRef, [TxQueryOptions? options]) {
+  Future<Map<String, dynamic>> queryTx(String txRef,
+      [TxQueryOptions? options]) {
     String paramName = txRef.startsWith("acc://") ? "txIdUrl" : "txid";
     paramName = "txid";
     var txId = "";
@@ -116,7 +108,8 @@ class ACMEClient {
     return call("query-tx", params);
   }
 
-  Future<Map<String, dynamic>> queryTxByUrl(String txId, [TxQueryOptions? options]) {
+  Future<Map<String, dynamic>> queryTxByUrl(String txId,
+      [TxQueryOptions? options]) {
     String paramName = "txIdUrl";
     Map<String, dynamic> params = {};
     params.addAll({paramName: txId});
@@ -127,7 +120,8 @@ class ACMEClient {
     return call("query-tx", params);
   }
 
-  Future<Map<String, dynamic>> queryTxHistory(dynamic url, QueryPagination pagination, TxHistoryQueryOptions? options) {
+  Future<Map<String, dynamic>> queryTxHistory(
+      dynamic url, QueryPagination pagination, TxHistoryQueryOptions? options) {
     Map<String, dynamic> params = {};
     params.addAll({"url": url.toString()});
     params.addAll(pagination.toMap);
@@ -137,7 +131,8 @@ class ACMEClient {
     return call("query-tx-history", params, true);
   }
 
-  Future<Map<String, dynamic>> queryDataSet(dynamic url, QueryPagination pagination, QueryOptions? options) {
+  Future<Map<String, dynamic>> queryDataSet(
+      dynamic url, QueryPagination pagination, QueryOptions? options) {
     Map<String, dynamic> params = {};
     params.addAll({"url": url.toString()});
     params.addAll(pagination.toMap);
@@ -156,8 +151,9 @@ class ACMEClient {
     return call("query-key-index", params);
   }
 
-  Future<Map<String, dynamic>> queryMinorBlocks(
-      String url, QueryPaginationForBlocks pagination, MinorBlocksQueryOptions? options, [bool? supressLog]) {
+  Future<Map<String, dynamic>> queryMinorBlocks(String url,
+      QueryPaginationForBlocks pagination, MinorBlocksQueryOptions? options,
+      [bool? supressLog]) {
     Map<String, dynamic> params = {};
     params.addAll({"url": url});
     params.addAll(pagination.toMap);
@@ -167,8 +163,8 @@ class ACMEClient {
     return call("query-minor-blocks", params, supressLog);
   }
 
-  Future<Map<String, dynamic>> queryMajorBlocks(
-      String url, QueryPaginationForBlocks pagination, MinorBlocksQueryOptions? options) {
+  Future<Map<String, dynamic>> queryMajorBlocks(String url,
+      QueryPaginationForBlocks pagination, MinorBlocksQueryOptions? options) {
     Map<String, dynamic> params = {};
     params.addAll({"url": url});
     params.addAll(pagination.toMap);
@@ -178,7 +174,8 @@ class ACMEClient {
     return call("query-major-blocks", params);
   }
 
-  Future<int> querySignerVersion(dynamic signer, Uint8List? publicKeyHash) async {
+  Future<int> querySignerVersion(
+      dynamic signer, Uint8List? publicKeyHash) async {
     AccURL signerUrl;
     Uint8List pkh;
     if (signer is AccURL) {
@@ -197,7 +194,8 @@ class ACMEClient {
     return res["result"]["data"]["version"];
   }
 
-  Future<Map<String, dynamic>> queryDirectory(dynamic url, QueryPagination pagination, QueryOptions? options) {
+  Future<Map<String, dynamic>> queryDirectory(
+      dynamic url, QueryPagination pagination, QueryOptions? options) {
     Map<String, dynamic> params = {};
     params.addAll({"url": url.toString()});
     params.addAll(pagination.toMap);
@@ -217,11 +215,13 @@ class ACMEClient {
 
     try {
       final resp = await queryTx(txId);
-      query_trx_res_model.QueryTransactionResponseModel queryTransactionResponseModel =
+      query_trx_res_model.QueryTransactionResponseModel
+          queryTransactionResponseModel =
           query_trx_res_model.QueryTransactionResponseModel.fromJson(resp);
 
       if (queryTransactionResponseModel.result != null) {
-        query_trx_res_model.QueryTransactionResponseModelResult result = queryTransactionResponseModel.result!;
+        query_trx_res_model.QueryTransactionResponseModelResult result =
+            queryTransactionResponseModel.result!;
         if (result.status != null) {
           if (result.status!.delivered!) {
             if (result.status!.failed != null) {
@@ -239,7 +239,8 @@ class ACMEClient {
                 int nowTime = DateTime.now().millisecondsSinceEpoch;
                 if (nowTime - startTime < timeout) {
                   sleep(Duration(milliseconds: pollInterval));
-                  completer.complete(await waitOnTx(startTime, result.syntheticTxids!.first));
+                  completer.complete(
+                      await waitOnTx(startTime, result.syntheticTxids!.first));
                 } else {
                   completer.complete(false);
                 }
@@ -294,76 +295,100 @@ class ACMEClient {
     return completer.future;
   }
 
-  Future<Map<String, dynamic>> addCredits(dynamic principal, AddCreditsParam addCredits, TxSigner signer) {
+  Future<Map<String, dynamic>> addCredits(
+      dynamic principal, AddCreditsParam addCredits, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), AddCredits(addCredits), signer);
   }
 
-  Future<Map<String, dynamic>> addValidator(dynamic principal, AddValidatorParam addValidator, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), AddValidator(addValidator), signer);
+  Future<Map<String, dynamic>> addValidator(
+      dynamic principal, AddValidatorParam addValidator, TxSigner signer) {
+    return _execute(
+        AccURL.toAccURL(principal), AddValidator(addValidator), signer);
   }
 
-  Future<Map<String, dynamic>> burnTokens(dynamic principal, BurnTokensParam burnTokens, TxSigner signer) {
+  Future<Map<String, dynamic>> burnTokens(
+      dynamic principal, BurnTokensParam burnTokens, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), BurnTokens(burnTokens), signer);
   }
 
-  Future<Map<String, dynamic>> createDataAccount(
-      dynamic principal, CreateDataAccountParam createDataAccount, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), CreateDataAccount(createDataAccount), signer);
+  Future<Map<String, dynamic>> createDataAccount(dynamic principal,
+      CreateDataAccountParam createDataAccount, TxSigner signer) {
+    return _execute(AccURL.toAccURL(principal),
+        CreateDataAccount(createDataAccount), signer);
   }
 
-  Future<Map<String, dynamic>> createIdentity(dynamic principal, CreateIdentityParam createIdentity, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), CreateIdentity(createIdentity), signer);
+  Future<Map<String, dynamic>> createIdentity(
+      dynamic principal, CreateIdentityParam createIdentity, TxSigner signer) {
+    return _execute(
+        AccURL.toAccURL(principal), CreateIdentity(createIdentity), signer);
   }
 
-  Future<Map<String, dynamic>> createKeyBook(dynamic principal, CreateKeyBookParam createKeyBook, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), CreateKeyBook(createKeyBook), signer);
+  Future<Map<String, dynamic>> createKeyBook(
+      dynamic principal, CreateKeyBookParam createKeyBook, TxSigner signer) {
+    return _execute(
+        AccURL.toAccURL(principal), CreateKeyBook(createKeyBook), signer);
   }
 
-  Future<Map<String, dynamic>> createKeyPage(dynamic principal, CreateKeyPageParam createKeyPage, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), CreateKeyPage(createKeyPage), signer);
+  Future<Map<String, dynamic>> createKeyPage(
+      dynamic principal, CreateKeyPageParam createKeyPage, TxSigner signer) {
+    return _execute(
+        AccURL.toAccURL(principal), CreateKeyPage(createKeyPage), signer);
   }
 
-  Future<Map<String, dynamic>> createToken(dynamic principal, CreateTokenParam createToken, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), CreateToken(createToken), signer);
+  Future<Map<String, dynamic>> createToken(
+      dynamic principal, CreateTokenParam createToken, TxSigner signer) {
+    return _execute(
+        AccURL.toAccURL(principal), CreateToken(createToken), signer);
   }
 
-  Future<Map<String, dynamic>> createTokenAccount(
-      dynamic principal, CreateTokenAccountParam createTokenAccount, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), CreateTokenAccount(createTokenAccount), signer);
+  Future<Map<String, dynamic>> createTokenAccount(dynamic principal,
+      CreateTokenAccountParam createTokenAccount, TxSigner signer) {
+    return _execute(AccURL.toAccURL(principal),
+        CreateTokenAccount(createTokenAccount), signer);
   }
 
-  Future<Map<String, dynamic>> issueTokens(dynamic principal, IssueTokensParam issueTokens, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), IssueTokens(issueTokens), signer);
+  Future<Map<String, dynamic>> issueTokens(
+      dynamic principal, IssueTokensParam issueTokens, TxSigner signer) {
+    return _execute(
+        AccURL.toAccURL(principal), IssueTokens(issueTokens), signer);
   }
 
-  Future<Map<String, dynamic>> removeValidator(dynamic principal, RemoveValidatorArg removeValidator, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), RemoveValidator(removeValidator), signer);
+  Future<Map<String, dynamic>> removeValidator(
+      dynamic principal, RemoveValidatorArg removeValidator, TxSigner signer) {
+    return _execute(
+        AccURL.toAccURL(principal), RemoveValidator(removeValidator), signer);
   }
 
-  Future<Map<String, dynamic>> sendTokens(dynamic principal, SendTokensParam sendTokens, TxSigner signer) {
+  Future<Map<String, dynamic>> sendTokens(
+      dynamic principal, SendTokensParam sendTokens, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), SendTokens(sendTokens), signer);
   }
 
-  Future<Map<String, dynamic>> updateAccountAuth(
-      dynamic principal, UpdateAccountAuthParam updateAccountAuthParam, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), UpdateAccountAuth(updateAccountAuthParam), signer);
+  Future<Map<String, dynamic>> updateAccountAuth(dynamic principal,
+      UpdateAccountAuthParam updateAccountAuthParam, TxSigner signer) {
+    return _execute(AccURL.toAccURL(principal),
+        UpdateAccountAuth(updateAccountAuthParam), signer);
   }
 
-  Future<Map<String, dynamic>> updateKey(dynamic principal, UpdateKeyParam updateKey, TxSigner signer) {
+  Future<Map<String, dynamic>> updateKey(
+      dynamic principal, UpdateKeyParam updateKey, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), UpdateKey(updateKey), signer);
   }
 
-  Future<Map<String, dynamic>> updateKeyPage(
-      dynamic principal, UpdateKeyPageParam updateKeyPageParam, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), UpdateKeyPage(updateKeyPageParam), signer);
+  Future<Map<String, dynamic>> updateKeyPage(dynamic principal,
+      UpdateKeyPageParam updateKeyPageParam, TxSigner signer) {
+    return _execute(
+        AccURL.toAccURL(principal), UpdateKeyPage(updateKeyPageParam), signer);
   }
 
-  Future<Map<String, dynamic>> updateValidatorKey(
-      dynamic principal, UpdateValidatorKeyParam updateValidatorKey, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), UpdateValidatorKey(updateValidatorKey), signer);
+  Future<Map<String, dynamic>> updateValidatorKey(dynamic principal,
+      UpdateValidatorKeyParam updateValidatorKey, TxSigner signer) {
+    return _execute(AccURL.toAccURL(principal),
+        UpdateValidatorKey(updateValidatorKey), signer);
   }
 
-  Future<Map<String, dynamic>> writeData(dynamic principal, WriteDataParam writeData, TxSigner signer) {
+  Future<Map<String, dynamic>> writeData(
+      dynamic principal, WriteDataParam writeData, TxSigner signer) {
     return _execute(AccURL.toAccURL(principal), WriteData(writeData), signer);
   }
 
@@ -412,14 +437,16 @@ class ACMEClient {
   Future<List<int>> getAdiSlidingFee() async {
     final networkParameters = await describe();
     List<int> adiSlidingFeeTable = [];
-    var ds = networkParameters["result"]["values"]["globals"]["feeSchedule"]["createIdentitySliding"];
+    var ds = networkParameters["result"]["values"]["globals"]["feeSchedule"]
+        ["createIdentitySliding"];
     adiSlidingFeeTable = List<int>.from(ds);
     return adiSlidingFeeTable;
   }
 
   ///
   /// "query-tx":         m.QueryTx,
-  Future<txModel.Transaction?> callGetTokenTransaction(String? txhash, [String? addr, bool? isLookupByUrl]) async {
+  Future<txModel.Transaction?> callGetTokenTransaction(String? txhash,
+      [String? addr, bool? isLookupByUrl]) async {
     var res;
     if (isLookupByUrl != null) {
       // NB: this is needed because Testnet not working
@@ -446,7 +473,8 @@ class ACMEClient {
           int amount = int.parse(res['result']["data"]["amount"]);
           String? tokenUrl = res['result']["data"]["token"];
 
-          tx = txModel.Transaction("Outgoing", "send_token", txid, from, to, amount, tokenUrl);
+          tx = txModel.Transaction(
+              "Outgoing", "send_token", txid, from, to, amount, tokenUrl);
           break;
         case "addCredits":
           String amount = res['result']["data"]["amount"];
@@ -460,8 +488,10 @@ class ACMEClient {
           LinkedHashMap sigs = res['result']["signatures"][0];
           int? ts = sigs["timestamp"];
 
-          tx = txModel.Transaction("Incoming", "add-credits", txid, from, to, creditsRawAmount, "credits");
-          tx.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          tx = txModel.Transaction("Incoming", "add-credits", txid, from, to,
+              creditsRawAmount, "credits");
+          tx.created =
+              DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
           break;
         case "sendTokens":
           String? txid = res['result']["txid"];
@@ -471,15 +501,18 @@ class ACMEClient {
           String? urlRecepient = "";
           amount = to[0]["amount"];
           urlRecepient = to[0]["url"];
-                  LinkedHashMap sigs = res['result']["signatures"][0];
+          LinkedHashMap sigs = res['result']["signatures"][0];
           int? ts = sigs["timestamp"];
 
-          tx = txModel.Transaction("Outgoing", "send_token", txid, from, urlRecepient, int.parse(amount!), "acc://");
-          tx.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          tx = txModel.Transaction("Outgoing", "send_token", txid, from,
+              urlRecepient, int.parse(amount!), "acc://");
+          tx.created =
+              DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
           break;
         case "syntheticDepositCredits":
           String? txid = res['result']["data"]["txid"];
-          tx = txModel.Transaction("", "", txid, "", "", 0, ""); // use dummy structure for now
+          tx = txModel.Transaction(
+              "", "", txid, "", "", 0, ""); // use dummy structure for now
           break;
         case "createKeyPage":
           String? txid = res['result']["txid"];
@@ -500,8 +533,10 @@ class ACMEClient {
           LinkedHashMap sigs = res['result']["signatures"][0];
           int? ts = sigs["timestamp"];
 
-          tx = txModel.Transaction("Incoming", "", txid, from, to, amount, "ACME");
-          tx.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          tx = txModel.Transaction(
+              "Incoming", "", txid, from, to, amount, "ACME");
+          tx.created =
+              DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
 
           break;
         case "syntheticCreateChain":
@@ -511,13 +546,15 @@ class ACMEClient {
           LinkedHashMap sigs = res['result']["signatures"][0];
           int? dateNonce = sigs["Nonce"];
 
-          tx = txModel.Transaction("Outgoing", "", txid, sponsor, origin, 0, "ACME");
+          tx = txModel.Transaction(
+              "Outgoing", "", txid, sponsor, origin, 0, "ACME");
           tx.created = dateNonce;
           break;
         case "createIdentity":
           // TODO: handle differently from "syntethicCreateChain"
           String? txid = res['result']["data"]["txid"];
-          tx = txModel.Transaction("", "", txid, "", "", 0, ""); // use dummy structure for now
+          tx = txModel.Transaction(
+              "", "", txid, "", "", 0, ""); // use dummy structure for now
           break;
         case "systemGenesis":
           String? txid = res['result']["data"]["txid"];
@@ -534,13 +571,15 @@ class ACMEClient {
             ..txFetchMode = 0
             ..blockFilterMode = 1;
 
-          var majorBlocks = await queryMajorBlocks("acc://ACME", queryParams, queryFilter); // "acc://dn.acme"
+          var majorBlocks = await queryMajorBlocks(
+              "acc://ACME", queryParams, queryFilter); // "acc://dn.acme"
           var blockInfo = majorBlocks["result"]["items"][0];
 
           var blockTime = blockInfo["majorBlockTime"];
           var blockTimeD = DateTime.parse(blockTime);
 
-          tx = txModel.Transaction("Incoming", "system_genesis", txid, "acc://ACME", origin, 0, "acc://");
+          tx = txModel.Transaction("Incoming", "system_genesis", txid,
+              "acc://ACME", origin, 0, "acc://");
           tx.created = blockTimeD.millisecondsSinceEpoch;
           break;
 
@@ -552,7 +591,8 @@ class ACMEClient {
           int? dateNonce = sigs["timestamp"];
           String? status = res['result']["status"]["code"];
 
-          tx = txModel.Transaction("Outgoing", "update-account-auth", txid, sponsor, origin, 0, "ACME");
+          tx = txModel.Transaction("Outgoing", "update-account-auth", txid,
+              sponsor, origin, 0, "ACME");
           tx.created = dateNonce;
           tx.status = status;
           break;
@@ -564,10 +604,12 @@ class ACMEClient {
           String? origin = res['result']["origin"];
           LinkedHashMap sigs = res['result']["signatures"][0];
           int? dateNonce = sigs["timestamp"];
-          int? dateNonce2 = DateTime.fromMicrosecondsSinceEpoch(dateNonce!).millisecondsSinceEpoch;
+          int? dateNonce2 = DateTime.fromMicrosecondsSinceEpoch(dateNonce!)
+              .millisecondsSinceEpoch;
           String? status = res['result']["status"]["code"];
 
-          tx = txModel.Transaction("Outgoing", "token-account-create", txid, sponsor, origin, 0, "ACME");
+          tx = txModel.Transaction("Outgoing", "token-account-create", txid,
+              sponsor, origin, 0, "ACME");
           tx.created = dateNonce;
           tx.status = status;
           break;
@@ -582,8 +624,10 @@ class ACMEClient {
           LinkedHashMap sigs = res['result']["signatures"][0];
           int? ts = sigs["timestamp"];
 
-          tx = txModel.Transaction("Outgoing", "", txid, from, to, amount, "ACME");
-          tx.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          tx = txModel.Transaction(
+              "Outgoing", "", txid, from, to, amount, "ACME");
+          tx.created =
+              DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
       }
     }
 
@@ -599,37 +643,56 @@ class ACMEClient {
 
     TxHistoryQueryOptions txHistoryQueryOptions = TxHistoryQueryOptions();
 
+    // Log the RPC request
+    print("callGetTokenTransactionHistory | Sending RPC request with path: $path");
+    print("callGetTokenTransactionHistory | QueryPagination: start=${queryPagination.start}, count=${queryPagination.count}");
+    print("callGetTokenTransactionHistory | TxHistoryQueryOptions: $txHistoryQueryOptions");
+
     final res = await queryTxHistory(path, queryPagination, txHistoryQueryOptions);
 
-    // Collect transaction iteratively
-    List<txModel.Transaction> txs = [];
-    var records = res['result']["items"];
+    // Log the RPC response
+    print("callGetTokenTransactionHistory | Received response: $res");
+
+    // Safely access 'result' and 'items'
+    var records = res['result']?["items"];
 
     if (records == null) {
+      print("callGetTokenTransactionHistory | No records found (items is null) in the response for path: $path");
       return [];
     }
 
+    print("callGetTokenTransactionHistory | Number of records found: ${records.length}");
+
+    // Collect transactions iteratively
+    List<txModel.Transaction> txs = [];
     for (var i = 0; i < records.length; i++) {
       var tx = records[i];
       String? type = tx["type"];
 
+      // Log transaction details for debugging
+      print("callGetTokenTransactionHistory | Processing transaction $i of type $type with data: $tx");
+
+
       switch (type) {
         case "faucet": // that's faucet
           String? txid = tx["txid"];
-          String? amount = tx["data"]["amount"]; // AMOUNT INCOSISTENT, faucet returns String while other types int
+          String? amount = tx["data"][
+              "amount"]; // AMOUNT INCOSISTENT, faucet returns String while other types int
           String? token = tx["data"]["token"];
           var sigs = tx["signatures"];
           var sig = sigs[sigs.length - 1];
           int? ts = sig["timestamp"];
 
           // if nothing that was a faucet
-          txModel.Transaction txl = txModel.Transaction("Incoming", "", txid, "", "", int.parse(amount!), "$token");
+          txModel.Transaction txl = txModel.Transaction(
+              "Incoming", "", txid, "", "", int.parse(amount!), "$token");
 
           // NB: yes, can be
           if (ts! == 1) {
             txl.created = 1667304000 * 1000;
           } else {
-            txl.created = DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
+            txl.created =
+                DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
           }
           txs.add(txl);
           break;
@@ -642,8 +705,10 @@ class ACMEClient {
           LinkedHashMap sigs = tx["signatures"][0];
           int? ts = sigs["timestamp"];
 
-          txModel.Transaction txl = txModel.Transaction("Incoming", "add-credits", txid, "", "", amount, "credits");
-          txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          txModel.Transaction txl = txModel.Transaction(
+              "Incoming", "add-credits", txid, "", "", amount, "credits");
+          txl.created =
+              DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
           txs.add(txl);
           break;
         case "sendTokens":
@@ -654,12 +719,19 @@ class ACMEClient {
           String? urlRecepient = "";
           amount = to[0]["amount"];
           urlRecepient = to[0]["url"];
-                  LinkedHashMap sigs = tx["signatures"][0];
+          LinkedHashMap sigs = tx["signatures"][0];
           int? ts = sigs["timestamp"];
 
-          txModel.Transaction txl =
-              txModel.Transaction("Outgoing", "send_token", txid, from, urlRecepient, int.parse(amount!), "acc://");
-          txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          txModel.Transaction txl = txModel.Transaction(
+              "Outgoing",
+              "send_token",
+              txid,
+              from,
+              urlRecepient,
+              int.parse(amount!),
+              "acc://");
+          txl.created =
+              DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
           txs.add(txl);
           break;
         case "syntheticCreateChain":
@@ -667,7 +739,8 @@ class ACMEClient {
           int? amount = tx["data"]["amount"];
           String? token = tx["data"]["token"];
 
-          txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "$token");
+          txModel.Transaction txl = txModel.Transaction(
+              "Outgoing", type!, txid, "", "", amount, "$token");
           txs.add(txl);
           break;
         case "burnTokens":
@@ -676,7 +749,8 @@ class ACMEClient {
           int? amount = int.parse(tx["data"]["amount"]);
           String? token = prod!.split("@").last;
 
-          txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "$token");
+          txModel.Transaction txl = txModel.Transaction(
+              "Outgoing", type!, txid, "", "", amount, "$token");
           txs.add(txl);
           break;
         case "systemGenesis":
@@ -693,58 +767,85 @@ class ACMEClient {
             ..txFetchMode = 0
             ..blockFilterMode = 1;
 
-          var majorBlocks = await queryMajorBlocks("acc://dn.acme", queryParams, queryFilter);
+          var majorBlocks =
+              await queryMajorBlocks("acc://dn.acme", queryParams, queryFilter);
           var blockInfo = majorBlocks["result"]["items"][0];
 
           var blockTime = blockInfo["majorBlockTime"];
           var blockTimeD = DateTime.parse(blockTime);
 
           txModel.Transaction txl = txModel.Transaction(
-              "Incoming", "system_genesis", txid, "acc://ACME", path, amount, "acc://ACME", status);
+              "Incoming",
+              "system_genesis",
+              txid,
+              "acc://ACME",
+              path,
+              amount,
+              "acc://ACME",
+              status);
           txl.created = blockTimeD.millisecondsSinceEpoch;
           txs.add(txl);
           break;
         case "syntheticDepositTokens":
           String? txid = tx["txid"];
-          String? amountIn = tx["data"]["amount"];
-          String? token = tx["data"]["token"];
-          String? status = tx["status"]["code"];
+          String? amountIn = tx["data"]?["amount"]; // Use safe access operator
+          String? token = tx["data"]?["token"]; // Use safe access operator
+          String? status = tx["status"]?["code"]; // Use safe access operator
           var sigs = tx["signatures"];
-          var sig = sigs[sigs.length - 1];
-          int? ts = sig["timestamp"];
 
-          String? from = tx["data"]["source"];
+          // Check if 'signatures' is not null and has elements
+          if (sigs is List && sigs.isNotEmpty) {
+            var sig = sigs[sigs.length - 1];
+            int? ts = sig["timestamp"];
 
-          int amount = int.parse(amountIn!);
+            String? from = tx["data"]?["source"]; // Use safe access operator
 
-          txModel.Transaction txl =
-              txModel.Transaction("Incoming", "send_token", txid, from, path, amount, "$token", status);
-          if (ts! == 1) {
-            // Get Timestamp as time from block
-            int height = tx["status"]["received"];
-            String bvnFrom = tx["status"]["sourceNetwork"];
-            String bvn = tx["status"]["destinationNetwork"];
-            String bvnDest = "";
+            // Ensure 'amountIn' is not null before parsing
+            int amount = int.tryParse(amountIn ?? "0") ?? 0;
 
-            QueryPaginationForBlocks queryParams = QueryPaginationForBlocks();
-            queryParams.start = height;
-            queryParams.limit = 10;
+            txModel.Transaction txl = txModel.Transaction(
+              "Incoming",
+              "send_token",
+              txid,
+              from,
+              path,
+              amount,
+              "$token",
+              status,
+            );
 
-            MinorBlocksQueryOptions queryFilter = MinorBlocksQueryOptions()
-              ..txFetchMode = 0
-              ..blockFilterMode = 1;
+            if (ts == 1) {
+              // Get Timestamp as time from block
+              int height = tx["status"]["received"];
+              String bvnFrom = tx["status"]["sourceNetwork"];
+              String bvn = tx["status"]["destinationNetwork"];
+              String bvnDest = "";
 
-            var minorBlocks = await queryMinorBlocks(bvn, queryParams, queryFilter);
-            var blockInfo = minorBlocks["result"]["items"][0]; //our block start
-            var blockTime = blockInfo["blockTime"];
-            var blockTimeD = DateTime.parse(blockTime);
+              QueryPaginationForBlocks queryParams = QueryPaginationForBlocks();
+              queryParams.start = height;
+              queryParams.limit = 10;
 
-            txl.created = blockTimeD.millisecondsSinceEpoch;
+              MinorBlocksQueryOptions queryFilter = MinorBlocksQueryOptions()
+                ..txFetchMode = 0
+                ..blockFilterMode = 1;
+
+              var minorBlocks = await queryMinorBlocks(bvn, queryParams, queryFilter);
+              var blockInfo = minorBlocks["result"]?["items"]?[0]; // Safe access
+              var blockTime = blockInfo?["blockTime"]; // Safe access
+              var blockTimeD = blockTime != null ? DateTime.parse(blockTime) : null;
+
+              if (blockTimeD != null) {
+                txl.created = blockTimeD.millisecondsSinceEpoch;
+              }
+            } else {
+              txl.created = DateTime.fromMicrosecondsSinceEpoch(ts ?? 0).millisecondsSinceEpoch;
+            }
+
+            txs.add(txl);
           } else {
-            txl.created = DateTime.fromMicrosecondsSinceEpoch(ts).millisecondsSinceEpoch;
+            // Log an error or handle cases where signatures are missing
+            print("No signatures found for txid: $txid");
           }
-
-          txs.add(txl);
           break;
         case "updateAccountAuth":
           String? txid = tx["txid"];
@@ -753,9 +854,10 @@ class ACMEClient {
           String? sponsor = tx["sponsor"];
           String? origin = tx["origin"];
 
-          txModel.Transaction txl =
-              txModel.Transaction("Outgoing", "update-account-auth", txid, sponsor, origin, 0, "ACME");
-          txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          txModel.Transaction txl = txModel.Transaction("Outgoing",
+              "update-account-auth", txid, sponsor, origin, 0, "ACME");
+          txl.created =
+              DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
           txs.add(txl);
           break;
         case "createTokenAccount":
@@ -765,9 +867,10 @@ class ACMEClient {
           String? sponsor = tx["sponsor"];
           String? origin = tx["origin"];
 
-          txModel.Transaction txl =
-              txModel.Transaction("Outgoing", "token-account-create", txid, sponsor, origin, 0, "ACME");
-          txl.created = DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
+          txModel.Transaction txl = txModel.Transaction("Outgoing",
+              "token-account-create", txid, sponsor, origin, 0, "ACME");
+          txl.created =
+              DateTime.fromMicrosecondsSinceEpoch(ts!).millisecondsSinceEpoch;
           txs.add(txl);
           break;
         default:
@@ -775,26 +878,31 @@ class ACMEClient {
           int? amount = tx["data"]["amount"];
           String? token = tx["data"]["token"];
 
-          txModel.Transaction txl = txModel.Transaction("Outgoing", type!, txid, "", "", amount, "$token");
+          txModel.Transaction txl = txModel.Transaction(
+              "Outgoing", type!, txid, "", "", amount, "$token");
           txs.add(txl);
           break;
       }
     }
-  
+
     return txs;
   }
 
-  Future<Map<String, dynamic>> factom(dynamic principal, FactomDataEntryParam factomParam, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), FactomDataEntry(factomParam), signer);
+  Future<Map<String, dynamic>> factom(
+      dynamic principal, FactomDataEntryParam factomParam, TxSigner signer) {
+    return _execute(
+        AccURL.toAccURL(principal), FactomDataEntry(factomParam), signer);
   }
 
-  Future<Map<String, dynamic>> createLiteDataAccount(
-      dynamic principal, CreateLiteDataAccountParam createLiteDataAccountParam, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), CreateLiteDataAccount(createLiteDataAccountParam), signer);
+  Future<Map<String, dynamic>> createLiteDataAccount(dynamic principal,
+      CreateLiteDataAccountParam createLiteDataAccountParam, TxSigner signer) {
+    return _execute(AccURL.toAccURL(principal),
+        CreateLiteDataAccount(createLiteDataAccountParam), signer);
   }
 
-  Future<Map<String, dynamic>> writeDataTo(dynamic principal, WriteDataToParam writeDataToParam, TxSigner signer) {
-    return _execute(AccURL.toAccURL(principal), WriteDataTo(writeDataToParam), signer);
+  Future<Map<String, dynamic>> writeDataTo(
+      dynamic principal, WriteDataToParam writeDataToParam, TxSigner signer) {
+    return _execute(
+        AccURL.toAccURL(principal), WriteDataTo(writeDataToParam), signer);
   }
-  
 }

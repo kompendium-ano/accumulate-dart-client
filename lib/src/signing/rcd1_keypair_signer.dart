@@ -33,5 +33,4 @@ class RCD1KeypairSigner extends Ed25519KeypairSigner {
   int get type {
     return SignatureType.signatureTypeRCD1;
   }
-
 }

@@ -5,11 +5,11 @@ import 'dart:math';
 import 'package:accumulate_api/accumulate_api.dart';
 import 'package:crypto/crypto.dart';
 import 'SDK_Examples_file_1_lite_identities.dart';
-import 'SDK_Examples_file_2_Accumulate_Identities_(ADI).dart';
+import 'SDK_Examples_file_2_Accumulate_Identities.dart';
 
 final endPoint = "https://testnet.accumulatenetwork.io/v2";
 ACMEClient client = ACMEClient(endPoint);
-int delayBeforePrintSeconds = 180;
+int delayBeforePrintSeconds = 60;
 
 Future<void> main() async {
   print(endPoint);
@@ -38,13 +38,19 @@ Future<void> testFeatures() async {
   // Create an ADI
   String adiName = "custom-adi-name-${DateTime.now().millisecondsSinceEpoch}";
   Ed25519KeypairSigner adiSigner = Ed25519KeypairSigner.generate();
-  await createAdi(lid, adiSigner, adiName, );
+  await createAdi(
+    lid,
+    adiSigner,
+    adiName,
+  );
 
   // Add credits to custom-adi-name key book's key page
-  String keyPageUrl = "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
+  String keyPageUrl =
+      "acc://$adiName.acme/book/1"; // Adjust based on actual key page URL
   print("keyPageUrl Name: $keyPageUrl");
   String keyBookUrl = "acc://$adiName.acme/book";
-  await addCreditsToAdiKeyPage(lid, keyPageUrl, 7000000, oracle); // Adjust the credit amount as needed
+  await addCreditsToAdiKeyPage(
+      lid, keyPageUrl, 7000000, oracle); // Adjust the credit amount as needed
 
   // Pause to allow the addCredits transaction to settle
   print("Pausing to allow addCredits transaction to settle...");
@@ -56,54 +62,65 @@ Future<void> testFeatures() async {
   // Use the public key from the newly generated keypair for the new key page
   List<Uint8List> newKeys2 = [newKeypair2.publicKey];
 
-    // Query the existing key pages to determine the next page number
+  // Query the existing key pages to determine the next page number
   int nextPageNumber = await getNextKeyPageNumber(client, keyBookUrl);
 
   // Create the new key page with the newly generated key, using the existing key for authentication
-  await createAdiKeyPage2(client, adiSigner, keyBookUrl, newKeys2, nextPageNumber, adiName);
+  print("creating new adi key page");
+  await createAdiKeyPage2(
+      client, adiSigner, keyBookUrl, newKeys2, nextPageNumber, adiName);
 
   // Pause to allow the addCredits transaction to settle
   print("Pausing to allow transactions to settle...");
-  await Future.delayed(Duration(seconds: 120)); // Pause for 2 minutes
+  await Future.delayed(Duration(seconds: 60)); // Pause for 2 minutes
 
   // Creaet new custom Key Book
   // To create a key book, you alos need a key page, and a key for the key page
-  // Squencing her eis important, as a key page can't be empty. 
+  // Squencing her eis important, as a key page can't be empty.
   // Generate a new keypair for the new key page
   Ed25519Keypair newKeypair = Ed25519Keypair.generate();
   // Conversion to Uint8List
-  Uint8List publicKeyHash = sha256.convert(newKeypair.publicKey).bytes.asUint8List();
+  Uint8List publicKeyHash =
+      sha256.convert(newKeypair.publicKey).bytes.asUint8List();
   //final String keyBookUrl = "acc://$adiName.acme/book";
-  // You Should Query the key book to get key pages, but in we know it's new 
+  // You Should Query the key book to get key pages, but in we know it's new
   int nextPageNumber2 = 1;
   // Use the public key from the newly generated keypair for the new key page
   List<Uint8List> newKeys = [newKeypair.publicKey];
 
   // Create the new key page with the newly generated key, using the existing key for authentication
-  await createAdiKeyPage(client, adiSigner, keyBookUrl, newKeys, nextPageNumber2, adiName);
+  await createAdiKeyPage(
+      client, adiSigner, keyBookUrl, newKeys, nextPageNumber2, adiName);
 
   // Prepare necessary parameters for creating a new key book
   final String principalUrl = "acc://$adiName.acme";
-  final String newKeyBookUrl = "acc://$adiName.acme/book2"; // Assuming you're creating a second book
+  final String newKeyBookUrl =
+      "acc://$adiName.acme/book2"; // Assuming you're creating a second book
   CreateKeyBookParam createKeyBookParam = CreateKeyBookParam()
     ..url = newKeyBookUrl
-    ..publicKeyHash = publicKeyHash; // Ensure publicKeyHash is defined and correct
+    ..publicKeyHash =
+        publicKeyHash; // Ensure publicKeyHash is defined and correct
 
-  await createKeyBook(client, principalUrl, createKeyBookParam, adiSigner, keyPageUrl);
+  print("creating new adi key book");
+  await createKeyBook(
+      client, principalUrl, createKeyBookParam, adiSigner, keyPageUrl);
 
   // Update keypage allows severals actions to include add/remove/modify keys
   // The URL of the key page you want to update
   final String UpdatekeyPageUrl = keyPageUrl;
   // Generate or specify the new public key you want to add to the key page
-  Ed25519Keypair newKeypairnew = Ed25519Keypair.generate(); // or use a specific key
+  Ed25519Keypair newKeypairnew =
+      Ed25519Keypair.generate(); // or use a specific key
   Uint8List newPublicKey = newKeypairnew.publicKey;
 
   // Prepare the update operation
   UpdateKeyPageParam updateKeyPageParam = UpdateKeyPageParam()
     ..operations = [
       KeyOperation()
-        ..type = KeyPageOperationType.Add // Define the operation type (Add, Remove, Update, etc.)
-        ..key = (KeySpec()..keyHash = newPublicKey) // Specify the new key to be added
+        ..type = KeyPageOperationType
+            .Add // Define the operation type (Add, Remove, Update, etc.)
+        ..key = (KeySpec()
+          ..keyHash = newPublicKey) // Specify the new key to be added
     ]
     ..memo = "Adding new key to key page";
 
@@ -117,20 +134,34 @@ Future<void> testFeatures() async {
   print("Update key page response: $response");
 }
 
-Future<void> createKeyBook(ACMEClient client, String principalUrl, CreateKeyBookParam createKeyBookParam, Ed25519KeypairSigner existingAdiSigner, String keyPageUrl) async {
+Future<void> createKeyBook(
+    ACMEClient client,
+    String principalUrl,
+    CreateKeyBookParam createKeyBookParam,
+    Ed25519KeypairSigner existingAdiSigner,
+    String keyPageUrl) async {
   print("Creating key book at: ${createKeyBookParam.url}");
 
   // Use the keyPageUrl parameter instead of a hardcoded value
   TxSigner txSigner = TxSigner(keyPageUrl, existingAdiSigner);
-  var r = await client.queryUrl(txSigner.url); // check for version, every keypage update changes versions!!
+  var r = await client.queryUrl(txSigner
+      .url); // check for version, every keypage update changes versions!!
   txSigner = TxSigner.withNewVersion(txSigner, r["result"]["data"]["version"]);
-  var rt = await client.queryUrl(txSigner.url); // check for version, every keypage update changes versions!!
+  var rt = await client.queryUrl(txSigner
+      .url); // check for version, every keypage update changes versions!!
   txSigner = TxSigner.withNewVersion(txSigner, rt["result"]["data"]["version"]);
-  var response = await client.createKeyBook(principalUrl, createKeyBookParam, txSigner);
+  var response =
+      await client.createKeyBook(principalUrl, createKeyBookParam, txSigner);
   print("Create key book response: $response");
 }
 
-Future<void> createAdiKeyPage(ACMEClient client, Ed25519KeypairSigner existingAdiSigner, String keyBookUrl, List<Uint8List> keys, int nextPageNumber, String adiName) async {
+Future<void> createAdiKeyPage(
+    ACMEClient client,
+    Ed25519KeypairSigner existingAdiSigner,
+    String keyBookUrl,
+    List<Uint8List> keys,
+    int nextPageNumber,
+    String adiName) async {
   // Dynamically construct newKeyPageUrl for the new key page
   String newKeyPageUrl = "$keyBookUrl/$nextPageNumber";
 
@@ -139,28 +170,29 @@ Future<void> createAdiKeyPage(ACMEClient client, Ed25519KeypairSigner existingAd
 
   // Use the dynamically constructed keyPageUrl for TxSigner
   TxSigner txSigner = TxSigner(keyPageUrl, existingAdiSigner);
-  var r = await client.queryUrl(txSigner.url); // check for version, every keypage update changes versions!!
+  var r = await client.queryUrl(txSigner
+      .url); // check for version, every keypage update changes versions!!
   txSigner = TxSigner.withNewVersion(txSigner, r["result"]["data"]["version"]);
 
-  CreateKeyPageParam createKeyPageParam = CreateKeyPageParam()
-    ..url = newKeyPageUrl
-    ..keys = keys;
+  CreateKeyPageParam createKeyPageParam = CreateKeyPageParam()..keys = keys;
 
   print("Creating key page at: $newKeyPageUrl");
 
-  var res = await client.createKeyPage(keyBookUrl, createKeyPageParam, txSigner); // Sign transaction with existing page+key
+  var res = await client.createKeyPage(keyBookUrl, createKeyPageParam,
+      txSigner); // Sign transaction with existing page+key
   print("Create key page transaction response: $res");
 }
 
-
-
 Future<int> getNextKeyPageNumber(ACMEClient client, String keyBookUrl) async {
-  QueryPagination qp = QueryPagination()..start = 0..count = 100;
+  QueryPagination qp = QueryPagination()
+    ..start = 0
+    ..count = 100;
   var response = await client.queryDirectory(keyBookUrl, qp, null);
-  
+
   // Adjusting the path to match the actual response structure
-  var items = response['result']['items'] as List<dynamic>; // This line is changed
-  
+  var items =
+      response['result']['items'] as List<dynamic>; // This line is changed
+
   if (items.isEmpty) {
     // If there are no items, implying no key pages exist yet
     return 1; // Return 1 to indicate the first key page should be created
@@ -176,7 +208,13 @@ Future<int> getNextKeyPageNumber(ACMEClient client, String keyBookUrl) async {
   return highestPageNumber + 1; // Increment to get the next page number
 }
 
-Future<void> createAdiKeyPage2(ACMEClient client, Ed25519KeypairSigner existingAdiSigner, String keyBookUrl, List<Uint8List> keys, int nextPageNumber, String adiName) async {
+Future<void> createAdiKeyPage2(
+    ACMEClient client,
+    Ed25519KeypairSigner existingAdiSigner,
+    String keyBookUrl,
+    List<Uint8List> keys,
+    int nextPageNumber,
+    String adiName) async {
   // Use getNextKeyPageNumber to dynamically determine the next page number
   int nextPageNumber2 = await getNextKeyPageNumber(client, keyBookUrl);
 
@@ -192,15 +230,14 @@ Future<void> createAdiKeyPage2(ACMEClient client, Ed25519KeypairSigner existingA
   txSigner = TxSigner.withNewVersion(txSigner, r["result"]["data"]["version"]);
 
   // Prepare the parameters for creating a new key page
-  CreateKeyPageParam createKeyPageParam = CreateKeyPageParam()
-    ..url = newKeyPageUrl
-    ..keys = keys;
+  CreateKeyPageParam createKeyPageParam = CreateKeyPageParam()..keys = keys;
 
   // Log the action
   print("Creating key page at: $newKeyPageUrl");
 
   // Execute the creation of the new key page and log the response
-  var res = await client.createKeyPage(keyBookUrl, createKeyPageParam, txSigner);
+  var res =
+      await client.createKeyPage(keyBookUrl, createKeyPageParam, txSigner);
   print("Create key page transaction response: $res");
 }
 

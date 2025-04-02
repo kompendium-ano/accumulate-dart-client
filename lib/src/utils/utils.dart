@@ -18,7 +18,6 @@ extension AsInt8List on List<int> {
   }
 }
 
-
 extension MapToJSON on Map<String, dynamic> {
   String toJson() {
     return jsonEncode(this);

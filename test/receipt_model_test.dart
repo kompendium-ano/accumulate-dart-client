@@ -73,8 +73,8 @@ void main() {
                 endIndex: 1,
                 anchor: 'anchor123',
                 entries: [
-                  Entry(hash: 'hash1', right: true),
-                  Entry(hash: 'hash2', right: false),
+                  ReceiptEntry(hash: 'hash1', right: true),
+                  ReceiptEntry(hash: 'hash2', right: false),
                 ],
               ),
               receipt: Proof(
@@ -84,8 +84,8 @@ void main() {
                 endIndex: 3,
                 anchor: 'receiptAnchor123',
                 entries: [
-                  Entry(hash: 'receiptHash1', right: true),
-                  Entry(hash: 'receiptHash2', right: false),
+                  ReceiptEntry(hash: 'receiptHash1', right: true),
+                  ReceiptEntry(hash: 'receiptHash2', right: false),
                 ],
               ),
               account: 'account123',

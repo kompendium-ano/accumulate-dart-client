@@ -18,7 +18,8 @@ void main() {
     print(root);
 
     //expect(root, exp);
-    final acmeClient = ACMEClient("https://mainnet.accumulatenetwork.io" + "/v2");
+    final acmeClient =
+        ACMEClient("https://mainnet.accumulatenetwork.io" + "/v2");
 
     try {
       final res = await acmeClient.queryUrl("acc://dodoj.acme");
@@ -26,9 +27,5 @@ void main() {
     } catch (e) {
       e.hashCode;
     }
-
-
   });
-
-
 }

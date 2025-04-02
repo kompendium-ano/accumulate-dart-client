@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math';
-
 import 'package:accumulate_api/accumulate_api.dart';
 import 'package:test/test.dart';
 
