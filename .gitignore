@@ -12,5 +12,5 @@ doc/api/
 Thumbs.db
 
 # Worrkign folders 
-!examples/archived/
-!examples/multisig_sand_box/
+examples/archived/
+examples/multisig_sand_box/
