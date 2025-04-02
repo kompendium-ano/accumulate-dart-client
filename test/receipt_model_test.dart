@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:accumulate_api/accumulate_api.dart';
-import 'package:accumulate_api/src/model/receipt_model.dart';
 
 void main() {
   group('ReceiptModel', () {

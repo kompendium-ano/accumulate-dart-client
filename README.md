@@ -10,7 +10,7 @@ The Dart SDK for the Accumulate blockchain provides developers with the tools ne
 The Accumulate Dart SDK repositiory is organized with three main strucutres:
  - Client library: [lib](/lib/src/)
  - Test Suite: [tests](/test/README.md/)
- - Accumulate Usage Examples Collection: [examples](/examples/SDK_Usage_Examples/README.md/)  
+ - Accumulate Usage Examples Collection: [example](/example/SDK_Usage_Examples/README.md/)  
 
 ## Installation
 
@@ -48,7 +48,7 @@ import 'package:accumulate_api/accumulate_api.dart';
 ## Practical Usage Examples
 
 The Accumulate Dart SDK enables you to access nearly all the features and fucnitonality that accumualte offers.
-Explore practical examples in the [Examples](/examples/SDK_Usage_Examples/) section to start building with the Accumulate Dart SDK. This repository provides a suite of examples designed to demonstrate the capabilities and functionalities of the Accumulate protocol, offering developers a hands-on experience to better understand how to interact with the network effectively.
+Explore practical examples in [Example](/examples/SDK_Usage_Example/) section to start building with the Accumulate Dart SDK. This repository provides a suite of examples designed to demonstrate the capabilities and functionalities of the Accumulate protocol, offering developers a hands-on experience to better understand how to interact with the network effectively.
 
 The Usage Example Suite currently consists of 6 collections of example sets:
 #### 1. Lite Identities and Lite Token Accounts
