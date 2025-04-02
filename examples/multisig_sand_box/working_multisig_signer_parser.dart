@@ -52,15 +52,15 @@ Future<String> signTransaction({
 
 Future<void> main() async {
   String privateKeyBase64 =
-      "b3b2b01471277fd30160a8d239b36c2e3741aca29a6177da3907b93b996e0fbaed06a050ca69313abb80feabf4e7c4b8e789d9a4f7fbe59826f2211c5ad3c747";
+      "d79514e02462cc3823826654725f146e4fc8fc4e3e9e23786f23b7fcb0590951a7293bd6abdaed210572306cd9c367e70c7e6867aa6f93a4d20e8e0f57cb78c4";
   String publicKeyHex =
-      "ed06a050ca69313abb80feabf4e7c4b8e789d9a4f7fbe59826f2211c5ad3c747";
+      "a7293bd6abdaed210572306cd9c367e70c7e6867aa6f93a4d20e8e0f57cb78c4";
   String transactionHashHex =
-      "94eb63b7404982a30ad9b53a0bf4921529bfab1a1f4bec105f8fa7fb9e48322c";
+      "7b0a4358c7c521c493db7f58bb0f4068bc3a6ae4f3a5172d99e7c5b1f52df3e1";
 
   final sigInfo = SignerInfo();
   sigInfo.type = SignatureType.signatureTypeED25519;
-  sigInfo.url = AccURL("acc://testtest1120.acme/book/1");
+  sigInfo.url = AccURL("acc://custom-adi-name-1742636627651.acme/book/1");
   sigInfo.publicKey = hex.decode(publicKeyHex) as Uint8List?;
 
   final timestamp = DateTime.now().microsecondsSinceEpoch;

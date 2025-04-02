@@ -10,3 +10,7 @@ doc/api/
 # OS
 .DS_Store
 Thumbs.db
+
+# Worrkign folders 
+!examples/archived/
+!examples/multisig_sand_box/

@@ -22,19 +22,21 @@ Future<void> delayBeforePrint() async {
 Future<void> testFeatures() async {
   Ed25519KeypairSigner signer1 = Ed25519KeypairSigner.generate();
   LiteIdentity lid = LiteIdentity(signer1);
+   print('signer1');
   printKeypairDetails(signer1);
 
   Ed25519KeypairSigner signer2 = Ed25519KeypairSigner.generate();
   LiteIdentity secondLid = LiteIdentity(signer2);
+  print('signer2');
   printKeypairDetails(signer2);
 
   // First lite token account
-  print("First lite account URL: ${lid.acmeTokenAccount}\n");
+  print("First lite account URL - signer1: ${lid.acmeTokenAccount}\n");
   await addFundsToAccount(lid.acmeTokenAccount, times: 10);
 
   // Second lite token account
-  print("Second lite account URL: ${secondLid.acmeTokenAccount}\n");
-  await addFundsToAccount(secondLid.acmeTokenAccount, times: 8);
+  print("Second lite account URL - signer2: ${secondLid.acmeTokenAccount}\n");
+  //await addFundsToAccount(secondLid.acmeTokenAccount, times: 8);
 
   // Retrieve oracle value for credit calculation
   final oracle = await client.valueFromOracle();
